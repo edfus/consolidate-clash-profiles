@@ -1,0 +1,88 @@
+port: 7890
+socks-port: 7891
+allow-lan: true
+mode: Rule
+log-level: info
+external-controller: 127.0.0.1:9090
+experimental:
+  ignore-resolve-fail: true
+proxies: []
+proxy-groups:
+  - name: Proxy
+    type: select
+    proxies: 
+      - DIRECT
+      - "Auto - UrlTest"
+  - name: AdBlock
+    type: select
+    proxies: 
+      - Proxy
+      - REJECT
+  - name: Domestic
+    type: select
+    proxies: 
+      - Proxy
+      - DIRECT
+  - name: "Auto - UrlTest"
+    type: url-test
+    proxies: []
+    url: http://www.gstatic.com/generate_204
+    interval: "3600"
+rules:
+- RULE-SET,Reject,AdBlock
+- RULE-SET,Proxy,Proxy
+- RULE-SET,Domestic,Domestic
+- RULE-SET,Domestic IPs,Domestic
+- RULE-SET,LAN,DIRECT
+- GEOIP,CN,Domestic
+- MATCH,Proxy
+rule-providers:
+  Reject:
+    type: http
+    behavior: classical
+    url: https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/reject.txt
+    path: ./Rules/Reject
+    interval: 86400
+  Proxy:
+    type: http
+    behavior: classical
+    url: https://raw.lhie1.com/lhie1/Rules/master/Clash/Provider/Proxy.yaml
+    path: ./Rules/Proxy
+    interval: 86400
+  Domestic:
+    type: http
+    behavior: classical
+    url: https://raw.lhie1.com/lhie1/Rules/master/Clash/Provider/Domestic.yaml
+    path: ./Rules/Domestic
+    interval: 86400
+  Domestic IPs:
+    type: http
+    behavior: ipcidr
+    url: https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/cncidr.txt
+    path: ./Rules/Domestic_IPs
+    interval: 86400
+  LAN:
+    type: http
+    behavior: classical
+    url: https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/lancidr.txt
+    path: ./Rules/LAN
+    interval: 86400
+hosts:
+  dns.google: 8.8.8.8
+  dns10.quad9.net: 9.9.9.10
+  security-filter-dns.cleanbrowsing.org: 185.228.168.9
+dns:
+  enable: true
+  listen: 0.0.0.0:53
+  enhanced-mode: fake-ip
+  use-hosts: true
+  nameserver:
+    - 114.114.114.114
+    - 223.5.5.5
+    - 208.67.222.222
+    - dhcp://Ethernet
+  fallback:
+    - https://1.1.1.1/dns-query
+    - https://dns.google
+    - https://dns10.quad9.net/dns-query
+    - https://security-filter-dns.cleanbrowsing.org/dns-query

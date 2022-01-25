@@ -54,23 +54,19 @@ dns:
   enhanced-mode: fake-ip
   use-hosts: true
   nameserver:
-      # https://github.com/curl/curl/wiki/DNS-over-HTTPS
-      # https://en.wikipedia.org/wiki/Public_recursive_name_server
-      - https://1.1.1.1/dns-query
-      - https://1.0.0.1/dns-query
-      - https://dns.google
-      - https://dns-unfiltered.adguard.com/dns-query
-      - https://sandbox.opendns.com/dns-query
-      - https://dns10.quad9.net/dns-query
-      - https://security-filter-dns.cleanbrowsing.org/dns-query
-      # - 114.114.114.114
-      # - 223.5.5.5
-      # - 208.67.222.222
-      # - dhcp://Ethernet
+    # https://github.com/curl/curl/wiki/DNS-over-HTTPS
+    # https://en.wikipedia.org/wiki/Public_recursive_name_server
+    - https://1.1.1.1/dns-query
+    - https://1.0.0.1/dns-query
+    - https://dns.google
+    - https://dns-unfiltered.adguard.com/dns-query
+    - https://sandbox.opendns.com/dns-query
+    - https://dns10.quad9.net/dns-query
+    - https://security-filter-dns.cleanbrowsing.org/dns-query
   fallback-filter:
-      geoip: false
+    geoip: false
   fake-ip-filter:
-      # Microsoft Network Connectivity Status Indicator (NCSI)
-      - "dns.msftncsi.com"
-      - "www.msftncsi.com"
-      - "www.msftconnecttest.com"
+    # Microsoft Network Connectivity Status Indicator (NCSI)
+    - "dns.msftncsi.com"
+    - "www.msftncsi.com"
+    - "www.msftconnecttest.com"
