@@ -131,12 +131,14 @@ async function consolidate (template, profileRecordsPath) {
 
               if (quota) {
                 const percentage = (usedBandwidth / quota * 100).toFixed(0);
-                proxies.forEach(
-                  proxy => {
-                    proxy.name += ` ${percentage}%`;
-                    return proxy;
-                  }
-                )
+                if (percentage > 75) {
+                  proxies.forEach(
+                    proxy => {
+                      proxy.name += ` ${percentage}%`;
+                      return proxy;
+                    }
+                  );
+                }
               }
             }
 
