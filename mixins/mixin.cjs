@@ -1,24 +1,16 @@
 const mixinYAML = `
 mixin: # object
     hosts:
-        dns.google: 8.8.8.8
-        dns-unfiltered.adguard.com: 94.140.14.140
         sandbox.opendns.com: 208.67.222.2
         dns10.quad9.net: 9.9.9.10
-        security-filter-dns.cleanbrowsing.org: 185.228.168.9
     dns:
         enable: true
         listen: 0.0.0.0:53
         enhanced-mode: fake-ip
         use-hosts: true
         nameserver:
-            - https://1.1.1.1/dns-query
-            - https://1.0.0.1/dns-query
-            - https://dns.google
-            - https://dns-unfiltered.adguard.com/dns-query
             - https://sandbox.opendns.com/dns-query
             - https://dns10.quad9.net/dns-query
-            - https://security-filter-dns.cleanbrowsing.org/dns-query
         fallback-filter:
             geoip: false
         fake-ip-filter:
@@ -29,7 +21,7 @@ mixin: # object
     interface-name: Ethernet
     tun:
         enable: true
-        stack: gvisor
+        stack: system
         auto-route: true
         # auto-detect-interface: true
         dns-hijack:
