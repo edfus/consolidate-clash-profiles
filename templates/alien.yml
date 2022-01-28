@@ -1,0 +1,79 @@
+port: 7890
+socks-port: 7891
+allow-lan: true
+mode: Rule
+log-level: info
+external-controller: 127.0.0.1:9090
+experimental:
+  ignore-resolve-fail: true
+proxies: []
+proxy-groups:
+  - name: Proxy
+    type: select
+    proxies: 
+      - DIRECT
+      - Latency Test
+  - name: AdBlock
+    type: select
+    proxies: 
+      - Proxy
+      - REJECT
+  - name: Mainland China Sites
+    type: select
+    proxies: 
+      - Proxy
+      - DIRECT
+  - name: Mainland China IP Addresses
+    type: select
+    proxies: 
+      - Proxy
+      - DIRECT
+  - name: Latency Test
+    type: url-test
+    proxies: []
+    url: http://www.gstatic.com/generate_204
+    interval: "3600"
+rules:
+  - DOMAIN,localhost,DIRECT
+  - RULE-SET,Blocklist,AdBlock
+  - RULE-SET,Mainland China Sites,Mainland China Sites
+  - RULE-SET,Private Network,DIRECT,no-resolve
+  - GEOIP,CN,Mainland China IP Addresses,no-resolve
+  - MATCH,Proxy
+rule-providers:
+  Blocklist:
+    type: http
+    behavior: classical
+    url: http://127.0.0.1:3000/blocklist.yml
+    path: ./Rules/Blocklist
+    interval: 86400
+  Mainland China Sites:
+    type: http
+    behavior: classical
+    url: http://127.0.0.1:3000/cn-tailored.yml
+    path: ./Rules/China-Based-Sites
+    interval: 86400
+  Private Network:
+    type: http
+    behavior: classical
+    url: http://127.0.0.1:3000/reserved-address-space.yml
+    path: ./Rules/LAN-IP-Ranges
+    interval: 86400
+hosts:
+  dns10.quad9.net: 9.9.9.10
+  sandbox.opendns.com: 208.67.222.2
+dns:
+  enable: true
+  listen: 0.0.0.0:53
+  enhanced-mode: fake-ip
+  use-hosts: true
+  nameserver:
+    - https://dns10.quad9.net/dns-query
+    - https://sandbox.opendns.com/dns-query
+  fallback-filter:
+    geoip: false
+  fake-ip-filter:
+    # Microsoft Network Connectivity Status Indicator (NCSI)
+    - "dns.msftncsi.com"
+    - "www.msftncsi.com"
+    - "www.msftconnecttest.com"

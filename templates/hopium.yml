@@ -1,0 +1,142 @@
+port: 7890
+socks-port: 7891
+allow-lan: true
+mode: Rule
+log-level: info
+external-controller: 127.0.0.1:9090
+experimental:
+  ignore-resolve-fail: true
+proxies: []
+proxy-groups:
+  - name: Proxy
+    type: select
+    proxies: 
+      - DIRECT
+      - Latency Test
+  - name: AdBlock
+    type: select
+    proxies: 
+      - Proxy
+      - REJECT
+  - name: Domestic
+    type: select
+    proxies: 
+      - Proxy
+      - DIRECT
+  - name: Bilibili
+    type: select
+    proxies: 
+      - Proxy
+      - DIRECT
+  - name: Netease Music
+    type: select
+    proxies: 
+      - Proxy
+      - DIRECT
+  - name: Microsoft
+    type: select
+    proxies: 
+      - Proxy
+      - DIRECT
+  - name: Apple
+    type: select
+    proxies: 
+      - Proxy
+      - DIRECT
+  - name: Domestic IPs
+    type: select
+    proxies: 
+      - Proxy
+      - DIRECT
+  - name: Latency Test
+    type: url-test
+    proxies: []
+    url: http://www.gstatic.com/generate_204
+    interval: "3600"
+rules:
+  - RULE-SET,Reject,AdBlock
+  - DOMAIN-SUFFIX,dler.cloud,Proxy
+  - RULE-SET,Special,DIRECT
+  - RULE-SET,Bilibili,Bilibili
+  - RULE-SET,Netease Music,Netease Music
+  - RULE-SET,Microsoft,Microsoft
+  - RULE-SET,Apple,Apple
+  - RULE-SET,Proxy,Proxy
+  - RULE-SET,Domestic,Domestic
+  - RULE-SET,LAN,DIRECT
+  - GEOIP,CN,Domestic IPs,no-resolve
+  - MATCH,Others
+rule-providers:
+  Reject:
+    type: http
+    behavior: classical
+    url: https://raw.dler.io/main/Clash/Provider/Reject.yaml
+    path: ./Rules/Reject
+    interval: 86400
+  Special:
+    type: http
+    behavior: classical
+    url: https://raw.dler.io/main/Clash/Provider/Special.yaml
+    path: ./Rules/Special
+    interval: 86400
+  Bilibili:
+    type: http
+    behavior: classical
+    url: https://raw.dler.io/main/Clash/Provider/Media/Bilibili.yaml
+    path: ./Rules/Media/Bilibili
+    interval: 86400
+  Netease Music:
+    type: http
+    behavior: classical
+    url: https://raw.dler.io/main/Clash/Provider/Media/Netease%20Music.yaml
+    path: ./Rules/Media/Netease_Music
+    interval: 86400
+  Microsoft:
+    type: http
+    behavior: classical
+    url: https://raw.dler.io/main/Clash/Provider/Microsoft.yaml
+    path: ./Rules/Microsoft
+    interval: 86400
+  Proxy:
+    type: http
+    behavior: classical
+    url: https://raw.dler.io/main/Clash/Provider/Proxy.yaml
+    path: ./Rules/Proxy
+    interval: 86400
+  Domestic:
+    type: http
+    behavior: classical
+    url: https://raw.dler.io/main/Clash/Provider/Domestic.yaml
+    path: ./Rules/Domestic
+    interval: 86400
+  Apple:
+    type: http
+    behavior: classical
+    url: https://raw.dler.io/main/Clash/Provider/Apple.yaml
+    path: ./Rules/Apple
+    interval: 86400
+  LAN:
+    type: http
+    behavior: classical
+    url: http://127.0.0.1:3000/reserved-address-space.yml
+    path: ./Rules/LAN
+    interval: 86400
+hosts:
+  dns.google: 8.8.8.8
+  dns-unfiltered.adguard.com: 94.140.14.140
+  sandbox.opendns.com: 208.67.222.2
+  dns10.quad9.net: 9.9.9.10
+  security-filter-dns.cleanbrowsing.org: 185.228.168.9
+dns:
+  enable: true
+  listen: 0.0.0.0:53
+  enhanced-mode: fake-ip
+  use-hosts: true
+  nameserver:    
+    - 223.5.5.5
+  fallback:
+    # https://github.com/curl/curl/wiki/DNS-over-HTTPS
+    # https://en.wikipedia.org/wiki/Public_recursive_name_server
+    - https://dns10.quad9.net/dns-query
+  fallback-filter:
+    geoip: false # unless an invalid IP address is returned
