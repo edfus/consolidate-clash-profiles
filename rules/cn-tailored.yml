@@ -1,0 +1,16 @@
+# https://raw.dler.io/main/Clash/Provider/Domestic.yaml
+payload:
+  # BABA
+  - DOMAIN-SUFFIX,mmstat.com
+  - DOMAIN-SUFFIX,taobao.com
+  - DOMAIN-SUFFIX,aliapp.org
+  - DOMAIN-SUFFIX,alicdn.com
+  - DOMAIN-SUFFIX,alipay.com
+  - DOMAIN-SUFFIX,alipayobjects.com
+  - DOMAIN-SUFFIX,aliyuncs.com
+  - DOMAIN-SUFFIX,tanx.com
+  - DOMAIN-SUFFIX,alibaba.com
+  - DOMAIN-SUFFIX,tmall.com
+
+  - DOMAIN-SUFFIX,jd.com
+  - DOMAIN-SUFFIX,edu.cn,

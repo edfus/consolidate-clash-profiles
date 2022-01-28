@@ -1,0 +1,9 @@
+payload:
+  # Spotify Banner Ads
+  - DOMAIN-SUFFIX,adservice.google.com,AdBlock
+  - DOMAIN-SUFFIX,pagead2.googlesyndication.com,AdBlock
+  - DOMAIN-SUFFIX,safeframe.googlesyndication.com,AdBlock
+  - DOMAIN-SUFFIX,pagead46.l.doubleclick.net,AdBlock
+  - DOMAIN-SUFFIX,securepubads.g.doubleclick.net,AdBlock
+  # This one might be a little aggressive
+  - DOMAIN-SUFFIX,i.scdn.co,AdBlock
