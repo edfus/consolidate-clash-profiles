@@ -65,7 +65,7 @@ rules:
   - RULE-SET,Domestic,Domestic
   - RULE-SET,LAN,DIRECT
   - GEOIP,CN,Domestic IPs,no-resolve
-  - MATCH,Others
+  - MATCH,Proxy
 rule-providers:
   Reject:
     type: http
@@ -118,7 +118,7 @@ rule-providers:
   LAN:
     type: http
     behavior: classical
-    url: http://127.0.0.1:3000/reserved-address-space.yml
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/reserved-address-space.yml
     path: ./Rules/LAN
     interval: 86400
 hosts:

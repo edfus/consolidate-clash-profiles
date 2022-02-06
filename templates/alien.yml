@@ -44,19 +44,19 @@ rule-providers:
   Blocklist:
     type: http
     behavior: classical
-    url: http://127.0.0.1:3000/blocklist.yml
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/blocklist.yml
     path: ./Rules/Blocklist
     interval: 86400
   Mainland China Sites:
     type: http
     behavior: classical
-    url: http://127.0.0.1:3000/cn-tailored.yml
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/cn-tailored.yml
     path: ./Rules/China-Based-Sites
     interval: 86400
   Private Network:
     type: http
     behavior: classical
-    url: http://127.0.0.1:3000/reserved-address-space.yml
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/reserved-address-space.yml
     path: ./Rules/LAN-IP-Ranges
     interval: 86400
 hosts:
