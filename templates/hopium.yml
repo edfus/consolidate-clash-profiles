@@ -70,49 +70,49 @@ rule-providers:
   Reject:
     type: http
     behavior: classical
-    url: https://raw.dler.io/main/Clash/Provider/Reject.yaml
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/vendor/Reject.yaml
     path: ./Rules/Reject
     interval: 86400
   Special:
     type: http
     behavior: classical
-    url: https://raw.dler.io/main/Clash/Provider/Special.yaml
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/vendor/Special.yaml
     path: ./Rules/Special
     interval: 86400
   Bilibili:
     type: http
     behavior: classical
-    url: https://raw.dler.io/main/Clash/Provider/Media/Bilibili.yaml
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/vendor/Media/Bilibili.yaml
     path: ./Rules/Media/Bilibili
     interval: 86400
   Netease Music:
     type: http
     behavior: classical
-    url: https://raw.dler.io/main/Clash/Provider/Media/Netease%20Music.yaml
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/vendor/Media/Netease%20Music.yaml
     path: ./Rules/Media/Netease_Music
     interval: 86400
   Microsoft:
     type: http
     behavior: classical
-    url: https://raw.dler.io/main/Clash/Provider/Microsoft.yaml
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/vendor/Microsoft.yaml
     path: ./Rules/Microsoft
     interval: 86400
   Proxy:
     type: http
     behavior: classical
-    url: https://raw.dler.io/main/Clash/Provider/Proxy.yaml
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/vendor/Proxy.yaml
     path: ./Rules/Proxy
     interval: 86400
   Domestic:
     type: http
     behavior: classical
-    url: https://raw.dler.io/main/Clash/Provider/Domestic.yaml
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/vendor/Domestic.yaml
     path: ./Rules/Domestic
     interval: 86400
   Apple:
     type: http
     behavior: classical
-    url: https://raw.dler.io/main/Clash/Provider/Apple.yaml
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/vendor/Apple.yaml
     path: ./Rules/Apple
     interval: 86400
   LAN:
