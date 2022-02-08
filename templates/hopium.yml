@@ -23,27 +23,12 @@ proxy-groups:
     proxies: 
       - Proxy
       - DIRECT
-  - name: Bilibili
-    type: select
-    proxies: 
-      - Proxy
-      - DIRECT
-  - name: Netease Music
-    type: select
-    proxies: 
-      - Proxy
-      - DIRECT
-  - name: Microsoft
-    type: select
-    proxies: 
-      - Proxy
-      - DIRECT
   - name: Apple
     type: select
     proxies: 
       - Proxy
       - DIRECT
-  - name: Domestic IPs
+  - name: Microsoft
     type: select
     proxies: 
       - Proxy
@@ -55,16 +40,13 @@ proxy-groups:
     interval: "3600"
 rules:
   - RULE-SET,Reject,AdBlock
-  - DOMAIN-SUFFIX,dler.cloud,Proxy
-  - RULE-SET,Special,DIRECT
-  - RULE-SET,Bilibili,Bilibili
-  - RULE-SET,Netease Music,Netease Music
-  - RULE-SET,Microsoft,Microsoft
   - RULE-SET,Apple,Apple
+  - RULE-SET,Microsoft,Microsoft
   - RULE-SET,Proxy,Proxy
   - RULE-SET,Domestic,Domestic
   - RULE-SET,LAN,DIRECT
-  - GEOIP,CN,Domestic IPs,no-resolve
+  - RULE-SET,Special,DIRECT
+  - GEOIP,CN,Domestic,no-resolve
   - MATCH,Proxy
 rule-providers:
   Reject:
@@ -78,18 +60,6 @@ rule-providers:
     behavior: classical
     url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/vendor/Special.yaml
     path: ./Rules/Special
-    interval: 86400
-  Bilibili:
-    type: http
-    behavior: classical
-    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/vendor/Media/Bilibili.yaml
-    path: ./Rules/Media/Bilibili
-    interval: 86400
-  Netease Music:
-    type: http
-    behavior: classical
-    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/vendor/Media/Netease%20Music.yaml
-    path: ./Rules/Media/Netease_Music
     interval: 86400
   Microsoft:
     type: http

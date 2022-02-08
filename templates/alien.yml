@@ -18,6 +18,21 @@ proxy-groups:
     proxies: 
       - Proxy
       - REJECT
+  - name: Latency Test
+    type: url-test
+    proxies: []
+    url: http://www.gstatic.com/generate_204
+    interval: "3600"
+  - name: P2P Applications
+    type: select
+    proxies: 
+      - Proxy
+      - DIRECT
+  - name: IP Address Affinities
+    type: select
+    proxies: 
+      - Proxy
+      - DIRECT
   - name: Mainland China Sites
     type: select
     proxies: 
@@ -28,14 +43,19 @@ proxy-groups:
     proxies: 
       - Proxy
       - DIRECT
-  - name: Latency Test
-    type: url-test
-    proxies: []
-    url: http://www.gstatic.com/generate_204
-    interval: "3600"
+  - name: Microsoft Network Connectivity Status Indicator
+    type: select
+    proxies:
+      - Proxy
+      - DIRECT
 rules:
   - DOMAIN,localhost,DIRECT
   - RULE-SET,Blocklist,AdBlock
+  - IP-CIDR,192.0.2.254/32,IP Address Affinities
+  - PROCESS-NAME,WebTorrent CLI 6a02b.exe,P2P Applications
+  - DOMAIN,dns.msftncsi.com,Microsoft Network Connectivity Status Indicator
+  - DOMAIN,www.msftncsi.com,Microsoft Network Connectivity Status Indicator
+  - DOMAIN,www.msftconnecttest.com,Microsoft Network Connectivity Status Indicator
   - RULE-SET,Mainland China Sites,Mainland China Sites
   - RULE-SET,Private Network,DIRECT,no-resolve
   - GEOIP,CN,Mainland China IP Addresses,no-resolve
@@ -72,8 +92,3 @@ dns:
     - https://sandbox.opendns.com/dns-query
   fallback-filter:
     geoip: false
-  fake-ip-filter:
-    # Microsoft Network Connectivity Status Indicator (NCSI)
-    - "dns.msftncsi.com"
-    - "www.msftncsi.com"
-    - "www.msftconnecttest.com"
