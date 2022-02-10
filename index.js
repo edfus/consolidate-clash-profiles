@@ -156,6 +156,7 @@ async function consolidate (template, profileRecordsPath, injectionsPath) {
       combinedProfile.rules = [];
     }
 
+    let rules = [];
     for (const key in injections) {
       if(combinedProfile["proxy-groups"].every(
         g => g.name !== key)) {
@@ -168,10 +169,14 @@ async function consolidate (template, profileRecordsPath, injectionsPath) {
         )
       }
 
-      combinedProfile.rules = combinedProfile.rules.concat(
+      rules = rules.concat(
         injections[key].payload
       );
     }
+
+    combinedProfile.rules = rules.concat(
+      combinedProfile.rules
+    );
   }
 
   combinedProfile["proxy-groups"].forEach(
@@ -216,6 +221,16 @@ async function consolidate (template, profileRecordsPath, injectionsPath) {
   } else {
     combinedProfile.dns.nameserver = nameservers;
   }
+
+  combinedProfile["proxy-groups"].sort(
+    (groupA, groupB) => {
+      if(groupA.name.length <= groupB.name.length) {
+        return -1;
+      }
+
+      return 1;
+    }
+  );
 
   return combinedProfile;
 }

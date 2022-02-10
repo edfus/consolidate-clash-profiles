@@ -3,5 +3,8 @@ package-lock.json
 profiles.js
 injections.yml
 output.yml
+wrangler.toml
 cached
 output
+external-rulesets
+dist

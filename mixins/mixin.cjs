@@ -13,11 +13,6 @@ mixin: # object
       - https://dns10.quad9.net/dns-query
     fallback-filter:
       geoip: false
-    fake-ip-filter:
-      # Microsoft Network Connectivity Status Indicator (NCSI)
-      - "dns.msftncsi.com"
-      - "www.msftncsi.com"
-      - "www.msftconnecttest.com"
   interface-name: Ethernet
   tun:
     enable: true

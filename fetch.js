@@ -62,10 +62,14 @@ async function writeCache(url, payload) {
     await fsp.writeFile(join(cacheFolder, filename), payload, "utf-8");
   } catch (err) {
     if(err.code === "ENOENT") {
-      await fsp.mkdir(cacheFolder, { recursive: true });
-      await fsp.writeFile(
-        join(cacheFolder, filename), payload, "utf-8"
-      ).catch(console.error);
+      try {
+        await fsp.mkdir(cacheFolder, { recursive: true });
+        await fsp.writeFile(
+          join(cacheFolder, filename), payload, "utf-8"
+        )
+      } catch (err) {
+        console.error(err);
+      }
     } else {
       console.error(err);
     }
@@ -210,4 +214,4 @@ async function fetchProfile(url) {
   return res;
 }
 
-export { fetchProfile }
+export { fetchProfile,  fetchProfile as fetchRuleset }

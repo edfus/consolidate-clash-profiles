@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 import { dump } from 'js-yaml';
-import { promises as fsp } from 'fs';
+import {  promises as fsp } from 'fs';
 import { dirname, join } from 'path';
 import { consolidate } from "./index.js";
 import { fileURLToPath } from 'url';
 import sanitize from 'sanitize-filename';
 import { exit } from 'process';
+
+import { promptForWrangling, rehouse } from "./howdy.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -116,11 +118,15 @@ if(allTemplatesInTheFolder) {
        : templateName
     );
     
-    const promise = fsp.writeFile(
-      outputPath, 
-      dump(await consolidate(templatePath, configPath, injectionsPath)), 
-      "utf-8"
-    ).then(_ => `${templatePath} => ${outputPath}`);
+    const promise = consolidateAndWrangle(
+      templatePath, configPath, injectionsPath
+    ).then(
+      textProfile => fsp.writeFile(
+        outputPath, 
+        textProfile, 
+        "utf-8"
+      ).then(_ => `${templatePath} => ${outputPath}`)
+    );
 
     promises.push(promise);
   }
@@ -138,7 +144,17 @@ if(allTemplatesInTheFolder) {
   const templatePath = template || join(__dirname, "templates/vanilla.yml");
   await fsp.writeFile(
     output || "output.yml", 
-    dump(await consolidate(templatePath, configPath, injectionsPath)), 
+    await consolidateAndWrangle(templatePath, configPath, injectionsPath), 
     "utf-8"
   );
+}
+
+async function consolidateAndWrangle (...args) {
+  const profile = await consolidate(...args);
+  try {
+    await promptForWrangling();
+    return dump(await rehouse(profile));
+  } catch {
+    return dump(profile);
+  }
 }
