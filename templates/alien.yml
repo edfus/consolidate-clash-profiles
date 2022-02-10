@@ -12,33 +12,21 @@ proxy-groups:
     type: select
     proxies: 
       - DIRECT
-      - Latency Test
-  - name: AdBlock
+  - name: Blocklist
     type: select
     proxies: 
       - Proxy
       - REJECT
-  - name: Latency Test
-    type: url-test
-    proxies: []
-    url: http://www.gstatic.com/generate_204
-    interval: "3600"
-  - name: Mainland China Sites
-    type: select
-    proxies: 
-      - Proxy
-      - DIRECT
-  - name: Mainland China IP Addresses
+  - name: Mainland China Domains
     type: select
     proxies: 
       - Proxy
       - DIRECT
 rules:
   - DOMAIN,localhost,DIRECT
-  - RULE-SET,Blocklist,AdBlock
-  - RULE-SET,Mainland China Sites,Mainland China Sites
+  - RULE-SET,Blocklist,Blocklist
+  - RULE-SET,Mainland China Domains,Mainland China Domains
   - RULE-SET,Private Network,DIRECT
-  - GEOIP,CN,Mainland China IP Addresses,no-resolve
   - MATCH,Proxy
 rule-providers:
   Blocklist:
@@ -47,7 +35,7 @@ rule-providers:
     url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/blocklist.yml
     path: ./Rules/Blocklist
     interval: 86400
-  Mainland China Sites:
+  Mainland China Domains:
     type: http
     behavior: classical
     url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/cn-tailored.yml

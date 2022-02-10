@@ -12,7 +12,7 @@ proxy-groups:
     type: select
     proxies: 
       - DIRECT
-      - Auto - UrlTest
+      - Latency Test
   - name: AdBlock
     type: select
     proxies: 
@@ -28,7 +28,7 @@ proxy-groups:
     proxies: 
       - Proxy
       - REJECT
-  - name: Auto - UrlTest
+  - name: Latency Test
     type: url-test
     proxies: []
     url: http://www.gstatic.com/generate_204

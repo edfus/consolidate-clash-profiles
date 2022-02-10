@@ -166,6 +166,16 @@ async function fetch (url) {
     });
 
     req.once("response", res => {
+      if(res.statusCode !== 200) {
+        return reject(
+          new Error(
+            `${url}: ${res.statusCode} ${
+              res.statusMessage
+            }`
+          )
+        );
+      }
+
       let data = '';
       pipeline(
         res,

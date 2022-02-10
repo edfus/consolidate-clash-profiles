@@ -12,41 +12,22 @@ proxy-groups:
     type: select
     proxies: 
       - DIRECT
-      - Latency Test
-  - name: AdBlock
+  - name: Ad Blocking
     type: select
     proxies: 
       - Proxy
       - REJECT
-  - name: Domestic
+  - name: Mainland China
     type: select
     proxies: 
       - Proxy
       - DIRECT
-  - name: Apple
-    type: select
-    proxies: 
-      - Proxy
-      - DIRECT
-  - name: Microsoft
-    type: select
-    proxies: 
-      - Proxy
-      - DIRECT
-  - name: Latency Test
-    type: url-test
-    proxies: []
-    url: http://www.gstatic.com/generate_204
-    interval: "3600"
 rules:
-  - RULE-SET,Reject,AdBlock
-  - RULE-SET,Apple,Apple
-  - RULE-SET,Microsoft,Microsoft
   - RULE-SET,Proxy,Proxy
-  - RULE-SET,Domestic,Domestic
-  - RULE-SET,LAN,DIRECT
-  - RULE-SET,Special,DIRECT
-  - GEOIP,CN,Domestic,no-resolve
+  - RULE-SET,Reject,Ad Blocking
+  - RULE-SET,Mainland China,Mainland China
+  - RULE-SET,Private Network,DIRECT
+  - GEOIP,CN,Mainland China,no-resolve
   - MATCH,Proxy
 rule-providers:
   Reject:
@@ -55,41 +36,23 @@ rule-providers:
     url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/vendor/Reject.yaml
     path: ./Rules/Reject
     interval: 86400
-  Special:
-    type: http
-    behavior: classical
-    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/vendor/Special.yaml
-    path: ./Rules/Special
-    interval: 86400
-  Microsoft:
-    type: http
-    behavior: classical
-    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/vendor/Microsoft.yaml
-    path: ./Rules/Microsoft
-    interval: 86400
   Proxy:
     type: http
     behavior: classical
     url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/vendor/Proxy.yaml
     path: ./Rules/Proxy
     interval: 86400
-  Domestic:
+  Mainland China:
     type: http
     behavior: classical
-    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/vendor/Domestic.yaml
-    path: ./Rules/Domestic
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/vendor/Mainland%20China.yaml
+    path: ./Rules/Mainland China
     interval: 86400
-  Apple:
-    type: http
-    behavior: classical
-    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/vendor/Apple.yaml
-    path: ./Rules/Apple
-    interval: 86400
-  LAN:
+  Private Network:
     type: http
     behavior: classical
     url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/reserved-address-space.yml
-    path: ./Rules/LAN
+    path: ./Rules/Private Network
     interval: 86400
 hosts:
   dns.google: 8.8.8.8
