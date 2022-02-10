@@ -11,8 +11,8 @@ proxy-groups:
   - name: Proxy
     type: select
     proxies: 
-      - "Auto - UrlTest"
-  - name: "Auto - UrlTest"
+      - "Latency Test"
+  - name: "Latency Test"
     type: url-test
     proxies: []
     url: http://www.gstatic.com/generate_204

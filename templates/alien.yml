@@ -10,8 +10,7 @@ proxies: []
 proxy-groups:
   - name: Proxy
     type: select
-    proxies: 
-      - DIRECT
+    proxies: []
   - name: Blocklist
     type: select
     proxies: 

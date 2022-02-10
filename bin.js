@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import { dump } from 'js-yaml';
 import {  promises as fsp } from 'fs';
-import { dirname, join } from 'path';
-import { consolidate } from "./index.js";
+import { dirname, extname, join } from 'path';
+import { consolidate, consolidateQuantumultConf } from "./index.js";
 import { fileURLToPath } from 'url';
 import sanitize from 'sanitize-filename';
 import { exit } from 'process';
@@ -98,7 +98,7 @@ if(allTemplatesInTheFolder) {
   const templates = (
     await fsp.readdir(templateFolder, { withFileTypes: true })
   ).filter(
-    dirent => dirent.isFile() && /\.ya?ml$/.test(dirent.name)
+    dirent => dirent.isFile() && /\.(ya?ml|conf)$/.test(dirent.name)
   ).map(item => item.name);
 
   const destFolder = output || "output";
@@ -143,13 +143,17 @@ if(allTemplatesInTheFolder) {
 } else {
   const templatePath = template || join(__dirname, "templates/vanilla.yml");
   await fsp.writeFile(
-    output || "output.yml", 
+    output || `output${extname(templatePath)}`, 
     await consolidateAndWrangle(templatePath, configPath, injectionsPath), 
     "utf-8"
   );
 }
 
 async function consolidateAndWrangle (...args) {
+  if (args[0].endsWith(".conf")) {
+    return await consolidateQuantumultConf(...args);
+  }
+
   const profile = await consolidate(...args);
   try {
     await promptForWrangling();

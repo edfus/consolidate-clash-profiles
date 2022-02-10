@@ -10,18 +10,18 @@ proxies: []
 proxy-groups:
   - name: Proxy
     type: select
-    proxies: 
-      - DIRECT
+    proxies: []
   - name: Ad Blocking
     type: select
     proxies: 
-      - Proxy
       - REJECT
+      - Proxy
   - name: Mainland China
     type: select
     proxies: 
-      - Proxy
       - DIRECT
+      - Proxy
+      
 rules:
   - RULE-SET,Proxy,Proxy
   - RULE-SET,Reject,Ad Blocking

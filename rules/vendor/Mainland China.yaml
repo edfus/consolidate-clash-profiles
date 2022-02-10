@@ -1,6 +1,9 @@
 # https://raw.dler.io/main/Clash/Provider/Domestic.yaml
 payload:
   - DOMAIN-SUFFIX,sfbuy.com
+  - DOMAIN-SUFFIX,tanx.com # ad
+  - DOMAIN-SUFFIX,mmstat.com
+  - DOMAIN-SUFFIX,aliapp.org
 
   # > Beplay
   - DOMAIN-KEYWORD,beplay
