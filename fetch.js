@@ -91,7 +91,7 @@ async function checkCache (url) {
   cache.lastAccess = Date.now();
 
   if(cache.content) {
-    return cache.content;
+    return { url, headers: cache.headers, payload: cache.content };
   }
 
   const fileContent = await readCache(url);

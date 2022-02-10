@@ -4,6 +4,7 @@ import { promises as fsp } from 'fs';
 import { dirname, join } from 'path';
 import { consolidate } from "./index.js";
 import { fileURLToPath } from 'url';
+import sanitize from 'sanitize-filename';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const argvs = process.argv.slice(2);
@@ -42,10 +43,20 @@ if(allTemplatesInTheFolder) {
   const destFolder = output || "output";
   await fsp.mkdir(destFolder, { recursive: true });
 
+  const mappings = await fsp.readFile(
+    join(templateFolder, "mappings.json"), "utf-8"
+  ).then(JSON.parse).catch(_ => { return {} });
+
   const promises = [];
   for (const templateName of templates) {
     const templatePath = join(templateFolder, templateName);
-    const outputPath = join(destFolder, templateName);
+    const outputPath = join(
+      destFolder, 
+      mappings[templateName]
+       ? sanitize(mappings[templateName]) 
+       : templateName
+    );
+    
     const promise = fsp.writeFile(
       outputPath, 
       dump(await consolidate(templatePath, configPath, injectionsPath)), 
