@@ -5,25 +5,84 @@ import { dirname, join } from 'path';
 import { consolidate } from "./index.js";
 import { fileURLToPath } from 'url';
 import sanitize from 'sanitize-filename';
+import { exit } from 'process';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const argvs = process.argv.slice(2);
 
+const argv = process.argv.slice(2);
+const flags = [];
 const extractArg = (matchPattern, offset = 0, defaultValue = false) => {
-  for (let i = 0; i < argvs.length; i++) {
-    if (matchPattern.test(argvs[i])) {
-      const matched = argvs.splice(i, offset + 1);
+  for (let i = 0; i < argv.length; i++) {
+    if (matchPattern.test(argv[i])) {
+      const matched = argv.splice(i, offset + 1);
       return matched.length <= 2 ? matched[offset] : matched.slice(1);
     }
   }
+
+  flags.push(
+    {
+      pattern: matchPattern.source,
+      type: (
+        offset === 0 
+        ? 
+          "switch" : 
+          "param"
+      ),
+      defaultValue
+    }
+  );
+
   return defaultValue;
 }
+
+const showHelp = async () => {
+  const indentation = " ".repeat(6);
+  try {
+    const { name, description } = JSON.parse(
+      await fsp.readFile(join(__dirname, "package.json"), "utf-8")
+    );
+
+    console.info(`${name}${description ? ":" : ""}`);
+    description && console.info(`${indentation}${description}:`);
+  } catch {}
+
+  const tail = str => {
+    const arr = str.split(/[\\/]/).filter(Boolean);
+    return arr[arr.length - 1];
+  }
+
+  console.info(`\nUsage: `);
+  console.info(`\n${indentation}${
+    tail(process.argv[0])
+  } ${tail(process.argv[1])} <flags>\n`)
+
+  console.info("The flags are:\n")
+
+  for (const flag of flags) {
+    const padding = process.stdout.columns / 2 - flag.pattern.length;
+    console.info(
+      `${indentation}/${flag.pattern}/${
+        " ".repeat(padding >= 0 ? padding : 1)
+      }[${flag.type}]${ 
+        flag.defaultValue
+          ? ` (${flag.defaultValue})`
+          : ""
+      }`
+    )
+  }
+  console.info("\n")
+};
 
 const config = extractArg(/^--?(i(nput)?|from|profiles)$/, 1);
 const output = extractArg(/^--?(o(utput)?|to)$/, 1);
 const template = extractArg(/^--?t(emplate)?$/, 1);
 const injections = extractArg(/^--?(j|inject(ions?)?)$/, 1);
 const allTemplatesInTheFolder = extractArg(/^--?a(ll)?$/, 0);
+
+if(extractArg(/^--?h(elp)?$/, 0)) {
+  await showHelp();
+  exit(0);
+}
 
 const configPath = config || "./profiles.js";
 const injectionsPath = (
