@@ -1,4 +1,7 @@
 node_modules
 package-lock.json
 profiles.js
+injections.yml
 output.yml
+cached
+output
