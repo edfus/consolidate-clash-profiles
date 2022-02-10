@@ -42,7 +42,6 @@ payload:
   - PROCESS-NAME,uTorrent
   - PROCESS-NAME,WebTorrent
   - PROCESS-NAME,WebTorrent Helper
-  - PROCESS-NAME,WebTorrent CLI 6a02b.exe
 
   # - DOMAIN-KEYWORD,announce
   # - DOMAIN-KEYWORD,torrent

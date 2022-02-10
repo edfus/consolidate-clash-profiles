@@ -18,12 +18,57 @@ const extractArg = (matchPattern, offset = 0, defaultValue = false) => {
   return defaultValue;
 }
 
-const configPath = extractArg(/^--?(i(nput)?|from|profiles)$/, 1, "./profiles.js");
-const outputPath = extractArg(/^--?(o(utput)?|to)$/, 1, "./output.yml");
-const template = extractArg(/^--?t(emplate)?$/, 1, join(__dirname, "templates/vanilla.yml"));
+const config = extractArg(/^--?(i(nput)?|from|profiles)$/, 1);
+const output = extractArg(/^--?(o(utput)?|to)$/, 1);
+const template = extractArg(/^--?t(emplate)?$/, 1);
+const injections = extractArg(/^--?(j|inject(ions?)?)$/, 1);
+const allTemplatesInTheFolder = extractArg(/^--?a(ll)?$/, 0);
 
-await fsp.writeFile(
-  outputPath, 
-  dump(await consolidate(template, configPath)), 
-  "utf-8"
+const configPath = config || "./profiles.js";
+const injectionsPath = (
+  !config && !injections
+  ? "./injections.yml"
+  : void 0
 );
+
+if(allTemplatesInTheFolder) {
+  const templateFolder = template || "./templates";
+  const templates = (
+    await fsp.readdir(templateFolder, { withFileTypes: true })
+  ).filter(
+    dirent => dirent.isFile() && /\.ya?ml$/.test(dirent.name)
+  ).map(item => item.name);
+
+  const destFolder = output || "output";
+  await fsp.mkdir(destFolder, { recursive: true });
+
+  const promises = [];
+  for (const templateName of templates) {
+    const templatePath = join(templateFolder, templateName);
+    const outputPath = join(destFolder, templateName);
+    const promise = fsp.writeFile(
+      outputPath, 
+      dump(await consolidate(templatePath, configPath, injectionsPath)), 
+      "utf-8"
+    ).then(_ => `${templatePath} => ${outputPath}`);
+
+    promises.push(promise);
+  }
+
+  for (const result of await Promise.allSettled(promises)) {
+    switch (result.status) {
+      case "rejected":
+        console.error(result.reason);
+        break;
+      case "fulfilled":
+        console.info(result.value);
+    }
+  }
+} else {
+  const templatePath = template || join(__dirname, "templates/vanilla.yml");
+  await fsp.writeFile(
+    output || "output.yml", 
+    dump(await consolidate(templatePath, configPath, injectionsPath)), 
+    "utf-8"
+  );
+}

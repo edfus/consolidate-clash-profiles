@@ -1,0 +1,11 @@
+IP Address Affinities:
+  payload:
+    - IP-CIDR,192.0.2.254/32,IP Address Affinities,no-resolve
+P2P Applications:
+  payload:
+    - PROCESS-NAME,WebTorrent CLI 6a02b.exe,P2P Applications
+Microsoft Network Connectivity Status Indicator:
+  payload:
+    - DOMAIN,dns.msftncsi.com,Microsoft Network Connectivity Status Indicator
+    - DOMAIN,www.msftncsi.com,Microsoft Network Connectivity Status Indicator
+    - DOMAIN,www.msftconnecttest.com,Microsoft Network Connectivity Status Indicator
