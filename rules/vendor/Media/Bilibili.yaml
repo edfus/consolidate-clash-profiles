@@ -1,3 +1,4 @@
+# https://github.com/dler-io/Rules
 # https://raw.dler.io/main/Clash/Provider/Media/Bilibili.yaml
 payload:  
   # > Bilibili
@@ -15,6 +16,3 @@ payload:
   # Hong Kong, Macau, Taiwan
   # - USER-AGENT,bili-inter*
   - DOMAIN,apiintl.biliapi.net
-
-
-

@@ -21,8 +21,19 @@ proxy-groups:
     proxies: 
       - Proxy
       - DIRECT
+  - name: Quick UDP Internet Connections
+    type: select
+    proxies:
+      - REJECT
+      - Proxy
+script:
+  shortcuts:
+    QUIC: network == 'udp' and dst_port == 443
+
 rules:
+  - SCRIPT,QUIC,Quick UDP Internet Connections
   - DOMAIN,localhost,DIRECT
+  - DOMAIN-SUFFIX,local,DIRECT
   - RULE-SET,Blocklist,Blocklist
   - RULE-SET,Mainland China Domains,Mainland China Domains
   - RULE-SET,Private Network,DIRECT

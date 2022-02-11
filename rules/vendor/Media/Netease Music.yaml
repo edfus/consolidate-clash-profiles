@@ -1,3 +1,4 @@
+# https://github.com/dler-io/Rules
 # https://raw.dler.io/main/Clash/Provider/Media/Netease Music.yaml
 payload:  
   # > Netease Music
@@ -25,6 +26,3 @@ payload:
   - IP-CIDR,59.111.181.35/32,no-resolve
   - IP-CIDR,59.111.181.38/32,no-resolve
   - IP-CIDR,59.111.181.60/32,no-resolve
-
-
-

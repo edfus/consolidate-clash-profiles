@@ -33,7 +33,17 @@ proxy-groups:
     proxies: []
     url: http://www.gstatic.com/generate_204
     interval: "3600"
+  - name: Quick UDP Internet Connections
+    type: select
+    proxies:
+      - REJECT
+      - Proxy
+script:
+  shortcuts:
+    QUIC: network == 'udp' and dst_port == 443
+
 rules:
+  - SCRIPT,QUIC,Quick UDP Internet Connections
   - RULE-SET,reject,AdBlock
   - RULE-SET,icloud,Apple
   - RULE-SET,apple,Apple
