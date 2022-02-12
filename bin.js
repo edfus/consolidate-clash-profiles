@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 import { dump } from 'js-yaml';
-import {  promises as fsp } from 'fs';
+import { promises as fsp } from 'fs';
 import { dirname, extname, join } from 'path';
 import { consolidate, consolidateQuantumultConf } from "./index.js";
 import { fileURLToPath } from 'url';
 import sanitize from 'sanitize-filename';
 import { exit } from 'process';
 
-import { promptForWrangling, rehouse } from "./howdy.js";
+import { tryCallWrangling, rehouse } from "./howdy.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -149,6 +149,40 @@ if(allTemplatesInTheFolder) {
   );
 }
 
+
+const ledger = {
+  wranglerUnavailable: false,
+  wranglerCalled: false,
+  prompted: false,
+  granted: void 0
+};
+
+async function promptForWrangling () {
+  if(!ledger.wranglerCalled) {
+    ledger.wranglerCalled = true;
+    const ack =  await tryCallWrangling();
+    if(!ack) {
+      console.info(
+        `Accessing wrangler failed. Will stop trying putting the SSOT in place`
+      );
+      ledger.wranglerUnavailable = true;
+    }
+  }
+
+  if(ledger.wranglerUnavailable || ledger.granted === false) {
+    throw new Error(
+      "ledger.wranglerUnavailable || ledger.granted === false"
+    );
+  }
+
+  // wouldn't prefer too much verbosity
+  if(!ledger.prompted) {
+    ledger.prompted = true;
+    console.info("Wrangling...");
+    ledger.granted = true;
+  }
+}
+
 async function consolidateAndWrangle (...args) {
   if (args[0].endsWith(".conf")) {
     return await consolidateQuantumultConf(...args);
@@ -157,8 +191,14 @@ async function consolidateAndWrangle (...args) {
   const profile = await consolidate(...args);
   try {
     await promptForWrangling();
-    return dump(await rehouse(profile));
   } catch {
+    return dump(profile);
+  }
+
+  try {
+    return dump(await rehouse(profile));
+  } catch (err) {
+    console.error(err);
     return dump(profile);
   }
 }

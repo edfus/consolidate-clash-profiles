@@ -44,10 +44,14 @@ async function callWrangler () {
   )}`;
 }
 
-async function wrangle () {
+async function wrangle (silent = false) {
   await new Promise((resolve, reject) => {
     const child = spawn("wrangler", [ "publish" ], {
-      shell: true, stdio: ["ignore", "pipe", "inherit"], env: {
+      shell: !silent, stdio: [
+        "ignore", 
+        silent ? "ignore" : "pipe", 
+        silent ? "ignore" : "inherit"
+      ], env: {
         ...process.env,
         "FORCE_COLOR": process.env["FORCE_COLOR"] || 1
       }, cwd: __dirname
@@ -62,52 +66,28 @@ async function wrangle () {
       ));
     });
 
-    child.stdout.on("data", data => process.stdout.write(data));
+    if(!silent)
+      child.stdout.on("data", data => process.stdout.write(data));
   });
 }
 
+let ranchLocation = "http://localhost/";
+const wranglerContactAddress = join(__dirname, "external-rulesets");
 
-const ledger = {
-  wranglerUnavailable: false,
-  wranglerCalled: false,
-  wranglerContactAddress: join(__dirname, "external-rulesets"),
-  ranchLocation: "http://localhost/",
-  prompted: false,
-  granted: void 0
-};
-
-async function promptForWrangling () {
-  if(!ledger.wranglerCalled) {
-    ledger.wranglerCalled = true;
-    try {
-      ledger.ranchLocation = await callWrangler();
-    } catch (err) {
-      console.error(err.message);
-      console.info(
-        `Accessing wrangler failed. Will stop trying putting the SSOT in place`
-      );
-      ledger.wranglerUnavailable = true;
-    }
-  }
-
-  if(ledger.wranglerUnavailable || ledger.granted === false) {
-    throw new Error(
-      "ledger.wranglerUnavailable || ledger.granted === false"
-    );
-  }
-
-  // wouldn't prefer too much verbosity
-  if(!ledger.prompted) {
-    ledger.prompted = true;
-    console.info("Wrangling...");
-    ledger.granted = true;
+async function tryCallWrangling () {
+  try {
+    ranchLocation = await callWrangler();
+    return true;
+  } catch (err) {
+    console.error(err.message);
+    return false;
   }
 }
 
 const mover = {
   onShift: false,
   shiftEndsTimer: 0,
-  shiftEndsAction () {
+  shiftEndsAction (isSilent) {
     this.onShift = false;
 
     if(!this.defective) {
@@ -116,7 +96,7 @@ const mover = {
       }
   
       this.wrangling = true;
-      wrangle().catch( // allowing concurrent wrangling
+      wrangle(isSilent).catch( // allowing concurrent wrangling
         err => {
           this.defective = true;
           console.error(err);
@@ -126,7 +106,7 @@ const mover = {
           this.wrangling = false;
           if(this.wranglingScheduled) {
             this.wranglingScheduled = false;
-            return this.shiftEndsAction();
+            return this.shiftEndsAction(isSilent);
           }
         }
       )
@@ -134,7 +114,7 @@ const mover = {
   },
   defective: false,
   movedList: new Set(),
-  async move(text, location) {
+  async move(text, location, silently) {
     if(this.defective) {
       throw new Error("Cut me some slack you have to i beg u");
     }
@@ -146,7 +126,7 @@ const mover = {
     }
 
     this.shiftEndsTimer = setTimeout(
-      () => this.shiftEndsAction(), this.wrangling ? 200 : 1500
+      () => this.shiftEndsAction(silently), this.wrangling ? 200 : 1500
     );
 
     try {
@@ -154,7 +134,7 @@ const mover = {
     } catch (err) {
       if(err.code === "ENOENT") {
         try {
-          await fsp.mkdir(ledger.wranglerContactAddress, { recursive: true });
+          await fsp.mkdir(wranglerContactAddress, { recursive: true });
           await fsp.writeFile(
             location, text, "utf-8"
           )
@@ -176,8 +156,8 @@ const mover = {
 
     this.movedList.add(location);
   },
-  scheduleReplace(text, location) {
-    this.move(text, location).catch(console.error);
+  scheduleReplace(text, location, silently) {
+    this.move(text, location, silently).catch(console.error);
   },
   isOccupied (location) {
     if(this.movedList.has(location)) { 
@@ -192,7 +172,7 @@ function sha1(str) {
   return createHash('sha1').update(str).digest('hex');
 }
 
-async function rehouse (profile) {
+async function rehouse (profile, silently) {
   if(mover.defective) {
     return profile;
   }
@@ -212,18 +192,25 @@ async function rehouse (profile) {
             const identification = sha1(horse).slice(0, 8);
     
             const horseStall = sanitize(`${breed}-${identification}`);
-            const destination = join(ledger.wranglerContactAddress, horseStall);
+            const destination = join(wranglerContactAddress, horseStall);
+            if(mover.defective) {
+              return ;
+            }
+            
             if(mover.isOccupied(destination)) {
-              mover.scheduleReplace(horse, destination);
+              mover.scheduleReplace(horse, destination, silently);
             } else {
-              await mover.move(horse, destination);
+              await mover.move(horse, destination, silently);
             }
     
-            ruleProvider.url = `${ledger.ranchLocation}/${horseStall}`;
+            ruleProvider.url = `${ranchLocation}/${horseStall}`;
             ruleProvider.path = `./ruleset/${horseStall}`;
           } catch (err) {
-            if(!mover.defective)
+            if(!mover.defective) {
               console.error(err);
+            } else {
+              throw err;
+            } 
           }
         }
       }
@@ -233,4 +220,4 @@ async function rehouse (profile) {
   return profile;
 } 
 
-export { wrangle, callWrangler, promptForWrangling, rehouse };
+export { wrangle, callWrangler, tryCallWrangling, rehouse };

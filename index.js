@@ -253,6 +253,7 @@ async function consolidateQuantumultConf(quantumultConfPath, profileRecordsPath)
       ))
   ]);
 
+  const errors = [];
   const proxies = fetchedProxies.filter(
     job => {
       switch (job.status) {
@@ -260,6 +261,7 @@ async function consolidateQuantumultConf(quantumultConfPath, profileRecordsPath)
           return true;
         default: // rejected
           console.error(job.reason);
+          errors.push(job.reason);
           return false;
       }
     }
@@ -268,7 +270,12 @@ async function consolidateQuantumultConf(quantumultConfPath, profileRecordsPath)
   );
 
   if (!proxies.length) {
-    throw new Error("Every profile processing has failed.");
+    throw new Error(
+      errors.map(err => err?.message || "")
+        .join("\r\n").concat(
+          "Every profile processing has failed."
+        )
+    );
   }
 
   const servers = proxies.filter(

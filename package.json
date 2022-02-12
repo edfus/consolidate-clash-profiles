@@ -1,12 +1,13 @@
 {
-  "name": "consolidate-profiles",
+  "name": "consolidate-clash-profiles",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node bin.js"
+    "start": "node bin.js",
+    "server": "node server.js"
   },
   "bin": {
     "consolidate": "./bin.mjs"

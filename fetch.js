@@ -106,7 +106,8 @@ async function checkCache (url) {
     return null;
   }
 
-  cacheMemoryFootprint += cache.content.length;
+  cache.content = fileContent;
+  cacheMemoryFootprint += cache.content?.length || 0;
   return { url, headers: cache.headers, payload: cache.content };
 }
 
@@ -142,8 +143,8 @@ function cache({ headers, payload, url }) {
   const cacheControl = parseCacheControl(headers["cache-control"]);
   const cache = {
     etag: headers["etag"], // ignored for now
-    maxAge: cacheControl.maxAge || 1000,
-    minFresh: cacheControl.minFresh || 1,
+    maxAge: (cacheControl.maxAge || 480) * 1000,
+    minFresh: (cacheControl.minFresh || .5) * 1000,
     content: payload,
     headers: headers, // http.maxHeaderSize
     lastAccess: Date.now(),
@@ -218,7 +219,12 @@ async function fetchProfile(url) {
   
   const req = fetch(url);
   processingRequests.set(url, req);
-  const res = await req;
+  const res = await req.catch(
+    err => {
+      processingRequests.delete(url);
+      throw err;
+    }
+  );
   cache(res);
   processingRequests.delete(url);
   return res;
