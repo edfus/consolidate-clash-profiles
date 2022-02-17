@@ -5,6 +5,11 @@ payload:
   - DOMAIN-SUFFIX,tanx.com # ad
   - DOMAIN-SUFFIX,mmstat.com
   - DOMAIN-SUFFIX,aliapp.org
+  - DOMAIN-SUFFIX,xueqiu.com
+  - DOMAIN-SUFFIX,imedao.com
+  - DOMAIN-SUFFIX,servicewechat.com
+  - DOMAIN-SUFFIX,meituan.com
+  - DOMAIN-SUFFIX,dianping.com
 
   # > Beplay
   - DOMAIN-KEYWORD,beplay

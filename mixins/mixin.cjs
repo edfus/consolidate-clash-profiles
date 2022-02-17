@@ -1,5 +1,6 @@
 const mixinYAML = `
 mixin: # object
+  ipv6: false
   hosts:
     sandbox.opendns.com: 208.67.222.2
     dns10.quad9.net: 9.9.9.10
@@ -8,6 +9,7 @@ mixin: # object
     listen: 0.0.0.0:53
     enhanced-mode: fake-ip
     use-hosts: true
+    ipv6: false
     nameserver:
       - https://sandbox.opendns.com/dns-query
       - https://dns10.quad9.net/dns-query
