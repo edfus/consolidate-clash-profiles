@@ -156,8 +156,8 @@ rule-providers:
     path: ./ruleset/applications.yaml
     interval: 86400
 hosts:
-  dns10.quad9.net: 9.9.9.10
-  sandbox.opendns.com: 208.67.222.2
+  # dns10.quad9.net: 9.9.9.10
+  # sandbox.opendns.com: 208.67.222.2
 dns: # DNS leak guaranteed
   enable: true
   listen: 0.0.0.0:53
@@ -166,6 +166,6 @@ dns: # DNS leak guaranteed
   nameserver:
     - 114.114.114.114
     - 223.5.5.5
-  fallback:
-    - https://sandbox.opendns.com/dns-query
-    - https://dns10.quad9.net/dns-query
+  fallback: []
+    # - https://sandbox.opendns.com/dns-query
+    # - https://dns10.quad9.net/dns-query

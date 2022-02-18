@@ -11,7 +11,6 @@ mixin: # object
     ipv6: false
     nameserver:
       - https://sandbox.opendns.com/dns-query
-      - https://dns10.quad9.net/dns-query
     fallback-filter:
       geoip: false
   interface-name: Ethernet

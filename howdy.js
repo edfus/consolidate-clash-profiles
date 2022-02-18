@@ -173,7 +173,7 @@ function sha1(str) {
 }
 
 async function rehouse (profile, silently) {
-  if(mover.defective) {
+  if(mover.defective || !profile["rule-providers"]) {
     return profile;
   }
 

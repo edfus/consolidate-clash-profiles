@@ -66,11 +66,11 @@ rule-providers:
     path: ./Rules/Private Network
     interval: 86400
 hosts:
-  dns.google: 8.8.8.8
-  dns-unfiltered.adguard.com: 94.140.14.140
-  sandbox.opendns.com: 208.67.222.2
-  dns10.quad9.net: 9.9.9.10
-  security-filter-dns.cleanbrowsing.org: 185.228.168.9
+  # dns.google: 8.8.8.8
+  # dns-unfiltered.adguard.com: 94.140.14.140
+  # sandbox.opendns.com: 208.67.222.2
+  # dns10.quad9.net: 9.9.9.10
+  # security-filter-dns.cleanbrowsing.org: 185.228.168.9
 dns:
   enable: true
   listen: 0.0.0.0:53
@@ -78,9 +78,9 @@ dns:
   use-hosts: true
   nameserver:    
     - 223.5.5.5
-  fallback:
+  fallback: []
     # https://github.com/curl/curl/wiki/DNS-over-HTTPS
     # https://en.wikipedia.org/wiki/Public_recursive_name_server
-    - https://dns10.quad9.net/dns-query
-  fallback-filter:
-    geoip: false # unless an invalid IP address is returned
+    # - https://dns10.quad9.net/dns-query
+  # fallback-filter:
+  #   geoip: false # unless an invalid IP address is returned

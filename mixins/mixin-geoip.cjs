@@ -10,10 +10,9 @@ mixin: # object
     enhanced-mode: fake-ip
     use-hosts: true
     ipv6: false
-    nameserver: []
-      # - https://sandbox.opendns.com/dns-query
-    fallback-filter:
-      geoip: false
+    nameserver:    
+      - 223.5.5.5
+    fallback: []
   interface-name: Ethernet
   tun:
     enable: true

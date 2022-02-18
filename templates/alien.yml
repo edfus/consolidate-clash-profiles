@@ -58,15 +58,15 @@ rule-providers:
     path: ./Rules/LAN-IP-Ranges
     interval: 86400
 hosts:
-  dns10.quad9.net: 9.9.9.10
-  sandbox.opendns.com: 208.67.222.2
+  # dns10.quad9.net: 9.9.9.10
+  # sandbox.opendns.com: 208.67.222.2
 dns:
   enable: true
   listen: 0.0.0.0:53
   enhanced-mode: fake-ip
   use-hosts: true
-  nameserver:
-    - https://dns10.quad9.net/dns-query
-    - https://sandbox.opendns.com/dns-query
+  nameserver: []
+    # - https://dns10.quad9.net/dns-query
+    # - https://sandbox.opendns.com/dns-query
   fallback-filter:
     geoip: false

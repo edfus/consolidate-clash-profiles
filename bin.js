@@ -93,6 +93,13 @@ const injectionsPath = (
   : void 0
 );
 
+const ledger = {
+  wranglerUnavailable: false,
+  wranglerCalled: false,
+  prompted: false,
+  granted: void 0
+};
+
 if(allTemplatesInTheFolder) {
   const templateFolder = template || "./templates";
   const templates = (
@@ -149,18 +156,10 @@ if(allTemplatesInTheFolder) {
   );
 }
 
-
-const ledger = {
-  wranglerUnavailable: false,
-  wranglerCalled: false,
-  prompted: false,
-  granted: void 0
-};
-
 async function promptForWrangling () {
   if(!ledger.wranglerCalled) {
     ledger.wranglerCalled = true;
-    const ack =  await tryCallWrangling();
+    const ack = await tryCallWrangling();
     if(!ack) {
       console.info(
         `Accessing wrangler failed. Will stop trying putting the SSOT in place`
