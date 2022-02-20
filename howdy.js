@@ -50,7 +50,7 @@ async function wrangle (silent = false) {
       shell: !silent, stdio: [
         "ignore", 
         silent ? "ignore" : "pipe", 
-        silent ? "ignore" : "inherit"
+        silent ? "inherit" : "inherit"
       ], env: {
         ...process.env,
         "FORCE_COLOR": process.env["FORCE_COLOR"] || 1

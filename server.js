@@ -299,6 +299,8 @@ async function serve (req, res, templateName, dispositionName) {
     "Content-Type": `${type}${charset ? "; charset=".concat(charset) : ""}`,
     // "Last-Modified": lastModified,
     // "ETag": eTag,
+    "Profile-Update-Interval": 6,
+    "Subscription-Userinfo": `expire=${process.env.EXPIRE || "2274253409"}`,
     "Accept-Ranges": "bytes"
   };
 

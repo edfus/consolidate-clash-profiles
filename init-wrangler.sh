@@ -1,14 +1,15 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
 readonly __dirname=$(dirname "$(readlink -f "$0")")
 cd "$__dirname"
 
+rmdir wrangler.toml
 read -e -p "account_id? " ACCOUNT_ID
 read -e -p "zone_id? " ZONE_ID
 read -e -p "route? " -i "google.com/*" VAR_ROUTE
-read -e -p "name? " -i "$(echo $VAR_ROUTE | sed -e 's/\./-/')" VAR_NAME
+read -e -p "name? " -i "$(echo $VAR_ROUTE | sed -e 's/\./-/g')" VAR_NAME
 
 cat >wrangler.toml <<eof
 type = "webpack"
