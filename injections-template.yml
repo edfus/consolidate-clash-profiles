@@ -9,3 +9,4 @@ Microsoft Network Connectivity Status Indicator:
     - DOMAIN,dns.msftncsi.com,Microsoft Network Connectivity Status Indicator
     - DOMAIN,www.msftncsi.com,Microsoft Network Connectivity Status Indicator
     - DOMAIN,www.msftconnecttest.com,Microsoft Network Connectivity Status Indicator
+    - DOMAIN,1pv6.msftconnecttest.com,Microsoft Network Connectivity Status Indicator
