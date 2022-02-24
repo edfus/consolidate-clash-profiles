@@ -177,10 +177,11 @@ function cache(filepath, payload) {
       return ;
     } else {
       const cache = {
-        maxAge: 6 * 1000,
+        maxAge: 2 * 1000,
         minFresh: 0,
         content: null,
         lastAccess: Date.now(),
+        timestamp: Date.now(),
         error: payload
       };
 
@@ -190,10 +191,11 @@ function cache(filepath, payload) {
   }
 
   const cache = {
-    maxAge: (1000) * 1000,
-    minFresh: (.5) * 1000,
+    maxAge: (5) * 1000,
+    minFresh: (.3) * 1000,
     content: payload,
     lastAccess: Date.now(),
+    timestamp: Date.now(),
     error: null
   };
 

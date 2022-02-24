@@ -124,6 +124,7 @@ function scheduleRefresh(url) {
 }
 
 function pruneCacheStore () {
+  let cacheStoreEmpty = true;
   for (const [key, cache] of cacheStore.entries()) {
     if(cache.content) {
       const timeElapsed = Date.now() - cache.lastAccess;
@@ -132,8 +133,14 @@ function pruneCacheStore () {
         || timeElapsed > 1000 * 60) { // 1 minutes
         cacheMemoryFootprint -= cache.content.length;
         cache.content = null;
+      } else {
+        cacheStoreEmpty = false;
       }
     }
+  }
+
+  if(cacheStoreEmpty) {
+    cacheMemoryFootprint = 0;
   }
 }
 
@@ -148,6 +155,7 @@ function cache({ headers, payload, url }) {
     content: payload,
     headers: headers, // http.maxHeaderSize
     lastAccess: Date.now(),
+    timestamp: Date.now(),
     hash: sha1(payload)
   };
 
