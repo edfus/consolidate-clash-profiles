@@ -284,7 +284,7 @@ async function consolidateQuantumultConf(quantumultConfPath, profileRecordsPath)
     p => `trojan = ${p.server
       }:${p.port
       }, password=${p.password
-      }, over-tls=true, tls13=true, fast-open=true, udp-relay=true, tag=${p.name}`
+      }, over-tls=true, tls13=true, fast-open=false, udp-relay=true, tag=${p.name}`
   );
 
   return conf.replace(/(?<=[\s\n]*\[server_local\][\s\n])/, servers.join("\n"));
