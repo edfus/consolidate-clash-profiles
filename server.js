@@ -292,6 +292,8 @@ async function serve (req, res, templateName, dispositionName) {
 
   const type = mime[fileExtname] || "text/plain";
   const charset = "utf8";
+  const bufferEncoding = "utf-8";
+  const payload = Buffer.from(content, bufferEncoding);
 
   // const lastModified = stats.mtimeMs;
   // const eTag = this.etag(stats);
@@ -327,44 +329,46 @@ async function serve (req, res, templateName, dispositionName) {
     ;
   }
 
-  if (content.size === 0)
+  if (payload.byteLength === 0)
     return res.writeHead(204, "Empty file", headers).end();
 
   if (req.headers["range"]) {
+    const length = payload.byteLength;
     const range = req.headers["range"];
     const [startPosSpecified, endPosSpecified] = (
       range.replace(/^bytes=/, "")
         .split("-")
         .map(n => parseInt(n, 10))
     );
-    const endPos = isNaN(endPosSpecified) ? content.length - 1 : endPosSpecified;
-    const startPos = isNaN(startPosSpecified) ? content.length - endPos - 1 : startPosSpecified;
+    const endPos = isNaN(endPosSpecified) ? length - 1 : endPosSpecified;
+    const startPos = isNaN(startPosSpecified) ? length - endPos - 1 : startPosSpecified;
 
-    if (!sequentiallyGreaterThan(-1, start, end, content.length)) {
-      headers["Content-Range"] = `bytes */${content.length}`;
+    if (!sequentiallyGreaterThan(-1, startPos, endPos, length)) {
+      headers["Content-Range"] = `bytes */${length}`;
       return res.writeHead(416, headers).end();
     }
 
+    const chunk = payload.slice(startPos, endPos + 1);
     res.writeHead(206, {
       ...headers,
-      "Content-Range": `bytes ${start}-${end}/${content.length}`,
-      "Content-Length": String(end - start + 1),
+      "Content-Range": `bytes ${startPos}-${endPos}/${length}`,
+      "Content-Length": chunk.byteLength,
     });
 
     if (req.method.toUpperCase() === "HEAD") {
       return res.end();
     }
 
-    return res.end(content.slice(startPos, endPos + 1));
+    return res.end(chunk);
   } else {
-    headers["Content-Length"] = content.length;
+    headers["Content-Length"] = payload.byteLength;
     res.writeHead(200, headers);
 
     if (req.method.toUpperCase() === "HEAD") {
       return res.end();
     }
   
-    return res.end(content);
+    return res.end(payload);
   }
 }
 
