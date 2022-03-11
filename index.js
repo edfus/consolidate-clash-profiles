@@ -287,7 +287,7 @@ async function consolidateQuantumultConf(quantumultConfPath, profileRecordsPath)
       }, over-tls=true, tls13=true, fast-open=false, udp-relay=true, tag=${p.name}`
   );
 
-  return conf.replace(/(?<=[\s\n]*\[server_local\][\s\n])/, servers.join("\n").concat("\n"));
+  return conf.replace(/(([\r\n]|^)\[server_local\]\s*[\r\n])/, `$1${servers.join("\n")}\n`);
 }
 
 export { consolidate, consolidateQuantumultConf };
