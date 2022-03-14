@@ -86,6 +86,7 @@ async function tryCallWrangling () {
 
 const mover = {
   onShift: false,
+  shiftStarts: Date.now(),
   shiftEndsTimer: 0,
   shiftEndsAction (isSilent) {
     this.onShift = false;
@@ -114,22 +115,49 @@ const mover = {
   },
   defective: false,
   movedList: new Set(),
+  locks: new Map(),
+  async lock(key) {
+    const lock = this.locks.get(key);
+    if (lock) {
+      await lock.promise;
+      return this.lock(key);
+    }
+
+    const newLock = {};
+    newLock.promise = new Promise(res => newLock.unlock = res);
+    this.locks.set(key, newLock);
+  },
+  async unlock(key) {
+    const lock = this.locks.get(key);
+    if (lock) {
+      this.locks.delete(key);
+      lock.unlock();
+      await lock.promise;
+    }
+  },
   async move(text, location, silently) {
     if(this.defective) {
       throw new Error("Cut me some slack you have to i beg u");
     }
 
     if(this.onShift) {
+      if (Date.now() - this.shiftStarts > 60_000) {
+        this.shiftStarts = Date.now();
+        setImmediate(() => this.shiftEndsAction(silently));
+      }
       clearTimeout(this.shiftEndsTimer);
     } else {
       this.onShift = true;
+      this.shiftStarts = Date.now();
     }
 
     this.shiftEndsTimer = setTimeout(
       () => this.shiftEndsAction(silently), this.wrangling ? 200 : 1500
     );
 
+    this.movedList.add(location);
     try {
+      await this.lock(location);
       await fsp.writeFile(location, text, "utf-8");
     } catch (err) {
       if(err.code === "ENOENT") {
@@ -152,9 +180,9 @@ const mover = {
 
         throw err;
       }
+    } finally {
+      await this.unlock(location);
     }
-
-    this.movedList.add(location);
   },
   scheduleReplace(text, location, silently) {
     this.move(text, location, silently).catch(console.error);

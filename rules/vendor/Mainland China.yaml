@@ -13,6 +13,7 @@ payload:
   - DOMAIN-SUFFIX,elemecdn.com
   - DOMAIN-SUFFIX,ele.me
   - DOMAIN-SUFFIX,tgovcloud.com
+  - DOMAIN-SUFFIX,qqmail.com
 
   # > Beplay
   - DOMAIN-KEYWORD,beplay
