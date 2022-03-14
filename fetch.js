@@ -1,4 +1,5 @@
-import { request } from "https";
+import { request } from "http2-wrapper";
+import { request as requestHTTP } from "http";
 import { promises as fsp } from 'fs';
 import { createHash } from 'crypto';
 import { pipeline, Transform, Writable } from "stream";
@@ -167,48 +168,58 @@ function cache({ headers, payload, url }) {
 
 async function fetch (url) {
   return new Promise((resolve, reject) => {
-    const req = request(url, {
-      headers: {
-        "accept": "application/json, text/plain, */*",
-        "user-agent": "ClashforWindows/0.19.6",
+    try {
+      const uriObject = new URL(url);
+      let get = request;
+      if (uriObject.protocol == "http:" ) {
+        get = requestHTTP;
       }
-    });
 
-    req.once("response", res => {
-      if(res.statusCode !== 200) {
-        return reject(
-          new Error(
-            `${url}: ${res.statusCode} ${
-              res.statusMessage
-            }`
+      const req = get(url, {
+        headers: {
+          "accept": "application/json, text/plain, */*",
+          "user-agent": "ClashforWindows/0.19.6",
+        }
+      });
+  
+      req.once("response", res => {
+        if(res.statusCode !== 200) {
+          return reject(
+            new Error(
+              `${url}: ${res.statusCode} ${
+                res.statusMessage
+              }`
+            )
+          );
+        }
+  
+        let data = '';
+        pipeline(
+          res,
+          new StringReader(),
+          new Writable({
+            objectMode: true,
+            write (content, encoding, cb) {
+              if (data) {
+                return cb(new Error(`Guess pigs can fly`));
+              } else {
+                data = content;
+              }
+              return cb();
+            }
+          }),
+          err => err ? reject(err) : resolve({
+              headers: res.headers, payload: data, url
+            }
           )
         );
-      }
-
-      let data = '';
-      pipeline(
-        res,
-        new StringReader(),
-        new Writable({
-          objectMode: true,
-          write (content, encoding, cb) {
-            if (data) {
-              return cb(new Error(`Guess pigs can fly`));
-            } else {
-              data = content;
-            }
-            return cb();
-          }
-        }),
-        err => err ? reject(err) : resolve({
-            headers: res.headers, payload: data, url
-          }
-        )
-      );
-    });
-    req.once("error", reject);
-    req.once("close", reject);
-    req.end();
+      });
+      req.once("error", reject);
+      req.once("close", reject);
+      req.end();
+    } catch (err) {
+      return reject(err);
+    }
   });
 }
 
