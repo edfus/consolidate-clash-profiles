@@ -1,6 +1,19 @@
 # https://github.com/dler-io/Rules
 # https://raw.dler.io/main/Clash/Provider/Proxy.yaml
-payload:  
+payload:
+  # ---
+  # Local cached DNS resolutions for UDP requests will mess up the GeoIP(CN) matcher
+  # (?<=-->\s+)[^\d]+:\d{2,6} match GeoIP\(CN\)
+  # Apple 
+  - DOMAIN-SUFFIX,xp.apple.com
+  - DOMAIN-SUFFIX,ocsp.apple.com
+  - DOMAIN-SUFFIX,itunes.apple.com
+  # Google
+  - DOMAIN-SUFFIX,doubleclick.net
+  - DOMAIN-SUFFIX,gvt2.com
+  - DOMAIN-SUFFIX,gvt3.com
+  # ---
+
   # > Line
   - DOMAIN-SUFFIX,lin.ee
   - DOMAIN-SUFFIX,line.me
@@ -680,8 +693,6 @@ payload:
 
   # > V2EX
   - DOMAIN-SUFFIX,v2ex.com
-  
-  - DOMAIN-KEYWORD,dlercloud
 
   # > exception
   - DOMAIN-SUFFIX,wheel-size.cn

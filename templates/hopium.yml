@@ -38,9 +38,9 @@ script:
 rules:
   - SCRIPT,QUIC,Quick UDP Internet Connections
   - RULE-SET,Reject,Ad Blocking
-  - RULE-SET,Proxy,Proxy
   - RULE-SET,Netflix,Netflix
   - RULE-SET,Mainland China,Mainland China
+  - RULE-SET,Proxy,Proxy
   - RULE-SET,Private Network,DIRECT
   - DOMAIN,localhost,DIRECT
   - DOMAIN-SUFFIX,local,DIRECT
