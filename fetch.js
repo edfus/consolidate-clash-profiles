@@ -96,7 +96,12 @@ async function checkCache (url) {
   cache.lastAccess = Date.now();
 
   if(cache.content) {
-    return { url, headers: cache.headers, payload: cache.content };
+    return { 
+      url, 
+      headers: cache.headers,
+      payload: cache.content, 
+      hash: cache.hash  
+    };
   }
 
   const fileContent = await readCache(url);
@@ -109,7 +114,12 @@ async function checkCache (url) {
 
   cache.content = fileContent;
   cacheMemoryFootprint += cache.content?.length || 0;
-  return { url, headers: cache.headers, payload: cache.content };
+  return { 
+    url, 
+    headers: cache.headers, 
+    payload: cache.content, 
+    hash: cache.hash 
+  };
 }
 
 const schedules = new Set();
@@ -164,6 +174,12 @@ function cache({ headers, payload, url }) {
   cacheMemoryFootprint += cache.content.length;
 
   writeCache(url, payload);
+  return { 
+    url, 
+    headers: headers, 
+    payload: payload, 
+    hash: cache.hash 
+  };
 }
 
 async function fetch (url) {
@@ -238,13 +254,12 @@ async function fetchProfile(url) {
   
   const req = fetch(url);
   processingRequests.set(url, req);
-  const res = await req.catch(
+  const res = cache(await req.catch(
     err => {
       processingRequests.delete(url);
       throw err;
     }
-  );
-  cache(res);
+  ));
   processingRequests.delete(url);
   return res;
 }

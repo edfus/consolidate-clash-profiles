@@ -184,8 +184,26 @@ const mover = {
       await this.unlock(location);
     }
   },
+  scheduled: new Set(),
   scheduleReplace(text, location, silently) {
-    this.move(text, location, silently).catch(console.error);
+    if(this.scheduled.has(location)) {
+      return
+    }
+
+    this.scheduled.add(location)
+    this.move(text, location, silently)
+      .then(
+        () => {
+          setTimeout(
+            () => this.scheduled.delete(location),
+            3000
+          ).unref();
+        },
+        err => {
+          console.error(err);
+          this.scheduled.delete(location);
+        }
+      );
   },
   isOccupied (location) {
     if(this.movedList.has(location)) { 
@@ -216,8 +234,8 @@ async function rehouse (profile, silently) {
             const tag1 = pathname.slice(pathname.lastIndexOf("/"), pathname.length).replace(/\..+$/, "");
             const tag2 = slashCount > 2 ? pathname.replace(/^(\/(gh|git))?\/([^/]+)\/.*$/, "$3") : "";
             const breed = `${tag2}-${tag1}`.toLowerCase();
-            const { payload: horse } = await fetchRuleset(url);
-            const identification = sha1(horse).slice(0, 8);
+            const { payload: horse, hash } = await fetchRuleset(url);
+            const identification = hash.slice(0, 8);
     
             const horseStall = sanitize(`${breed}-${identification}`);
             const destination = join(wranglerContactAddress, horseStall);
