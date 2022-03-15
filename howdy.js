@@ -99,6 +99,7 @@ const mover = {
       this.wrangling = true;
       wrangle(isSilent).catch( // allowing concurrent wrangling
         err => {
+          this.defect = err;
           this.defective = true;
           console.error(err);
         }
@@ -137,7 +138,7 @@ const mover = {
   },
   async move(text, location, silently) {
     if(this.defective) {
-      throw new Error("Cut me some slack you have to i beg u");
+      throw new Error(`Mover is defective: ${this.defect?.message || this.defect}`);
     }
 
     if(this.onShift) {
@@ -167,10 +168,12 @@ const mover = {
             location, text, "utf-8"
           )
         } catch (err) {
+          this.defect = err;
           this.defective = true;
           console.error(err);
         }
       } else {
+        this.defect = err;
         this.defective = true;
         console.info(
           `Accessing ${
