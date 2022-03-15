@@ -14,6 +14,8 @@ payload:
   - DOMAIN-SUFFIX,ele.me
   - DOMAIN-SUFFIX,tgovcloud.com
   - DOMAIN-SUFFIX,qqmail.com
+  - DOMAIN-SUFFIX,tencent-cloud.com
+  - DOMAIN-SUFFIX,tencent.com
 
   # > Beplay
   - DOMAIN-KEYWORD,beplay
