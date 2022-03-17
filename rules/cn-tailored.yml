@@ -11,7 +11,12 @@ payload:
   - DOMAIN-SUFFIX,tanx.com
   - DOMAIN-SUFFIX,alibaba.com
   - DOMAIN-SUFFIX,tmall.com
+
+  - DOMAIN-SUFFIX,meituan.com
+  - DOMAIN-SUFFIX,dianping.com
+  - DOMAIN-SUFFIX,elemecdn.com
+  - DOMAIN-SUFFIX,ele.me
   
-  - DOMAIN-SUFFIX,sfbuy.com
+  - DOMAIN-SUFFIX,xinhuawz.com
 
   - DOMAIN-SUFFIX,edu.cn
