@@ -34,6 +34,8 @@ payload:
   - DOMAIN-SUFFIX,tencent.com
   - DOMAIN-SUFFIX,xinhuawz.com
 
+  - DOMAIN-SUFFIX,gitee.io
+
   # > Beplay
   # - DOMAIN-KEYWORD,beplay
 
@@ -155,7 +157,7 @@ payload:
   - DOMAIN-SUFFIX,dct-cloud.com
   - DOMAIN-SUFFIX,didialift.com
   # - DOMAIN-SUFFIX,digicert.com
-  
+
   - DOMAIN-SUFFIX,douban.com
   - DOMAIN-SUFFIX,doubanio.com
 
@@ -234,9 +236,8 @@ payload:
   - DOMAIN-SUFFIX,meizu.com
   - DOMAIN-SUFFIX,metatrader4.com
   - DOMAIN-SUFFIX,metatrader5.com
-  # - DOMAIN-SUFFIX,mi.com
+
   - DOMAIN-SUFFIX,miaopai.com
-  # - DOMAIN-SUFFIX,miui.com
   # - DOMAIN-SUFFIX,miwifi.com
 
   # - DOMAIN-SUFFIX,mob.com
@@ -247,7 +248,9 @@ payload:
   - DOMAIN-SUFFIX,myqcloud.com
   - DOMAIN-SUFFIX,myunlu.com
   - DOMAIN-SUFFIX,ngabbs.com
+  
   - DOMAIN-SUFFIX,netease.com
+  
   - DOMAIN-SUFFIX,nfoservers.com
   - DOMAIN-SUFFIX,nssurge.com
   - DOMAIN-SUFFIX,nuomi.com
@@ -259,15 +262,21 @@ payload:
   - DOMAIN-SUFFIX,privatehd.to
   - DOMAIN-SUFFIX,pstatp.com
   - DOMAIN-SUFFIX,qbox.me
+
   - DOMAIN-SUFFIX,qcloud.com
   - DOMAIN-SUFFIX,qdaily.com
   - DOMAIN-SUFFIX,qdmm.com
   - DOMAIN-SUFFIX,qhimg.com
+
   - DOMAIN-SUFFIX,qidian.com
+
   - DOMAIN-SUFFIX,qihucdn.com
+
   - DOMAIN-SUFFIX,qin.io
+
   - DOMAIN-SUFFIX,qingmang.me
   - DOMAIN-SUFFIX,qingmang.mobi
+
   - DOMAIN-SUFFIX,qiniucdn.com
   - DOMAIN-SUFFIX,qiniudn.com
 
@@ -312,6 +321,7 @@ payload:
   - DOMAIN-SUFFIX,tudou.com
   - DOMAIN-SUFFIX,udache.com
   - DOMAIN-SUFFIX,umengcloud.com
+
   - DOMAIN-SUFFIX,upaiyun.com
   - DOMAIN-SUFFIX,upyun.com
 
@@ -337,15 +347,16 @@ payload:
   - DOMAIN-SUFFIX,xdrig.com
   - DOMAIN-SUFFIX,xhostfire.com
 
-  - DOMAIN-SUFFIX,xiami.com
-  - DOMAIN-SUFFIX,xiami.net
+  # - DOMAIN-SUFFIX,mi.com
+  # - DOMAIN-SUFFIX,miui.com
+  # - DOMAIN-SUFFIX,xiami.com
+  # - DOMAIN-SUFFIX,xiami.net
   - DOMAIN-SUFFIX,xiaojukeji.com
 
-  - DOMAIN-SUFFIX,xiaomi.com
-  - DOMAIN-SUFFIX,xiaomi.net
-  - DOMAIN-SUFFIX,xiaomicp.com
+  # - DOMAIN-SUFFIX,xiaomicp.com
 
   - DOMAIN-SUFFIX,ximalaya.com
+
   - DOMAIN-SUFFIX,xitek.com
   - DOMAIN-SUFFIX,xmcdn.com
   - DOMAIN-SUFFIX,xslb.net
