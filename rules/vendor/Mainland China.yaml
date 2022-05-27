@@ -1,6 +1,9 @@
 # https://github.com/dler-io/Rules
 # https://raw.dler.io/main/Clash/Provider/Domestic.yaml
 payload:
+  # Baidu Map
+  - DOMAIN-SUFFIX,bcebos.com
+  - DOMAIN-SUFFIX,pingan.com
   - DOMAIN-SUFFIX,alibaba.com
   - DOMAIN-SUFFIX,alibabacloud.com
   - DOMAIN-SUFFIX,alicdn.com
