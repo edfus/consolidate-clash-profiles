@@ -44,6 +44,7 @@ rules:
   - RULE-SET,Private Network,DIRECT
   - DOMAIN,localhost,DIRECT
   - DOMAIN-SUFFIX,local,DIRECT
+  - DOMAIN-SUFFIX,lan,DIRECT
   - GEOIP,CN,Mainland China,no-resolve
   - MATCH,Proxy
 rule-providers:
