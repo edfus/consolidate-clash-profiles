@@ -1,6 +1,8 @@
 # https://github.com/dler-io/Rules
 # https://raw.dler.io/main/Clash/Provider/Domestic.yaml
 payload:
+  - DOMAIN-SUFFIX,weiyun.com
+
   - DOMAIN-SUFFIX,meituan.net
   - DOMAIN-SUFFIX,sankuai.com
 
