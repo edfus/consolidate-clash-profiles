@@ -40,7 +40,8 @@ proxy-groups:
       - Proxy
 script:
   shortcuts:
-    QUIC: network == 'udp' and dst_port == 443
+    QUIC: network == 'udp' and dst_port == 443 and (geoip(resolve_ip(host)) != 'CN' or geoip(dst_ip) != 'CN')
+
 
 rules:
   - SCRIPT,QUIC,Quick UDP Internet Connections
