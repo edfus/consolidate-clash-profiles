@@ -5,7 +5,9 @@ set -e
 readonly __dirname=$(dirname "$(readlink -f "$0")")
 cd "$__dirname"
 
-rmdir wrangler.toml
+set +e
+rmdir wrangler.toml 2>/dev/null
+set -e
 read -e -p "account_id? " ACCOUNT_ID
 read -e -p "zone_id? " ZONE_ID
 read -e -p "route? " -i "google.com/*" VAR_ROUTE
