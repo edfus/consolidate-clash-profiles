@@ -231,7 +231,7 @@ async function fetch (url) {
         );
       });
       req.once("error", reject);
-      req.once("close", reject);
+      req.once("close", () => reject(new Error(`${url}: connection prematurely closed.`)));
       req.end();
     } catch (err) {
       return reject(err);
