@@ -253,7 +253,7 @@ async function rehouse (profile, silently) {
             }
     
             ruleProvider.url = `${ranchLocation}/${horseStall}`;
-            ruleProvider.path = `./ruleset/${horseStall}`;
+            ruleProvider.path = `./rule_provider/${horseStall}`;
           } catch (err) {
             if(!mover.defective) {
               console.error(err);
