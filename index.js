@@ -6,16 +6,20 @@ async function parseProfile(profile) {
   profile = typeof profile === "object" ? profile : {
     url: profile,
     map: p => p.proxies || [],
-    nameservers: true
+    nameservers: true,
+    hosts: true
   };
 
   if (!profile.map) {
     profile.map = p => p.proxies || [];
   }
 
-  
   if (!profile.hasOwnProperty("nameservers")) {
     profile.nameservers = true;
+  }
+
+  if (!profile.hasOwnProperty("hosts")) {
+    profile.hosts = true;
   }
 
   const response = await fetchProfile(profile.url);
@@ -77,7 +81,7 @@ async function parseProfile(profile) {
 
   return {
     proxies,
-    hosts: content.hosts || {},
+    hosts: profile.hosts && content.hosts || {},
     nameservers: (
       profile.nameservers && Array.isArray(content.dns?.nameserver)
         ? content.dns?.nameserver : []
@@ -217,15 +221,15 @@ async function consolidate(template, profileRecordsPath, injectionsPath) {
         ) : []
   );
 
-  combinedProfile.hosts = combinedProfile.hosts || {};
+  combinedProfile.hosts = Object.assign(combinedProfile.hosts || {}, hosts);
 
   for (const doh of dohs) {
     if (!nameservers.includes(doh)) {
       try {
         const dohHostname = new URL(doh).hostname;
-        if (hosts[dohHostname] && !combinedProfile.hosts[dohHostname]) {
-          combinedProfile.hosts[dohHostname] = hosts[dohHostname];
-        }
+        // if (hosts[dohHostname] && !combinedProfile.hosts[dohHostname]) {
+        //   combinedProfile.hosts[dohHostname] = hosts[dohHostname];
+        // }
         nameservers.push(doh);
       } catch (err) {
         console.error(err);
