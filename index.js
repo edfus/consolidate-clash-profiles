@@ -5,8 +5,18 @@ import { fetchProfile } from "./fetch.js";
 async function parseProfile(profile) {
   profile = typeof profile === "object" ? profile : {
     url: profile,
-    map: p => p.proxies || []
+    map: p => p.proxies || [],
+    nameservers: true
   };
+
+  if (!profile.map) {
+    profile.map = p => p.proxies || [];
+  }
+
+  
+  if (!profile.hasOwnProperty("nameservers")) {
+    profile.nameservers = true;
+  }
 
   const response = await fetchProfile(profile.url);
   const userInfo = response.headers["subscription-userinfo"];
@@ -69,7 +79,7 @@ async function parseProfile(profile) {
     proxies,
     hosts: content.hosts || {},
     nameservers: (
-      Array.isArray(content.dns?.nameserver)
+      profile.nameservers && Array.isArray(content.dns?.nameserver)
         ? content.dns?.nameserver : []
     )
   };

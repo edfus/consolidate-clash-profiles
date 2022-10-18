@@ -1,5 +1,9 @@
 export default [
-  "https://admin:9acdc7d8@zombo.com/config/clash.yml",
+  "https://admin:9acdc7d8@zombo.com/config/clash.yml",  
+  {
+    url: "https://clash:122h2347QfdvCc12w2@xx.xx//clash.yml",
+    nameservers: false
+  },
   {
     url: "https://dler.cloud/subscribe/$dabrig?clash=trojan",
     map: yml => {
