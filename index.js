@@ -114,7 +114,7 @@ async function consolidate(template, profileRecordsPath, injectionsPath) {
     })()
   ]);
 
-  const proxies = fetchedProxies.filter(
+  const proxiesWithPossibleDuplicates = fetchedProxies.filter(
     job => {
       switch (job.status) {
         case "fulfilled":
@@ -125,7 +125,7 @@ async function consolidate(template, profileRecordsPath, injectionsPath) {
       }
     }
   ).map(result => result.value).reduce(
-    (a, e) => a.concat(e), []
+    (a, e) => Array.isArray(e) ? a.concat(e) : a, []
   );
 
   const hosts = hostsInProfiles.reduce(
@@ -137,6 +137,26 @@ async function consolidate(template, profileRecordsPath, injectionsPath) {
       ns => typeof ns === "string" && ns.startsWith("https://")
     )), []
   ));
+
+  const proxyTable = new Map();
+  
+  for (const proxy of proxiesWithPossibleDuplicates) {
+    for (let proxyName = proxy.name, i = 0; ; proxyName = `${proxyName} (${++i})`) {
+      if(!proxyTable.has(proxyName)) {
+        const newProxy = Object.assign({}, proxy);
+        newProxy.name = proxyName;
+        proxyTable.set(proxyName, newProxy);
+        break;
+      }
+
+      // proxies[proxyName] exists
+      if (JSON.stringify(proxyTable.get(proxyName)) === JSON.stringify(proxy)) {
+        break;
+      }
+    }
+  }
+
+  const proxies = Array.from(proxyTable.values());
 
   if (!proxies.length) {
     throw new Error("Every profile processing has failed.");
