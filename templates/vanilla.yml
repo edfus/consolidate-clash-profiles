@@ -27,7 +27,7 @@ script:
     QUIC: network == 'udp' and dst_port == 443
 
 rules:
-  - SCRIPT,QUIC,Quick UDP Internet Connections
+  - SCRIPT,QUIC,Quick UDP Internet Connections,no-resolve
   - DOMAIN,localhost,DIRECT
   - DOMAIN-SUFFIX,local,DIRECT
   - IP-CIDR,0.0.0.0/8,DIRECT,no-resolve

@@ -44,7 +44,7 @@ script:
 
 
 rules:
-  - SCRIPT,QUIC,Quick UDP Internet Connections
+  - SCRIPT,QUIC,Quick UDP Internet Connections,no-resolve
   - RULE-SET,reject,AdBlock
   - RULE-SET,icloud,Apple
   - RULE-SET,apple,Apple

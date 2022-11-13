@@ -53,7 +53,7 @@ script:
     QUIC: network == 'udp' and dst_port == 443 and (geoip(resolve_ip(host)) != 'CN' or geoip(dst_ip) != 'CN')
 
 rules:
-  - SCRIPT,QUIC,Quick UDP Internet Connections
+  - SCRIPT,QUIC,Quick UDP Internet Connections,no-resolve
   - RULE-SET,Reject,Ad Blocking
   - RULE-SET,Netflix,Netflix
   - RULE-SET,Mainland China,Mainland China
