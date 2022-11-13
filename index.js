@@ -2,24 +2,46 @@ import { load } from 'js-yaml';
 import { promises as fsp } from 'fs';
 import { fetchProfile } from "./fetch.js";
 
-async function parseProfile(profile) {
+const noModification = p => p.proxies || [];
+async function parseProfile(profile, specifiedUser = "default", specifiedProfile = "default") {
   profile = typeof profile === "object" ? profile : {
-    url: profile,
-    map: p => p.proxies || [],
-    nameservers: true,
-    hosts: true
+    url: profile
   };
 
-  if (!profile.map) {
-    profile.map = p => p.proxies || [];
+  profile = Object.assign({
+    map: noModification,
+    nameservers: true,
+    hosts: true,
+    profiles: ["default"],
+    users: ["default"],
+    rules: {
+      prepended: [],
+      appended: []
+    },
+  }, profile);
+
+  if (typeof profile.users === "string") {
+    profile.users = [ profile.users ];
+  }
+  
+  if (!Array.isArray(profile.users)) {
+    ;
+  } else {
+    if (!profile.users.includes(specifiedUser)) {
+      return null;
+    }
   }
 
-  if (!profile.hasOwnProperty("nameservers")) {
-    profile.nameservers = true;
+  if (typeof profile.profiles === "string") {
+    profile.profiles = [ profile.profiles ];
   }
-
-  if (!profile.hasOwnProperty("hosts")) {
-    profile.hosts = true;
+  
+  if (!Array.isArray(profile.profiles)) {
+    ;
+  } else {
+    if (!profile.profiles.includes(specifiedProfile)) {
+      return null;
+    }
   }
 
   const response = await fetchProfile(profile.url);
@@ -79,29 +101,87 @@ async function parseProfile(profile) {
     }
   }
 
+  if (!profile.rules || typeof profile.rules !== "object") {
+    profile.rules = {};
+  }
+
+  if (Array.isArray(profile.rules)) {
+    profile.rules = {
+      prepended: profile.rules,
+      appended: []
+    }
+  }
+
+  if(!profile.rules?.prepended || !Array.isArray(profile.rules.prepended)) {
+    profile.rules.prepended = [];
+  }
+
+  if(!profile.rules?.appended || !Array.isArray(profile.rules.appended)) {
+    profile.rules.appended = [];
+  }
+
+  if("proxyServersConnectMethod" in profile) {
+    const connectMethod = profile.proxyServersConnectMethod;
+    if(!["DIRECT", "Proxy"].includes(connectMethod)) {
+      console.warn(`Uncommon connectMethod ${profile.proxyServersConnectMethod} in profile ${JSON.stringify(profile)}`);
+    }
+    const servers = proxies.map(
+      proxy => typeof proxy?.server === "string" && proxy.server
+    ).filter(Boolean);
+
+    const uniqueServers = [...new Set(servers)];
+    const directConnectionRules = uniqueServers.map(
+      serverAddress => {
+        if(/[a-z]/i.test(serverAddress)) {
+          return `DOMAIN,${serverAddress},DIRECT`;
+        }
+        if(serverAddress.includes(":")) {
+          return `IP-CIDR6,${serverAddress}/128,DIRECT,no-resolve`;
+        }
+        return `IP-CIDR,${serverAddress}/32,DIRECT,no-resolve`;
+      }
+    );
+    profile.rules.prepended = profile.rules.prepended.concat(
+      directConnectionRules
+    );
+  }
+
   return {
     proxies,
     hosts: profile.hosts && content.hosts || {},
     nameservers: (
       profile.nameservers && Array.isArray(content.dns?.nameserver)
         ? content.dns?.nameserver : []
-    )
+    ),
+    rules: profile.rules
   };
 }
 
-async function consolidate(template, profileRecordsPath, injectionsPath) {
+async function consolidate(template, profileRecordsPath, injectionsPath, specifiedUser, specifiedProfile) {
   const hostsInProfiles = [];
   const nameserversInProfiles = [];
+  const rulesInProfiles = {
+    prepended: [],
+    appended: []
+  };
 
   const [profileTemplate, fetchedProxies, injections] = await Promise.all([
     fsp.readFile(template, "utf-8").then(load),
     import(profileRecordsPath).then(data => data.default)
       .then(profiles => Promise.allSettled(
-        profiles.map(p => parseProfile(p).then(
-          ({proxies, hosts, nameservers}) => {
-            hostsInProfiles.push(hosts);
-            nameserversInProfiles.push(nameservers);
-            return proxies;
+        profiles.map(p => parseProfile(
+          p, specifiedUser, specifiedProfile).then(
+          profile => {
+            if(!profile) return null;
+            hostsInProfiles.push(profile.hosts);
+            nameserversInProfiles.push(profile.nameservers);
+            rulesInProfiles.prepended = rulesInProfiles.prepended.concat(
+              profile.rules.prepended
+            );
+            rulesInProfiles.appended = rulesInProfiles.appended.concat(
+              profile.rules.appended
+            );
+            return profile.proxies;
           }
         ))
       )),
@@ -179,6 +259,7 @@ async function consolidate(template, profileRecordsPath, injectionsPath) {
     }];
   }
 
+  let customRules = rulesInProfiles.prepended;
   if (injections) {
     let proxyPseudonym = "";
     for (const proxyGroup of combinedProfile["proxy-groups"]) {
@@ -192,12 +273,6 @@ async function consolidate(template, profileRecordsPath, injectionsPath) {
       proxyPseudonym = combinedProfile["proxy-groups"][0].name;
     }
 
-    if (!Array.isArray(combinedProfile.rules)) {
-      console.warn(`!Array.isArray(combinedProfile.rules)`);
-      combinedProfile.rules = [];
-    }
-
-    let rules = [];
     for (const key in injections) {
       if (combinedProfile["proxy-groups"].every(
         g => g.name !== key)) {
@@ -210,15 +285,20 @@ async function consolidate(template, profileRecordsPath, injectionsPath) {
         );
       }
 
-      rules = rules.concat(
+      customRules = customRules.concat(
         injections[key].payload
       );
     }
-
-    combinedProfile.rules = rules.concat(
-      combinedProfile.rules
-    );
   }
+
+  if (!Array.isArray(combinedProfile.rules)) {
+    console.warn(`!Array.isArray(combinedProfile.rules)`);
+    combinedProfile.rules = [];
+  }
+  
+  combinedProfile.rules = customRules.concat(
+    combinedProfile.rules
+  ).concat(rulesInProfiles.appended);
 
   combinedProfile["proxy-groups"].forEach(
     group => group.proxies = (
