@@ -103,7 +103,7 @@ hosts:
   # security-filter-dns.cleanbrowsing.org: 185.228.168.9
 dns:
   enable: true
-  listen: 0.0.0.0:53
+  listen: 0.0.0.0:15353
   enhanced-mode: fake-ip
   use-hosts: true
   nameserver:    

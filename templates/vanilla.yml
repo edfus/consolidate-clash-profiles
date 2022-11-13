@@ -49,7 +49,7 @@ hosts:
   # dns10.quad9.net: 9.9.9.10
 dns:
   enable: true
-  listen: 0.0.0.0:53
+  listen: 0.0.0.0:15353
   enhanced-mode: fake-ip
   use-hosts: true
   nameserver: []

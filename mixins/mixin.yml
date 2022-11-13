@@ -20,4 +20,4 @@ mixin: # object
     auto-route: true
     # auto-detect-interface: true
     dns-hijack:
-      - 198.18.0.2:53
+      - tcp://any:53

@@ -161,7 +161,7 @@ hosts:
   # sandbox.opendns.com: 208.67.222.2
 dns: # DNS leak guaranteed
   enable: true
-  listen: 0.0.0.0:53
+  listen: 0.0.0.0:15353
   enhanced-mode: fake-ip
   use-hosts: true
   nameserver:
