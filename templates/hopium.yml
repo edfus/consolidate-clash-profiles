@@ -10,11 +10,25 @@ proxies: []
 proxy-groups:
   - name: Proxy
     type: select
+    proxies:
+      - Automatic Failover
+      - Load Balanced
+  - name: Load Balanced
+    type: load-balance
     proxies: []
+    url: 'http://www.gstatic.com/generate_204'
+    interval: 300
+    strategy: consistent-hashing
+  - name: Automatic Failover
+    type: fallback
+    proxies: []
+    url: 'http://www.gstatic.com/generate_204'
+    interval: 300
   - name: Netflix
     type: select
     proxies:
       - Proxy
+      - Automatic Failover
       - DIRECT
   - name: Bypass
     type: select
