@@ -264,7 +264,7 @@ async function fetch (url) {
 }
 
 const processingRequests = new Map();
-async function fetchProfile(url) {
+async function fetchWrapper(url) {
   url = new URL(url).toString();
   const previousReq = processingRequests.get(url);
   if(previousReq) {
@@ -294,4 +294,4 @@ async function fetchProfile(url) {
   return res;
 }
 
-export { fetchProfile,  fetchProfile as fetchRuleset }
+export { fetchWrapper as fetchProfile, fetchWrapper as fetchRuleset }

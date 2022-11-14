@@ -8,5 +8,4 @@ cached
 output
 external-rulesets
 dist
-README.md
 *.log
