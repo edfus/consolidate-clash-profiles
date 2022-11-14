@@ -1,4 +1,4 @@
-import TOML from '@iarna/toml'
+import TOML from '@iarna/toml';
 import { exec, spawn } from 'child_process';
 import { promises as fsp, existsSync } from 'fs';
 import { dirname, join } from 'path';
@@ -7,13 +7,14 @@ import { fileURLToPath } from 'url';
 import { fetchRuleset } from './fetch.js';
 import { createHash } from 'crypto';
 import sanitize from 'sanitize-filename';
+import logger from './logger.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-async function callWrangler () {
+async function callWrangler() {
   await new Promise((resolve, reject) => {
     exec("wrangler --version", { cwd: __dirname, env: process.env }, (err, stdin, stderr) => {
-      if(err) {
+      if (err) {
         return reject(err);
       }
       return resolve();
@@ -30,7 +31,7 @@ async function callWrangler () {
   ];
 
   for (const requirement of mandates) {
-    if(!requirement.split(".").reduce(
+    if (!requirement.split(".").reduce(
       (value, property) => value?.[property], wranglerSettings
     )) {
       throw new TypeError(`${requirement} is required in wrangler.toml`);
@@ -44,13 +45,32 @@ async function callWrangler () {
   )}`;
 }
 
-async function wrangle (silent = false) {
+// async function wrangle(silent = false) {
+//   await new Promise((resolve, reject) => {
+//     const child = spawn("wrangler", ["publish"], {
+//       shell: !silent, stdio: [
+//         "ignore",
+//         silent ? "ignore" : "pipe",
+//         silent ? "inherit" : "inherit"
+//       ], env: {
+//         ...process.env,
+//         "FORCE_COLOR": process.env["FORCE_COLOR"] || 1
+//       }, cwd: __dirname
+//     });
+//   });
+// }
+
+async function wrangle(silent = false) {
+
+  let stderr = "";
+  let stdout = "";
+  let exitcode = Infinity;
   await new Promise((resolve, reject) => {
-    const child = spawn("wrangler", [ "publish" ], {
-      shell: !silent, stdio: [
-        "ignore", 
-        silent ? "ignore" : "pipe", 
-        silent ? "inherit" : "inherit"
+    const child = spawn("wrangler", ["publish"], {
+      shell: false, stdio: [
+        "ignore",
+        "pipe",
+        "pipe"
       ], env: {
         ...process.env,
         "FORCE_COLOR": process.env["FORCE_COLOR"] || 1
@@ -59,27 +79,49 @@ async function wrangle (silent = false) {
 
     child.once("error", reject);
     child.once("exit", code => {
+      exitcode = code;
       if (code === 0)
-        return resolve();
+        return resolve(logger.info("wrangler publish: exits with return code 0"));
       return reject(new Error(
         `Command 'wrangler publish' returns non-zero exit code ${code}`
       ));
     });
+    child.stderr.setEncoding('utf8');
+    child.stderr.on('data', data => {
+      data = data.toString();
+      stderr += data;
+    });
 
-    if(!silent)
-      child.stdout.on("data", data => process.stdout.write(data));
-  });
+    if (!silent) {
+      child.stdout.setEncoding('utf8');
+      child.stdout.on('data', function (data) {
+        data = data.toString();
+        stdout += data;
+      });
+    }
+  }).finally(
+    () => {
+      if(stdout) {
+        logger.debug(stdout);
+      }
+      if(stderr) {
+        if(exitcode === 0)
+          logger.debug(stderr);
+        else logger.error(stderr);
+      }
+    }
+  );
 }
 
 let ranchLocation = "http://localhost/";
 const wranglerContactAddress = join(__dirname, "external-rulesets");
 
-async function tryCallWrangling () {
+async function tryCallWrangling() {
   try {
     ranchLocation = await callWrangler();
     return true;
   } catch (err) {
-    console.error(err.message);
+    logger.error(err.message);
     return false;
   }
 }
@@ -88,30 +130,30 @@ const mover = {
   onShift: false,
   shiftStarts: Date.now(),
   shiftEndsTimer: 0,
-  shiftEndsAction (isSilent) {
+  shiftEndsAction(isSilent) {
     this.onShift = false;
 
-    if(!this.defective) {
-      if(this.wrangling) {
+    if (!this.defective) {
+      if (this.wrangling) {
         return this.wranglingScheduled = true;
       }
-  
+
       this.wrangling = true;
       wrangle(isSilent).catch( // allowing concurrent wrangling
         err => {
           this.defect = err;
           this.defective = true;
-          console.error(err);
+          logger.error(err);
         }
       ).finally(
         () => {
           this.wrangling = false;
-          if(this.wranglingScheduled) {
+          if (this.wranglingScheduled) {
             this.wranglingScheduled = false;
             return this.shiftEndsAction(isSilent);
           }
         }
-      )
+      );
     }
   },
   defective: false,
@@ -137,11 +179,11 @@ const mover = {
     }
   },
   async move(text, location, silently) {
-    if(this.defective) {
+    if (this.defective) {
       throw new Error(`Mover is defective: ${this.defect?.message || this.defect}`);
     }
 
-    if(this.onShift) {
+    if (this.onShift) {
       if (Date.now() - this.shiftStarts > 60_000) {
         this.shiftStarts = Date.now();
         setImmediate(() => this.shiftEndsAction(silently));
@@ -161,23 +203,22 @@ const mover = {
       await this.lock(location);
       await fsp.writeFile(location, text, "utf-8");
     } catch (err) {
-      if(err.code === "ENOENT") {
+      if (err.code === "ENOENT") {
         try {
           await fsp.mkdir(wranglerContactAddress, { recursive: true });
           await fsp.writeFile(
             location, text, "utf-8"
-          )
+          );
         } catch (err) {
           this.defect = err;
           this.defective = true;
-          console.error(err);
+          logger.error(err);
         }
       } else {
         this.defect = err;
         this.defective = true;
-        console.info(
-          `Accessing ${
-            destination
+        logger.info(
+          `Accessing ${destination
           } failed. Will stop trying putting the SSOT in place`
         );
 
@@ -189,11 +230,11 @@ const mover = {
   },
   scheduled: new Set(),
   scheduleReplace(text, location, silently) {
-    if(this.scheduled.has(location)) {
-      return
+    if (this.scheduled.has(location)) {
+      return;
     }
 
-    this.scheduled.add(location)
+    this.scheduled.add(location);
     this.move(text, location, silently)
       .then(
         () => {
@@ -203,33 +244,33 @@ const mover = {
           ).unref();
         },
         err => {
-          console.error(err);
+          logger.error(err);
           this.scheduled.delete(location);
         }
       );
   },
-  isOccupied (location) {
-    if(this.movedList.has(location)) { 
+  isOccupied(location) {
+    if (this.movedList.has(location)) {
       return true;
     } else {
       return existsSync(location);
     }
   }
-}
+};
 
 function sha1(str) {
   return createHash('sha1').update(str).digest('hex');
 }
 
-async function rehouse (profile, silently) {
-  if(mover.defective || !profile["rule-providers"]) {
+async function rehouse(profile, silently) {
+  if (mover.defective || !profile["rule-providers"]) {
     return profile;
   }
 
   await Promise.all(
     Object.values(profile["rule-providers"]).map(
       async ruleProvider => {
-        if(ruleProvider?.type === "http") {
+        if (ruleProvider?.type === "http") {
           try {
             const url = ruleProvider.url;
             const pathname = new URL(url).pathname;
@@ -239,27 +280,27 @@ async function rehouse (profile, silently) {
             const breed = `${tag2}-${tag1}`.toLowerCase();
             const { payload: horse, hash } = await fetchRuleset(url);
             const identification = hash.slice(0, 8);
-    
+
             const horseStall = sanitize(`${breed}-${identification}`);
             const destination = join(wranglerContactAddress, horseStall);
-            if(mover.defective) {
-              return ;
+            if (mover.defective) {
+              return;
             }
-            
-            if(mover.isOccupied(destination)) {
+
+            if (mover.isOccupied(destination)) {
               mover.scheduleReplace(horse, destination, silently);
             } else {
               await mover.move(horse, destination, silently);
             }
-    
+
             ruleProvider.url = `${ranchLocation}/${horseStall}`;
             ruleProvider.path = `./rule_provider/${horseStall}`;
           } catch (err) {
-            if(!mover.defective) {
-              console.error(err);
+            if (!mover.defective) {
+              logger.error(err);
             } else {
               throw err;
-            } 
+            }
           }
         }
       }
@@ -267,6 +308,6 @@ async function rehouse (profile, silently) {
   );
 
   return profile;
-} 
+}
 
 export { wrangle, callWrangler, tryCallWrangling, rehouse };

@@ -2,6 +2,7 @@ import { load } from 'js-yaml';
 import { promises as fsp } from 'fs';
 import { basename } from "path";
 import { fetchProfile } from "./fetch.js";
+import logger from './logger.js';
 
 const noModification = p => p.proxies || [];
 async function parseProfile(profile, specifiedTemplate, specifiedUser = "default", specifiedProfile = "default") {
@@ -23,33 +24,39 @@ async function parseProfile(profile, specifiedTemplate, specifiedUser = "default
 
   if ("templates" in profile) {
     if (!Array.isArray(profile.templates)) {
+      logger.debug(`${profile.url}: profile.templates: !isArray, = [ ${profile.templates} ];`);
       profile.templates = [profile.templates];
     }
     if(!profile.templates.includes(specifiedTemplate)){
+      logger.debug(`${profile.url}: profile.templates: !${profile.templates}.includes(${specifiedTemplate})`);
       return null;
     }
   }
 
   if (typeof profile.users === "string") {
+    logger.debug(`${profile.url}: profile.users: string, = [ ${profile.users} ];`);
     profile.users = [ profile.users ];
   }
   
   if (!Array.isArray(profile.users)) {
-    ;
+    logger.debug(`${profile.url}: profile.users: !Array.isArray(${profile.users})`);
   } else {
     if (!profile.users.includes(specifiedUser)) {
+      logger.debug(`${profile.url}: profile.users: !${profile.users}.includes(${specifiedUser})`);
       return null;
     }
   }
 
   if (typeof profile.profiles === "string") {
+    logger.debug(`${profile.url}: profile.profiles: string, = [ ${profile.profiles} ];`);
     profile.profiles = [ profile.profiles ];
   }
   
   if (!Array.isArray(profile.profiles)) {
-    ;
+    logger.debug(`${profile.url}: profile.profiles: !Array.isArray(${profile.profiles})`);
   } else {
     if (!profile.profiles.includes(specifiedProfile)) {
+      logger.debug(`${profile.url}: profile.profiles: !${profile.profiles}.includes(${specifiedProfile})`);
       return null;
     }
   }
@@ -61,7 +68,7 @@ async function parseProfile(profile, specifiedTemplate, specifiedUser = "default
   const proxies = profile.map(content);
   if (!Array.isArray(proxies)) {
     throw new TypeError(
-      `${response.url}: malformed map function: expected returned value to be of type Array`
+      `${response.url}: map: malformed function: expected returned value to be of type Array`
     );
   }
 
@@ -112,10 +119,12 @@ async function parseProfile(profile, specifiedTemplate, specifiedUser = "default
   }
 
   if (!profile.rules || typeof profile.rules !== "object") {
+    logger.debug(`${profile.url}: profile.rules: discarded`);
     profile.rules = {};
   }
 
   if (Array.isArray(profile.rules)) {
+    logger.debug(`${profile.url}: profile.rules: Array.isArray(${profile.rules}): will prepend`);
     profile.rules = {
       prepended: profile.rules,
       appended: []
@@ -133,7 +142,7 @@ async function parseProfile(profile, specifiedTemplate, specifiedUser = "default
   if("proxyServersConnectMethod" in profile) {
     const connectMethod = profile.proxyServersConnectMethod;
     if(!["DIRECT", "Proxy"].includes(connectMethod)) {
-      console.warn(`Uncommon connectMethod ${profile.proxyServersConnectMethod} in profile ${JSON.stringify(profile)}`);
+      logger.warn(`Uncommon connectMethod ${profile.proxyServersConnectMethod} in profile ${JSON.stringify(profile)}`);
     }
     const servers = proxies.map(
       proxy => typeof proxy?.server === "string" && proxy.server
@@ -211,7 +220,7 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
         case "fulfilled":
           return true;
         default: // rejected
-          console.error(job.reason);
+          logger.error(job.reason);
           return false;
       }
     }
@@ -262,7 +271,7 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
   );
 
   if (!Array.isArray(combinedProfile["proxy-groups"])) {
-    console.warn(`!Array.isArray(combinedProfile["proxy-groups"])`);
+    logger.warn(`!Array.isArray(combinedProfile["proxy-groups"])`);
     combinedProfile["proxy-groups"] = [{
       name: "Proxy",
       type: "select",
@@ -303,7 +312,7 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
   }
 
   if (!Array.isArray(combinedProfile.rules)) {
-    console.warn(`!Array.isArray(combinedProfile.rules)`);
+    logger.warn(`!Array.isArray(combinedProfile.rules)`);
     combinedProfile.rules = [];
   }
   
@@ -343,7 +352,7 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
         // }
         nameservers.push(doh);
       } catch (err) {
-        console.error(err);
+        logger.error(err);
       }
     }
   }
@@ -385,7 +394,7 @@ async function consolidateQuantumultConf(quantumultConfPath, profileRecordsPath)
         case "fulfilled":
           return true;
         default: // rejected
-          console.error(job.reason);
+          logger.error(job.reason);
           errors.push(job.reason);
           return false;
       }

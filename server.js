@@ -8,14 +8,14 @@ import { tryCallWrangling, rehouse } from "./howdy.js";
 import { freemem } from "os";
 import { dump } from "js-yaml";
 import { inspect } from "util";
+import logger from "./logger.js";
 
 const app = new App();
 app
   .prepend(
     async (ctx, next) => {
       await next();
-      console.info([
-        new Date().toLocaleString(),
+      logger.info([
         `${ctx.ip} ${ctx.req.method} ${ctx.req.url}`,
         ctx.res.statusCode
       ].join(" - "));
@@ -23,7 +23,7 @@ app
   )
   .on("error", err => {
     if(err.status != 404) {
-      console.error(err);
+      logger.error(err);
     }
   })
 ;
@@ -142,7 +142,7 @@ function scheduleRefresh(filepath) {
   schedules.add(filepath);
   consolidateAndWrangle(filepath).then(content => cache(filepath, content))
   .catch(err => {
-    console.error(err);
+    logger.error(err);
     cache(filepath, err);
   }).finally(() => {
     schedules.delete(filepath);
@@ -377,7 +377,7 @@ app.use((ctx) => {
 });
 
 const server = app.listen(80, "0.0.0.0", function () {
-  console.info(
+  logger.info(
     `The server is running at http://127.0.0.1:${this.address().port}`
   );
 })
