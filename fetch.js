@@ -170,7 +170,7 @@ function pruneCacheStore () {
 
   if(cacheStoreEmpty) {
     cacheMemoryFootprint = 0;
-    logger.debug(`cacheStoreEmpty: cache memory footprint: ${cacheMemoryFootprint}`);
+    logger.debug(`fetch: cacheStoreEmpty: cache memory footprint: ${cacheMemoryFootprint}`);
   }
 }
 

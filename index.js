@@ -6,7 +6,7 @@ import logger from './logger.js';
 import { pathToFileURL } from "url";
 
 const noModification = p => p.proxies || [];
-async function parseProfile(profile, specifiedTemplate, specifiedUser = "default", specifiedProfile = "default") {
+async function parseProfile(profile, specifiedTemplate, specifiedUser = "default", specifiedUserProfile = "default") {
   profile = typeof profile === "object" ? profile : {
     url: profile
   };
@@ -56,8 +56,8 @@ async function parseProfile(profile, specifiedTemplate, specifiedUser = "default
   if (!Array.isArray(profile.profiles)) {
     logger.debug(`profile: parse: ${profile.url}: profile.profiles: !Array.isArray(${profile.profiles})`);
   } else {
-    if (!profile.profiles.includes(specifiedProfile)) {
-      logger.debug(`profile: parse: ${profile.url}: profile.profiles: !${profile.profiles}.includes(${specifiedProfile})`);
+    if (!profile.profiles.includes(specifiedUserProfile)) {
+      logger.debug(`profile: parse: ${profile.url}: profile.profiles: !${profile.profiles}.includes(${specifiedUserProfile})`);
       return null;
     }
   }
@@ -215,7 +215,7 @@ async function parseProfile(profile, specifiedTemplate, specifiedUser = "default
   };
 }
 
-async function consolidate(template, profileRecordsPath, injectionsPath, specifiedUser, specifiedProfile) {
+async function consolidate(template, profileRecordsPath, injectionsPath, specifiedUser, specifiedUserProfile) {
   const hostsInProfiles = [];
   const nameserversInProfiles = [];
   const rulesInProfiles = {
@@ -229,12 +229,16 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
   const specifiedTemplate = basename(template);
   const profileRecordsURL = profileRecordsPath instanceof URL ? profileRecordsPath : pathToFileURL(profileRecordsPath);
 
+  logger.debug(`profile: arguments: specifiedTemplate: ${basename(template)}`);
+  logger.debug(`profile: arguments: specifiedUser: ${specifiedUser}`);
+  logger.debug(`profile: arguments: specifiedUserProfile: ${specifiedUserProfile}`);
+
   const [profileTemplate, fetchedProxies, injections] = await Promise.all([
     fsp.readFile(template, "utf-8").then(load),
     import(profileRecordsURL).then(data => data.default)
       .then(profiles => Promise.allSettled(
         profiles.map(p => parseProfile(
-          p, specifiedTemplate, specifiedUser, specifiedProfile).then(
+          p, specifiedTemplate, specifiedUser, specifiedUserProfile).then(
             profile => {
               if (!profile) return null;
               hostsInProfiles.push(profile.hosts);

@@ -66,31 +66,73 @@ async function updateCodes () {
 
 setInterval(updateCodes, 2000);
 
+const searchParamToBoolean = (stringValue) => {
+  switch(stringValue?.toLowerCase()?.trim()){
+      case "true": 
+      case "yes": 
+      case "1": 
+      case "":
+      case "[]":
+        return true;
+
+      case "false": 
+      case "no": 
+      case "0": 
+      case undefined:
+      case null: 
+        return false;
+
+      default: 
+        return false;
+  }
+}
+
 app.use(async (ctx, next) => {
   const { req, res, state } = ctx;
   const url = state.uriObject;
 
   ctx.assert(["GET", "HEAD"].includes(req.method), 405, `Unexpected Method ${req.method}`);
 
-  const code = url.searchParams.get("code");
+  const code = url.searchParams.get("code") || url.searchParams.get("file") || url.searchParams.get("name");
+  const profile = searchParamToBoolean(url.searchParams.get("backup")) ? "backup" : url.searchParams.get("profile");
+  const user = req.headers["x-user"];
 
   if(!code) {
     return next();
   }
 
+  const options = {
+    profile: profile || "default",
+    user: user || "default",
+    templateName: "",
+    dispositionName: "Download",
+    uuid: 0
+  }
+
   if(codes.mappings[code]) {
-    return serve(req, res, codes.mappings[code], sanitize(code));
+    options.templateName = codes.mappings[code];
+    options.dispositionName = sanitize(code);
+    return serve(req, res, options);
   }
 
   for (const item of codes.items) {
     if(item === code) {
-      return serve(req, res, item, codes.mappingsReversed[item] || item);
+      options.templateName = item;
+      options.dispositionName = codes.mappingsReversed[item] || item;
+      return serve(req, res, options);
     }
   }
 
-  for (const item of codes.items) {
+  for (const [item, itemCode] of Object.entries(codes.mappingsReversed)) {
     if(item.toLowerCase().startsWith(code.toLowerCase())) {
-      return serve(req, res, item, codes.mappingsReversed[item] || item);
+      options.templateName = item;
+      options.dispositionName = codes.mappingsReversed[item] || item;
+      return serve(req, res, options);
+    }
+    if(itemCode.toLowerCase().startsWith(code.toLowerCase())) {
+      options.templateName = item;
+      options.dispositionName = codes.mappingsReversed[item] || item;
+      return serve(req, res, options);
     }
   }
 
@@ -99,8 +141,8 @@ app.use(async (ctx, next) => {
 
 const cacheStore = new Map();
 
-async function checkCache (filepath) {
-  const cache = cacheStore.get(filepath);
+async function checkCache (cacheID, options) {
+  const cache = cacheStore.get(cacheID);
 
   if(!cache) {
     return null;
@@ -112,7 +154,7 @@ async function checkCache (filepath) {
   }
 
   if(timeElapsed >= cache.minFresh) {
-    scheduleRefresh(filepath);
+    scheduleRefresh(cacheID, options);
   }
 
   cache.lastAccess = Date.now();
@@ -122,11 +164,11 @@ async function checkCache (filepath) {
   }
 
   if(cache.error) {
-    scheduleRefresh(filepath);
+    scheduleRefresh(cacheID, options);
     throw cache.error;
   }
 
-  cacheStore.delete(filepath);
+  cacheStore.delete(cacheID);
   return null;
 }
 
@@ -135,18 +177,18 @@ function gzip(params) {
 }
 
 const schedules = new Set();
-function scheduleRefresh(filepath) {
-  if(schedules.has(filepath)) {
+function scheduleRefresh(freshID, options) {
+  if(schedules.has(freshID)) {
     return ;
   }
 
-  schedules.add(filepath);
-  consolidateAndWrangle(filepath).then(content => cache(filepath, content))
+  schedules.add(freshID);
+  consolidateAndWrangle(options).then(content => cache(freshID, content))
   .catch(err => {
     logger.error(err);
-    cache(filepath, err);
+    cache(freshID, err);
   }).finally(() => {
-    schedules.delete(filepath);
+    schedules.delete(freshID);
   });
 }
 
@@ -160,18 +202,15 @@ function pruneCacheStore () {
       cacheMemoryFootprint -= cache.content?.length || 0;
       cacheStore.delete(key);
     } else {
-      if(!cache.content) {
-        scheduleRefresh(key);
-      }
     }
   }
 }
 
 setInterval(pruneCacheStore, 2000).unref();
 
-function cache(filepath, payload) {
+function cache(cacheID, payload) {
   if(payload instanceof Error) {
-    const cached = cacheStore.get(filepath);
+    const cached = cacheStore.get(cacheID);
     if(cached) {
       cached.error = payload;
       cached.lastAccess = Date.now();
@@ -186,7 +225,7 @@ function cache(filepath, payload) {
         error: payload
       };
 
-      cacheStore.set(filepath, cache);
+      cacheStore.set(cacheID, cache);
       return ;
     }
   }
@@ -200,7 +239,7 @@ function cache(filepath, payload) {
     error: null
   };
 
-  cacheStore.set(filepath, cache);
+  cacheStore.set(cacheID, cache);
   cacheMemoryFootprint += cache.content?.length || 0;
 }
 
@@ -210,17 +249,20 @@ let lastCallTimestamp = 0;
 let lastProfilesImport = Date.now();
 const profileFileURL = pathToFileURL(profilesPath);
 
-async function consolidateAndWrangle (templatePath) {
+async function consolidateAndWrangle (options) {
+  const templatePath = options.templatePath;
+  const user = options.user;
+  const userProfile = options.profile;
   if(Date.now() - lastProfilesImport > 3000) {
     lastProfilesImport = Date.now();
     profileFileURL.searchParams.set("ver", Math.random().toString(32).slice(6));
   }
 
-  if (templatePath.endsWith(".conf")) {
-    return await consolidateQuantumultConf(templatePath, profileFileURL);
-  }
+  const consolidatedProfiles = await consolidate(
+    templatePath, profileFileURL, injectionsPath,
+    user, userProfile
+  );
 
-  const profile = await consolidate(templatePath, profileFileURL, injectionsPath);
   if(!wranglerOnline && Date.now() - lastCallTimestamp > 5_000) {
     lastCallTimestamp = Date.now();
     wranglerOnline = await tryCallWrangling();
@@ -229,37 +271,37 @@ async function consolidateAndWrangle (templatePath) {
   
   if(wranglerOnline) {
     try {
-      return dump(await rehouse(profile, true));
+      return dump(await rehouse(consolidatedProfiles, true));
     } catch {
-      return dump(profile);
+      return dump(consolidatedProfiles);
     }
   }
 
-  return dump(profile);
+  return dump(consolidatedProfiles);
 }
 
 const processingRequests = new Map();
-async function constructPayload (filepath) {
-  const previousReq = processingRequests.get(filepath);
+async function constructPayload (reqID, options) {
+  const previousReq = processingRequests.get(reqID);
   if(previousReq) {
     return await previousReq;
   }
 
-  const cached = await checkCache(filepath);
+  const cached = await checkCache(reqID, options);
   if(cached) {
     return cached;
   }
   
-  const req = consolidateAndWrangle(filepath);
-  processingRequests.set(filepath, req);
+  const req = consolidateAndWrangle(options);
+  processingRequests.set(reqID, req);
   const res = await req.catch(err => {
-    cache(filepath, err);
-    processingRequests.delete(filepath);
+    cache(reqID, err);
+    processingRequests.delete(reqID);
     throw err;
   });
 
-  cache(filepath, res);
-  processingRequests.delete(filepath);
+  cache(reqID, res);
+  processingRequests.delete(reqID);
   return res;
 }
 
@@ -270,12 +312,22 @@ const mime = {
   ".conf": "text/plain",
 };
 
-async function serve (req, res, templateName, dispositionName) {
+async function serve (req, res, options) {
+  const templateName = options.templateName;
+  const dispositionName = options.dispositionName;
   const templatePath = join(templateFolder, templateName);
 
+  const payloadOptions = {
+    user: options.user,
+    profile: options.profile,
+    templatePath: templatePath,
+  };
+  const payloadID = `${templatePath}?user=${options.user}&profile=${options.profile}`;
+
+  logger.debug(`server: function: serve: payloadID: ${payloadID}`)
   let data;
   try {
-    data = await constructPayload(templatePath);
+    data = await constructPayload(payloadID, payloadOptions);
   } catch (err) {
     return res.writeHead(500).end(
       process.env.NODE_ENV === "development" ?

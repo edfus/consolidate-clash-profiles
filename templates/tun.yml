@@ -15,7 +15,6 @@ proxy-groups:
     type: select
     proxies:
       - Proxy
-      - Automatic Failover
       - DIRECT
   - name: Ad Blocking
     type: select
