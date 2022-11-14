@@ -124,7 +124,7 @@ async function parseProfile(profile, specifiedTemplate, specifiedUser = "default
   }
 
   if (!profile.rules || typeof profile.rules !== "object") {
-    logger.debug(`profile: parse: ${profile.url}: profile.rules: ${profile.rules}: discarded`);
+    profile.rules && logger.debug(`profile: parse: ${profile.url}: profile.rules: ${profile.rules}: discarded`);
     profile.rules = {};
   }
 
@@ -172,7 +172,7 @@ async function parseProfile(profile, specifiedTemplate, specifiedUser = "default
 
 
   if (!profile.proxyGroups || !Array.isArray(profile.proxyGroups)) {
-    logger.debug(`profile: parse: ${profile.url}: profile.proxyGroups: ${profile.proxyGroups}: discarded`);
+    profile.proxyGroups && logger.debug(`profile: parse: ${profile.url}: profile.proxyGroups: ${profile.proxyGroups}: discarded`);
     profile.proxyGroups = [];
   }
 
@@ -194,7 +194,8 @@ async function parseProfile(profile, specifiedTemplate, specifiedUser = "default
     }
     if (configuredProxyGroup.exclusive) {
       proxyGroupSettings.proxies = proxyGroupSettings.proxies.concat(
-        proxies.splice(0, proxies.length) // proxies removed
+        proxies.map(p => p.name)
+        // proxies.splice(0, proxies.length).map(p => p.name) // proxies removed
       );
       proxyGroups.exclusive.push(proxyGroupSettings);
     } else {
@@ -418,7 +419,7 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
 
   combinedProfile["proxy-groups"] =
     [ 
-      addedMainProxies
+      mainProxyGroup
     ]
     .concat(
       proxyGroupsInProfiles.exclusive.concat(
