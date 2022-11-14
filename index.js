@@ -157,12 +157,12 @@ async function parseProfile(profile, specifiedTemplate, specifiedUser = "default
     const directConnectionRules = uniqueServers.map(
       serverAddress => {
         if (/[a-z]/i.test(serverAddress)) {
-          return `DOMAIN,${serverAddress},DIRECT`;
+          return `DOMAIN,${serverAddress},${connectMethod}`;
         }
         if (serverAddress.includes(":")) {
-          return `IP-CIDR6,${serverAddress}/128,DIRECT,no-resolve`;
+          return `IP-CIDR6,${serverAddress}/128,${connectMethod},no-resolve`;
         }
-        return `IP-CIDR,${serverAddress}/32,DIRECT,no-resolve`;
+        return `IP-CIDR,${serverAddress}/32,${connectMethod},no-resolve`;
       }
     );
     profile.rules.prepended = profile.rules.prepended.concat(
