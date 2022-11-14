@@ -294,7 +294,7 @@ async function rehouse(profile, silently) {
             }
 
             ruleProvider.url = `${ranchLocation}/${horseStall}`;
-            ruleProvider.path = `./rule_provider/${horseStall}`;
+            ruleProvider.path = `./rule_provider/${horseStall}`; //NOTE: OpenClash convention
           } catch (err) {
             if (!mover.defective) {
               logger.error(err);

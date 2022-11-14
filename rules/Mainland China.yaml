@@ -1,6 +1,26 @@
 # https://github.com/dler-io/Rules
 # https://raw.dler.io/main/Clash/Provider/Domestic.yaml
 payload:
+
+  # > Tencent Video
+  - DOMAIN-SUFFIX,v.smtcdns.com
+  - DOMAIN-SUFFIX,vv.video.qq.com
+  
+# > Douyin
+  - DOMAIN-SUFFIX,amemv.com
+  - DOMAIN-SUFFIX,ixigua.com
+  - DOMAIN-SUFFIX,ixiguavideo.com
+  - DOMAIN-SUFFIX,pstatp.com
+  - DOMAIN-SUFFIX,snssdk.com
+  - DOMAIN-SUFFIX,toutiao.com
+
+  # > Netease Music
+  - DOMAIN-SUFFIX,163yun.com
+  - DOMAIN-SUFFIX,api.iplay.163.com
+  - DOMAIN-SUFFIX,hz.netease.com
+  - DOMAIN-SUFFIX,mam.netease.com
+  - DOMAIN-SUFFIX,music.163.com
+
   - DOMAIN-SUFFIX,xiaohongshu.com
   - DOMAIN-SUFFIX,xhscdn.com
   - DOMAIN-SUFFIX,mob.com
@@ -279,7 +299,6 @@ payload:
   - DOMAIN-SUFFIX,pgyer.com
   - DOMAIN-SUFFIX,pniao.com
   - DOMAIN-SUFFIX,privatehd.to
-  - DOMAIN-SUFFIX,pstatp.com
   - DOMAIN-SUFFIX,qbox.me
 
   - DOMAIN-SUFFIX,qcloud.com

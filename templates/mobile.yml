@@ -15,13 +15,21 @@ proxy-groups:
     type: select
     proxies:
       - Proxy
-      - DIRECT
+  - name: Facebook
+    type: select
+    proxies:
+      - Proxy
   - name: Ad Blocking
     type: select
     proxies: 
       - REJECT
       - Proxy
   - name: Mainland China
+    type: select
+    proxies: 
+      - DIRECT
+      - Proxy
+  - name: P2P Applications
     type: select
     proxies: 
       - DIRECT
@@ -49,8 +57,10 @@ rules:
   - DOMAIN,ipv6.msftconnecttest.com,Microsoft Network Connectivity Status Indicator
   - RULE-SET,Reject,Ad Blocking
   - RULE-SET,Netflix,Netflix
+  - RULE-SET,Facebook,Facebook
   - RULE-SET,Mainland China,Mainland China
   - RULE-SET,Proxy,Proxy
+  - RULE-SET,P2P Applications,P2P Applications
   - RULE-SET,Private Network,DIRECT
   - DOMAIN,localhost,DIRECT
   - DOMAIN-SUFFIX,local,DIRECT
@@ -61,31 +71,43 @@ rule-providers:
   Reject:
     type: http
     behavior: classical
-    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/vendor/Reject.yaml
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Reject.yaml
     path: ./Rules/Reject
+    interval: 86400
+  Facebook:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Facebook.yaml
+    path: ./Rules/Facebook
     interval: 86400
   Proxy:
     type: http
     behavior: classical
-    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/vendor/Proxy.yaml
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Proxy.yaml
     path: ./Rules/Proxy
     interval: 86400
   Netflix:
     type: http
     behavior: classical
-    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/vendor/Netflix.yaml
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Netflix.yaml
     path: ./Rules/Netflix
     interval: 86400
   Mainland China:
     type: http
     behavior: classical
-    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/vendor/Mainland%20China.yaml
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Mainland%20China.yaml
     path: ./Rules/Mainland China
+    interval: 86400
+  P2P Applications:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/P2P%20Applications.yml
+    path: ./Rules/P2P Applications
     interval: 86400
   Private Network:
     type: http
     behavior: classical
-    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/reserved-address-space.yml
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Reserved%20Address%20Space.yml
     path: ./Rules/Private Network
     interval: 86400
 hosts:

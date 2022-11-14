@@ -380,7 +380,10 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
           {
             name: key,
             type: "select",
-            proxies: ["DIRECT", mainProxyName] //TODO: CHORE
+            proxies:
+              injections[key].direct === false 
+              ? [mainProxyName]
+              : ["DIRECT", mainProxyName]
           }
         );
         logger.debug(`profile: process: injections: ${key}: added to proxy-groups: ["DIRECT", ${mainProxyName}]`)

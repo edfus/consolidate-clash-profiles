@@ -34,8 +34,8 @@ payload:
   - DOMAIN-SUFFIX,gate.hockeyapp.net
   - DOMAIN-SUFFIX,smartmailcloud.com
   
-  # > Tesla
-  - DOMAIN-KEYWORD,tesla
+  # # > Tesla
+  # - DOMAIN-KEYWORD,tesla
 
   # > Zooba
   # - USER-AGENT,battleroyale*
@@ -635,16 +635,16 @@ payload:
   # > Force some domains which are fucked by GFW while resolving DNS,or do not respect the system Proxy
   # - USER-AGENT,WhatsApp*
 
-  - DOMAIN-KEYWORD,appledaily
-  - DOMAIN-KEYWORD,beetalk
-  - DOMAIN-KEYWORD,blogspot
-  - DOMAIN-KEYWORD,dropbox
-  - DOMAIN-KEYWORD,facebook
-  - DOMAIN-KEYWORD,github
-  - DOMAIN-KEYWORD,instagram
-  - DOMAIN-KEYWORD,twitter
-  - DOMAIN-KEYWORD,whatsapp
-  - DOMAIN-KEYWORD,google
+  # - DOMAIN-KEYWORD,appledaily
+  # - DOMAIN-KEYWORD,beetalk
+  # - DOMAIN-KEYWORD,blogspot
+  # - DOMAIN-KEYWORD,dropbox
+  # - DOMAIN-KEYWORD,facebook
+  # - DOMAIN-KEYWORD,github
+  # - DOMAIN-KEYWORD,instagram
+  # - DOMAIN-KEYWORD,twitter
+  # - DOMAIN-KEYWORD,whatsapp
+  # - DOMAIN-KEYWORD,google
   - DOMAIN-SUFFIX,1e100.net
   - DOMAIN-SUFFIX,2mdn.net
   - DOMAIN-SUFFIX,abc.xyz
