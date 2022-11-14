@@ -130,15 +130,17 @@ const mover = {
   onShift: false,
   shiftStarts: Date.now(),
   shiftEndsTimer: 0,
+  lastWrangling: 0,
   shiftEndsAction(isSilent) {
     this.onShift = false;
 
     if (!this.defective) {
-      if (this.wrangling) {
+      if (this.wrangling || Date.now() - this.lastWrangling < 30_000) {
         return this.wranglingScheduled = true;
       }
 
       this.wrangling = true;
+      this.lastWrangling = Date.now();
       wrangle(isSilent).catch( // allowing concurrent wrangling
         err => {
           this.defect = err;
@@ -150,7 +152,7 @@ const mover = {
           this.wrangling = false;
           if (this.wranglingScheduled) {
             this.wranglingScheduled = false;
-            return this.shiftEndsAction(isSilent);
+            return setTimeout(() => this.shiftEndsAction(isSilent), 10_000);
           }
         }
       );
@@ -184,7 +186,7 @@ const mover = {
     }
 
     if (this.onShift) {
-      if (Date.now() - this.shiftStarts > 60_000) {
+      if (Date.now() - this.shiftStarts > 30_000) { //NOTE: (actuallt does not determine) determines how frequent wrangler publish runs
         this.shiftStarts = Date.now();
         setImmediate(() => this.shiftEndsAction(silently));
       }
@@ -195,7 +197,10 @@ const mover = {
     }
 
     this.shiftEndsTimer = setTimeout(
-      () => this.shiftEndsAction(silently), this.wrangling ? 200 : 1500
+      () => {
+        this.shiftStarts = Date.now(); 
+        this.shiftEndsAction(silently);
+      }, this.wrangling ? 10_000 : 1000
     );
 
     this.movedList.add(location);
@@ -233,14 +238,14 @@ const mover = {
     if (this.scheduled.has(location)) {
       return;
     }
-
+server: 
     this.scheduled.add(location);
     this.move(text, location, silently)
       .then(
         () => {
           setTimeout(
             () => this.scheduled.delete(location),
-            3000
+            10_000
           ).unref();
         },
         err => {

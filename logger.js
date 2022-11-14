@@ -1,6 +1,9 @@
+import { randomUUID } from "crypto";
 import { dirname, join } from "path";
 import pino from "pino";
 import { fileURLToPath, pathToFileURL } from "url";
+import { AsyncLocalStorage } from 'async_hooks'
+const asyncContext = new AsyncLocalStorage();
 
 const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -26,4 +29,17 @@ async function reloadLoggerConf (signal, supressOutput) {
 process.on('SIGHUP', () => reloadLoggerConf('SIGHUP'));
 setImmediate(() => reloadLoggerConf("on start-up", true));
 
-export default logger;
+export default new Proxy(logger, {
+  get(target, property, receiver) {
+    target = asyncContext.getStore()?.get('logger') || target;
+    return Reflect.get(target, property, receiver);
+  },
+});
+
+export const loggerMiddleware = (ctx, next) => {
+  const child = logger.child({ requestId: randomUUID() });
+  const store = new Map();
+  store.set('logger', child);
+
+  return asyncContext.run(store, next);
+}

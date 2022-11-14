@@ -8,18 +8,25 @@ import { tryCallWrangling, rehouse } from "./howdy.js";
 import { freemem } from "os";
 import { dump } from "js-yaml";
 import { inspect } from "util";
-import logger from "./logger.js";
+import logger, { loggerMiddleware } from "./logger.js";
 import { pathToFileURL } from "url";
+import { stat } from "fs/promises";
 
 const app = new App();
+app.use(
+  loggerMiddleware
+)
 app
-  .prepend(
+  .use(
     async (ctx, next) => {
+      const startAt = process.hrtime();
       await next();
+      const diff = process.hrtime(startAt)
+      const time = diff[0] * 1e3 + diff[1] * 1e-6
       logger.info([
         `${ctx.ip} ${ctx.req.method} ${ctx.req.url}`,
-        ctx.res.statusCode
-      ].join(" - "));
+        ctx.res.statusCode, `${time.toFixed(3)}ms`
+      ].join(" "));
     }
   )
   .on("error", err => {
@@ -182,6 +189,7 @@ function scheduleRefresh(freshID, options) {
     return ;
   }
 
+  logger.debug(`server: response: cache: ${url}: refreshing`);
   schedules.add(freshID);
   consolidateAndWrangle(options).then(content => cache(freshID, content))
   .catch(err => {
@@ -198,7 +206,7 @@ function pruneCacheStore () {
     const timeElapsed = Date.now() - cache.lastAccess;
     if(
       freemem() < cacheMemoryFootprint * 2 * 8 // UTF-16
-      || timeElapsed > 2000 * 60) { // 2 minutes
+      || timeElapsed > 60_0_000) { // 10 minutes
       cacheMemoryFootprint -= cache.content?.length || 0;
       cacheStore.delete(key);
     } else {
@@ -217,8 +225,8 @@ function cache(cacheID, payload) {
       return ;
     } else {
       const cache = {
-        maxAge: 2 * 1000,
-        minFresh: 0,
+        maxAge: 40_000,
+        minFresh: 3_000,
         content: null,
         lastAccess: Date.now(),
         timestamp: Date.now(),
@@ -231,8 +239,8 @@ function cache(cacheID, payload) {
   }
 
   const cache = {
-    maxAge: (5) * 1000,
-    minFresh: (.3) * 1000,
+    maxAge: 60_000,
+    minFresh: 30_000,
     content: payload,
     lastAccess: Date.now(),
     timestamp: Date.now(),
@@ -249,11 +257,27 @@ let lastCallTimestamp = 0;
 let lastProfilesImport = Date.now();
 const profileFileURL = pathToFileURL(profilesPath);
 
+let mtime = 0;
+let profileFileDirty = true;
+setInterval(
+  async () => {
+    try {
+      const stats = await stat(profilesPath);
+      if (mtime === stats.mtime) return profileFileDirty = false;
+      mtime = stats.mtime;
+      profileFileDirty = true;
+    } catch (err) {
+      logger.error(err, `server: file monitor: stat: ${profilesPath}: errored`)
+    }
+  },
+  10_000
+).unref()
+
 async function consolidateAndWrangle (options) {
   const templatePath = options.templatePath;
   const user = options.user;
   const userProfile = options.profile;
-  if(Date.now() - lastProfilesImport > 3000) {
+  if(profileFileDirty || Date.now() - lastProfilesImport > 60_0_000) {
     lastProfilesImport = Date.now();
     profileFileURL.searchParams.set("ver", Math.random().toString(32).slice(6));
   }
@@ -263,7 +287,7 @@ async function consolidateAndWrangle (options) {
     user, userProfile
   );
 
-  if(!wranglerOnline && Date.now() - lastCallTimestamp > 5_000) {
+  if(!wranglerOnline && Date.now() - lastCallTimestamp > 10_000) {
     lastCallTimestamp = Date.now();
     wranglerOnline = await tryCallWrangling();
     lastCallTimestamp = Date.now();
