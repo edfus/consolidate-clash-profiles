@@ -377,6 +377,8 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
 }
 
 async function consolidateQuantumultConf(quantumultConfPath, profileRecordsPath) {
+  logger.fatal(`consolidateQuantumultConf: ${quantumultConfPath}: this function is deprecated`);
+  return "deprecated";
   const [conf, fetchedProxies] = await Promise.all([
     fsp.readFile(quantumultConfPath, "utf-8"),
     import(profileRecordsPath).then(data => data.default)
