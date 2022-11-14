@@ -10,29 +10,13 @@ proxies: []
 proxy-groups:
   - name: Proxy
     type: select
-    proxies:
-      - Automatic Failover
-      - Load Balanced
-  - name: Load Balanced
-    type: load-balance
     proxies: []
-    url: 'http://www.gstatic.com/generate_204'
-    interval: 300
-    strategy: consistent-hashing
-  - name: Automatic Failover
-    type: fallback
-    proxies: []
-    url: 'http://www.gstatic.com/generate_204'
-    interval: 300
   - name: Netflix
     type: select
     proxies:
       - Proxy
       - Automatic Failover
       - DIRECT
-  - name: Bypass
-    type: select
-    proxies: []
   - name: Ad Blocking
     type: select
     proxies: 
@@ -48,12 +32,21 @@ proxy-groups:
     proxies:
       - REJECT
       - Proxy
+  - name: Microsoft Network Connectivity Status Indicator
+    type: select
+    proxies:
+      - Proxy
+      - DIRECT
 script:
   shortcuts:
     QUIC: network == 'udp' and dst_port == 443 and (geoip(resolve_ip(host)) != 'CN' or geoip(dst_ip) != 'CN')
 
 rules:
   - SCRIPT,QUIC,Quick UDP Internet Connections,no-resolve
+  - DOMAIN,dns.msftncsi.com,Microsoft Network Connectivity Status Indicator
+  - DOMAIN,www.msftncsi.com,Microsoft Network Connectivity Status Indicator
+  - DOMAIN,www.msftconnecttest.com,Microsoft Network Connectivity Status Indicator
+  - DOMAIN,ipv6.msftconnecttest.com,Microsoft Network Connectivity Status Indicator
   - RULE-SET,Reject,Ad Blocking
   - RULE-SET,Netflix,Netflix
   - RULE-SET,Mainland China,Mainland China
@@ -103,12 +96,107 @@ hosts:
   # security-filter-dns.cleanbrowsing.org: 185.228.168.9
 dns:
   enable: true
-  listen: 0.0.0.0:15353
+  listen: 0.0.0.0:53
   enhanced-mode: fake-ip
   use-hosts: true
-  nameserver:    
-    - 223.5.5.5
+  nameserver:
+  - 223.5.5.5
   fallback: []
+  ipv6: false
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+  - music.163.com
+  - "*.music.163.com"
+  - "*.126.net"
+  - musicapi.taihe.com
+  - music.taihe.com
+  - songsearch.kugou.com
+  - trackercdn.kugou.com
+  - y.qq.com
+  - "*.y.qq.com"
+  - streamoc.music.tc.qq.com
+  - mobileoc.music.tc.qq.com
+  - isure.stream.qqmusic.qq.com
+  - dl.stream.qqmusic.qq.com
+  - aqqmusic.tc.qq.com
+  - amobile.music.tc.qq.com
+  - "*.xiami.com"
+  - "*.music.migu.cn"
+  - music.migu.cn
+  - "+.msftconnecttest.com"
+  - "+.msftncsi.com"
+  - msftconnecttest.com
+  - msftncsi.com
+  - localhost.ptlogin2.qq.com
+  - localhost.sec.qq.com
+  - "+.srv.nintendo.net"
+  - "*.n.n.srv.nintendo.net"
+  - "+.stun.playstation.net"
+  - xbox.*.*.microsoft.com
+  - "*.*.xboxlive.com"
+  - xbox.*.microsoft.com
+  - xnotify.xboxlive.com
+  - "+.battlenet.com.cn"
+  - "+.wotgame.cn"
+  - "+.wggames.cn"
+  - "+.wowsgame.cn"
+  - "+.wargaming.net"
+  - proxy.golang.org
+  - stun.*.*
+  - stun.*.*.*
+  - "+.stun.*.*"
+  - "+.stun.*.*.*"
+  - "+.stun.*.*.*.*"
+  - "+.stun.*.*.*.*.*"
+  - heartbeat.belkin.com
+  - "*.linksys.com"
+  - "*.linksyssmartwifi.com"
+  - "*.router.asus.com"
+  - mesu.apple.com
+  - swscan.apple.com
+  - swquery.apple.com
+  - swdownload.apple.com
+  - swcdn.apple.com
+  - swdist.apple.com
+  - lens.l.google.com
+  - stun.l.google.com
+  - "+.nflxvideo.net"
+  - "*.square-enix.com"
+  - "*.finalfantasyxiv.com"
+  - "*.ffxiv.com"
+  - "*.ff14.sdo.com"
+  - ff.dorado.sdo.com
+  - "*.mcdn.bilivideo.cn"
+  - "+.media.dssott.com"
+  - shark007.net
+  - Mijia Cloud
+  - "+.dns.google"
+  
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    ipcidr:
+      - 0.0.0.0/32
+      - 240.0.0.0/4
+    domain:
+    - "+.google.com"
+    - "+.facebook.com"
+    - "+.apple.com"
+    - "+.youtube.com"
+    - "+.githubusercontent.com"
+    - "+.googlevideo.com"
+    - "+.msftconnecttest.com"
+    - "+.msftncsi.com"
+    - msftconnecttest.com
+    - msftncsi.com
+ipv6: false
+tun:
+  enable: true
+  stack: system
+  auto-route: false
+  auto-detect-interface: true
+  dns-hijack:
+  - tcp://any:53
     # https://github.com/curl/curl/wiki/DNS-over-HTTPS
     # https://en.wikipedia.org/wiki/Public_recursive_name_server
     # - https://dns10.quad9.net/dns-query

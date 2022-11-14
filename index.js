@@ -1,9 +1,10 @@
 import { load } from 'js-yaml';
 import { promises as fsp } from 'fs';
+import { basename } from "path";
 import { fetchProfile } from "./fetch.js";
 
 const noModification = p => p.proxies || [];
-async function parseProfile(profile, specifiedUser = "default", specifiedProfile = "default") {
+async function parseProfile(profile, specifiedTemplate, specifiedUser = "default", specifiedProfile = "default") {
   profile = typeof profile === "object" ? profile : {
     url: profile
   };
@@ -19,6 +20,15 @@ async function parseProfile(profile, specifiedUser = "default", specifiedProfile
       appended: []
     },
   }, profile);
+
+  if ("templates" in profile) {
+    if (!Array.isArray(profile.templates)) {
+      profile.templates = [profile.templates];
+    }
+    if(!profile.templates.includes(specifiedTemplate)){
+      return null;
+    }
+  }
 
   if (typeof profile.users === "string") {
     profile.users = [ profile.users ];
@@ -164,13 +174,14 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
     prepended: [],
     appended: []
   };
+  const specifiedTemplate = basename(template);
 
   const [profileTemplate, fetchedProxies, injections] = await Promise.all([
     fsp.readFile(template, "utf-8").then(load),
     import(profileRecordsPath).then(data => data.default)
       .then(profiles => Promise.allSettled(
         profiles.map(p => parseProfile(
-          p, specifiedUser, specifiedProfile).then(
+          p, specifiedTemplate, specifiedUser, specifiedProfile).then(
           profile => {
             if(!profile) return null;
             hostsInProfiles.push(profile.hosts);
