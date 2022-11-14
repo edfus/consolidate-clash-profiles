@@ -71,31 +71,31 @@ rule-providers:
   Reject:
     type: http
     behavior: classical
-    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Reject.yaml
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Reject.yml
     path: ./Rules/Reject
     interval: 86400
   Facebook:
     type: http
     behavior: classical
-    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Facebook.yaml
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Facebook.yml
     path: ./Rules/Facebook
     interval: 86400
   Proxy:
     type: http
     behavior: classical
-    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Proxy.yaml
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Proxy.yml
     path: ./Rules/Proxy
     interval: 86400
   Netflix:
     type: http
     behavior: classical
-    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Netflix.yaml
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Netflix.yml
     path: ./Rules/Netflix
     interval: 86400
   Mainland China:
     type: http
     behavior: classical
-    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Mainland%20China.yaml
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Mainland%20China.yml
     path: ./Rules/Mainland China
     interval: 86400
   P2P Applications:
