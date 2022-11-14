@@ -3,6 +3,7 @@
 3. configurations are constantly monitored and always hot reloaded
 4. automated rulesets upload to cloudflare with version control
 5. debug logging with process.env.LOG_LEVEL
+6. send SIGHUP signal to the process to reload logger.conf.js.
 
 injections.yml
 1. add new proxy rules with injections.yml or property `rules` in profiles!
