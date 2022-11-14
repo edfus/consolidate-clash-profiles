@@ -178,7 +178,8 @@ async function parseProfile(profile, specifiedTemplate, specifiedUser = "default
 
   const proxyGroups = {
     exclusive: [],
-    allInclusive: []
+    allInclusive: [],
+    indexed: []
   };
 
   for (const configuredProxyGroup of profile.proxyGroups) {
@@ -200,6 +201,12 @@ async function parseProfile(profile, specifiedTemplate, specifiedUser = "default
       proxyGroups.exclusive.push(proxyGroupSettings);
     } else {
       proxyGroups.allInclusive.push(proxyGroupSettings);
+    }
+
+    if(typeof configuredProxyGroup.index === "number") {
+      proxyGroups.indexed.push([configuredProxyGroup.index, proxyGroupSettings.name]);
+    } else {
+      proxyGroups.indexed.push([15, proxyGroupSettings.name]);
     }
   }
 
@@ -224,7 +231,8 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
   };
   const proxyGroupsInProfiles = {
     exclusive: [],
-    allInclusive: []
+    allInclusive: [],
+    indexed: []
   };
   const specifiedTemplate = basename(template);
   const profileRecordsURL = profileRecordsPath instanceof URL ? profileRecordsPath : pathToFileURL(profileRecordsPath);
@@ -256,7 +264,10 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
               proxyGroupsInProfiles.allInclusive = proxyGroupsInProfiles.allInclusive.concat(
                 profile.proxyGroups.allInclusive
               );
-              proxyGroupsInProfiles;
+              
+              proxyGroupsInProfiles.indexed = proxyGroupsInProfiles.indexed.concat(
+                profile.proxyGroups.indexed
+              );
               return profile.proxies;
             }
           ))
@@ -401,8 +412,15 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
     combinedProfile["proxy-groups"].push(newProxyGroup);
   }
 
-  const addedMainProxies = proxyGroupsInProfiles.exclusive.map(
-    p => p.name
+  const addedMainProxies = proxyGroupsInProfiles.indexed.sort(
+    (groupA, groupB) => {
+    if (groupA[0] <= groupB[0]) {
+      return -1;
+    }
+
+    return 1;
+  }).map(
+    g => g[1]
   ).concat(
     proxies.map(p => p.name)
   );

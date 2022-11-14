@@ -106,7 +106,7 @@ app.use(async (ctx, next) => {
     user: user || "default",
     templateName: "",
     dispositionName: "Download",
-    uuid: 0
+    uuid: 0 //TODO
   }
 
   if(codes.mappings[code]) {
