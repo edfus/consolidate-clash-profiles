@@ -9,6 +9,7 @@ import { freemem } from "os";
 import { dump } from "js-yaml";
 import { inspect } from "util";
 import logger from "./logger.js";
+import { pathToFileURL } from "url";
 
 const app = new App();
 app
@@ -207,22 +208,19 @@ let wranglerOnline = false;
 let lastCallTimestamp = 0;
 
 let lastProfilesImport = Date.now();
-let lastProfilesPath = profilesPath;
+const profileFileURL = pathToFileURL(profilesPath);
+
 async function consolidateAndWrangle (templatePath) {
   if(Date.now() - lastProfilesImport > 3000) {
     lastProfilesImport = Date.now();
-    lastProfilesPath = profilesPath.concat(
-      `?${Math.random().toString(32).slice(6)}`
-    );
+    profileFileURL.searchParams.set("ver", Math.random().toString(32).slice(6));
   }
 
-  const profilesFilePath = lastProfilesPath;
-  
   if (templatePath.endsWith(".conf")) {
-    return await consolidateQuantumultConf(templatePath, profilesFilePath);
+    return await consolidateQuantumultConf(templatePath, profileFileURL);
   }
 
-  const profile = await consolidate(templatePath, profilesFilePath, injectionsPath);
+  const profile = await consolidate(templatePath, profileFileURL, injectionsPath);
   if(!wranglerOnline && Date.now() - lastCallTimestamp > 5_000) {
     lastCallTimestamp = Date.now();
     wranglerOnline = await tryCallWrangling();
