@@ -206,10 +206,66 @@ dns:
     - "+.youtube.com"
     - "+.githubusercontent.com"
     - "+.googlevideo.com"
-    - "+.msftconnecttest.com"
-    - "+.msftncsi.com"
-    - msftconnecttest.com
-    - msftncsi.com
+    - "+.returnyoutubedislikeapi.com"
+    - "+.googleapis.com"
+    - "+.gvt1.com"
+    - "+.gvt2.com"
+    - "+.citibankonline.com"
+    - "+.citi.com"
+    - "+.booking.com"
+    - "+.googlesyndication.com"
+    - "+.googletagmanager.com"
+    - "+.pki.goog"
+    - "+.thinkwithgoogle.com"
+    - "+.gstatic.com"
+    - "+.cloudfront.net"
+    - "+.obsidian.md"
+    - "+.doubleclick.net"
+    - "+.3gppnetwork.org"
+  nameserver-policy:
+    '+.baidu.com': '223.5.5.5'
+    '+.io.mi.com': '223.5.5.5'
+    '+.qq.com': '223.5.5.5'
+    '+.cn': '223.5.5.5'
+    '+.tmall.com': '223.5.5.5'
+    '+.taobao.com': '223.5.5.5'
+    '+.xiaohongshu.com': '223.5.5.5'
+    '+.xhscdn.com': '223.5.5.5'
+    '+.alipay.com': '223.5.5.5'
+    '+.dianping.com': '223.5.5.5'
+    '+.taobao.hk': '223.5.5.5'
+    '+.tmall.hk': '223.5.5.5'
+    '+.amemv.com': '223.5.5.5'
+    '+.163.com': '223.5.5.5'
+    '+.meituan.net': '223.5.5.5'
+    '+.ele.me': '223.5.5.5'
+    '+.elemecdn.com': '223.5.5.5'
+    '+.tencent.com': '223.5.5.5'
+    '+.12306.com': '223.5.5.5'
+    '+.360.com': '223.5.5.5'
+    '+.36kr.com': '223.5.5.5'
+    '+.58.com': '223.5.5.5'
+    '+.douban.com': '223.5.5.5'
+    '+.doubanio.com': '223.5.5.5'
+    '+.douyin.com': '223.5.5.5'
+    '+.douyu.com': '223.5.5.5'
+    '+.douyu.tv': '223.5.5.5'
+    '+.douyutv.com': '223.5.5.5'
+    '+.jd.com': '223.5.5.5'
+    '+.jd.hk': '223.5.5.5'
+    '+.kugou.com': '223.5.5.5'
+    '+.meizu.com': '223.5.5.5'
+    '+.qqurl.com': '223.5.5.5'
+    '+.gtimg.com': '223.5.5.5'
+    '+.ykimg.com': '223.5.5.5'
+    '+.youku.com': '223.5.5.5'
+    '+.zhihu.com': '223.5.5.5'
+    '+.zhimg.com': '223.5.5.5'
+    '+.baidupcs.com': '223.5.5.5'
+    '+.bdimg.com': '223.5.5.5'
+    '+.bdstatic.com': '223.5.5.5'
+    '+.amap.com': '223.5.5.5'
+    '+.autonavi.com': '223.5.5.5'
 ipv6: false
 tun:
   enable: true
