@@ -1,0 +1,14 @@
+# NAME: Facebook
+
+payload:
+  - DOMAIN-SUFFIX,rarbg.com
+  - DOMAIN-SUFFIX,rarbg.me
+  - DOMAIN-SUFFIX,rarbg.to
+  - DOMAIN,exodus.desync.com
+  - DOMAIN,open.stealth.si
+  - DOMAIN,open.tracker.cl
+  - DOMAIN,tracker.openbittorrent.com
+  - DOMAIN,tracker.opentrackr.org
+  - DOMAIN,tracker.tiny-vps.com
+  - DOMAIN,tracker.torrent.eu.org
+  - DOMAIN-SUFFIX,tracker.i2p.rocks
