@@ -63,8 +63,8 @@ rules:
   - RULE-SET,P2P Applications,P2P Applications
   - RULE-SET,Private Network,DIRECT
   - DOMAIN,localhost,DIRECT
-    '+.local,DIRECT
-    '+.lan,DIRECT
+  - DOMAIN-SUFFIX,local,DIRECT
+  - DOMAIN-SUFFIX,lan,DIRECT
   - GEOIP,CN,Mainland China,no-resolve
   - MATCH,Proxy
 rule-providers:
