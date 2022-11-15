@@ -138,16 +138,16 @@ async function checkCache (url) {
 const schedules = new Set();
 function scheduleRefresh(url) {
   if(schedules.has(url)) {
-    logger.debug(`fetch: fetch: cache: ${url}: scheduleRefresh: schedules.has(url)`);
+    logger.debug(`fetch: cache: ${url}: scheduleRefresh: schedules.has(url)`);
     return ;
   }
 
-  logger.debug(`fetch: fetch: cache: ${url}: refreshing`);
+  logger.debug(`fetch: cache: ${url}: refreshing`);
   schedules.add(url);
-  logger.debug(`fetch: fetch: cache: ${url}: scheduleRefresh: schedules.add(url)`);
+  logger.debug(`fetch: cache: ${url}: scheduleRefresh: schedules.add(url)`);
   fetch(url).then(cache).catch(err => logger.error(err, `fetch: cache: ${url}: scheduleRefresh: fetch(url).then(cache) failed`)).finally(() => {
     schedules.delete(url);
-    logger.debug(`fetch: fetch: cache: ${url}: scheduleRefresh: fetch(url).then(cache).finally: schedules.delete(url)`);
+    logger.debug(`fetch: cache: ${url}: scheduleRefresh: fetch(url).then(cache).finally: schedules.delete(url)`);
   });
 }
 
@@ -161,8 +161,8 @@ function pruneCacheStore () {
         || timeElapsed > 1000 * 600) { // 10 minutes
         cacheMemoryFootprint -= cache.content.length;
         cache.content = null;
-        logger.debug(`fetch: fetch: cache: ${url}: in memory cache offloaded`);
-        logger.debug(`fetch: fetch: cache: global: in-memory: footprint: ${cacheMemoryFootprint}`);
+        logger.debug(`fetch: cache: ${url}: in memory cache offloaded`);
+        logger.debug(`fetch: cache: global: in-memory: footprint: ${cacheMemoryFootprint}`);
       } else {
         cacheStoreEmpty = false;
       }
@@ -171,7 +171,7 @@ function pruneCacheStore () {
 
   if(cacheStoreEmpty) {
     cacheMemoryFootprint = 0;
-    logger.debug(`fetch: fetch: cacheStoreEmpty: cache memory footprint: ${cacheMemoryFootprint}`);
+    logger.debug(`fetch: cacheStoreEmpty: cache memory footprint: ${cacheMemoryFootprint}`);
   }
 }
 
@@ -210,7 +210,7 @@ async function fetch (url) {
       const uriObject = new URL(url);
       let get = request;
       if (uriObject.protocol == "http:" ) {
-        logger.debug(`fetch: fetch: request: ${url}: using requestHTTP`);
+        logger.debug(`fetch: request: ${url}: using requestHTTP`);
         get = requestHTTP;
       }
 
@@ -222,7 +222,7 @@ async function fetch (url) {
       });
   
       req.once("response", res => {
-        logger.debug(`fetch: fetch: request: ${url}: ${res.statusCode}`);
+        logger.debug(`fetch: request: ${url}: ${res.statusCode}`);
         if(res.statusCode !== 200) {
           return reject(
             new Error(
@@ -269,29 +269,29 @@ async function fetchWrapper(url) {
   url = new URL(url).toString();
   const previousReq = processingRequests.get(url);
   if(previousReq) {
-    logger.debug(`fetch: fetch: profile: ${url}: found an exisiting same request`);
+    logger.debug(`fetch: profile: ${url}: found an exisiting same request`);
     return await previousReq;
   }
 
   const cached = await checkCache(url);
   if(cached) {
-    logger.debug(`fetch: fetch: profile: ${url}: cached`);
+    logger.debug(`fetch: profile: ${url}: cached`);
     return cached;
   }
   
-  logger.debug(`fetch: fetch: profile: ${url}: fetching`);
+  logger.debug(`fetch: profile: ${url}: fetching`);
   const req = fetch(url);
   processingRequests.set(url, req);
-  logger.debug(`fetch: fetch: profile: ${url}: recorded as processing`);
+  logger.debug(`fetch: profile: ${url}: recorded as processing`);
   const res = cache(await req.catch(
     err => {
       processingRequests.delete(url);
-      logger.debug(`fetch: fetch: profile: ${url}: failed: deleted from processing requests`);
+      logger.debug(`fetch: profile: ${url}: failed: deleted from processing requests`);
       throw err;
     }
   ));
   processingRequests.delete(url);
-  logger.debug(`fetch: fetch: profile: ${url}: succeeded: deleted from processing requests`);
+  logger.debug(`fetch: profile: ${url}: succeeded: deleted from processing requests`);
   return res;
 }
 

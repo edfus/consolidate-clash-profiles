@@ -189,7 +189,7 @@ function scheduleRefresh(freshID, options) {
     return ;
   }
 
-  logger.debug(`server: response: cache: ${url}: refreshing`);
+  logger.debug(`server: response: cache: ${freshID}: refreshing`);
   schedules.add(freshID);
   consolidateAndWrangle(options).then(content => cache(freshID, content))
   .catch(err => {
