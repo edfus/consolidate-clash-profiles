@@ -48,6 +48,7 @@ proxy-groups:
 script:
   shortcuts:
     QUIC: network == 'udp' and dst_port == 443 and (geoip(resolve_ip(host)) != 'CN' or geoip(dst_ip) != 'CN')
+# [UDP] 192.168.2.244:57264 --> www.google-analytics.com:443 match GeoIP(CN) using Mainland China[DIRECT]
 
 rules:
   - SCRIPT,QUIC,Quick UDP Internet Connections,no-resolve
@@ -203,6 +204,7 @@ dns:
     - "+.googlevideo.com"
     - "+.returnyoutubedislikeapi.com"
     - "+.googleapis.com"
+    - "+.google-analytics.com"
     - "+.gvt1.com"
     - "+.gvt2.com"
     - "+.citibankonline.com"
