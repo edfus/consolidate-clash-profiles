@@ -1,6 +1,7 @@
 # https://github.com/dler-io/Rules
 # https://raw.dler.io/main/Clash/Provider/Domestic.yaml
 payload:
+  - DOMAIN-SUFFIX,cnki.net
   # WeChat
   - DOMAIN-SUFFIX,servicewechat.com
   - DOMAIN-SUFFIX,tenpay.com
