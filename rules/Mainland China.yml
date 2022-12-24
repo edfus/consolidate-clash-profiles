@@ -1,6 +1,13 @@
 # https://github.com/dler-io/Rules
 # https://raw.dler.io/main/Clash/Provider/Domestic.yaml
 payload:
+  - DOMAIN-SUFFIX,douyinpic.com
+  - DOMAIN-SUFFIX,zijieapi.com
+  - DOMAIN-SUFFIX,douyinvod.com
+  - DOMAIN-SUFFIX,mssdk.bytedance.com
+  - DOMAIN-SUFFIX,msecnd.net
+  - DOMAIN-SUFFIX,exp-tas.com
+  
   - DOMAIN-SUFFIX,cnki.net
   # WeChat
   - DOMAIN-SUFFIX,servicewechat.com
