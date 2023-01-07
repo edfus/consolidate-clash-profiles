@@ -1,9 +1,9 @@
-
+# https://github.com/xiaorouji/openwrt-passwall/discussions/2117
 payload:
-  - DOMAIN-SUFFIX,fanatical.com
-  - DOMAIN-SUFFIX,humblebundle.com
-  - DOMAIN-SUFFIX,steamcommunity.com
-  - DOMAIN-SUFFIX,steampowered.comd
+  # - DOMAIN-SUFFIX,fanatical.com
+  # - DOMAIN-SUFFIX,humblebundle.com
+  # - DOMAIN-SUFFIX,steamcommunity.com
+  # - DOMAIN-SUFFIX,steampowered.com
 
   - DOMAIN-SUFFIX,steamstat.com
   - DOMAIN-SUFFIX,steamgames.com
@@ -11,7 +11,7 @@ payload:
   - DOMAIN-SUFFIX,steamstat.us
   - DOMAIN-SUFFIX,cdn.steampowered.com
   - DOMAIN-SUFFIX,steamusercontent.com
-  - DOMAIN-SUFFIX,steamcontent.com\
+  - DOMAIN-SUFFIX,steamcontent.com
   - DOMAIN-SUFFIX,steamstatic.com
   - DOMAIN-SUFFIX,cm.steampowered.com
   - DOMAIN-SUFFIX,steam-chat.com
