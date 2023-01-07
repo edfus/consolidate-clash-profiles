@@ -203,10 +203,13 @@ async function parseProfile(profile, specifiedTemplate, specifiedUser = "default
       proxyGroups.allInclusive.push(proxyGroupSettings);
     }
 
-    if(typeof configuredProxyGroup.index === "number") {
-      proxyGroups.indexed.push([configuredProxyGroup.index, proxyGroupSettings.name]);
-    } else {
-      proxyGroups.indexed.push([15, proxyGroupSettings.name]);
+    // inserted to the main proxy group if index is present
+    if("index" in configuredProxyGroup) {
+      if(typeof configuredProxyGroup.index === "number") {
+        proxyGroups.indexed.push([configuredProxyGroup.index, proxyGroupSettings.name]);
+      } else {
+        proxyGroups.indexed.push([15, proxyGroupSettings.name]);
+      }
     }
   }
 

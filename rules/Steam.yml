@@ -1,4 +1,6 @@
 # https://github.com/xiaorouji/openwrt-passwall/discussions/2117
+# https://github.com/AllForLandlord/SelfUse/blob/main/Clash/Steam.list
+
 payload:
   # - DOMAIN-SUFFIX,fanatical.com
   # - DOMAIN-SUFFIX,humblebundle.com
