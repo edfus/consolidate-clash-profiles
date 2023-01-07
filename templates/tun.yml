@@ -15,6 +15,10 @@ proxy-groups:
     type: select
     proxies:
       - Proxy
+  - name: Steam
+    type: select
+    proxies:
+      - Proxy
   - name: Facebook
     type: select
     proxies:
@@ -57,6 +61,7 @@ rules:
   - RULE-SET,Reject,Ad Blocking
   - RULE-SET,Netflix,Netflix
   - RULE-SET,Facebook,Facebook
+  - RULE-SET,Steam,Steam
   - RULE-SET,Mainland China,Mainland China
   - RULE-SET,Proxy,Proxy
   - RULE-SET,P2P Applications,P2P Applications
@@ -72,6 +77,12 @@ rule-providers:
     behavior: classical
     url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Reject.yml
     path: ./Rules/Reject
+    interval: 86400
+  Steam:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Steam.yml
+    path: ./Rules/Steam
     interval: 86400
   Facebook:
     type: http
