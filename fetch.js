@@ -38,7 +38,7 @@ class StringReader extends Transform {
 }
 
 function sha1(str) {
-  if(typeof str !== "string") {
+  if (typeof str !== "string") {
     return "";
   }
 
@@ -67,12 +67,12 @@ async function writeCache(url, payload) {
     await fsp.writeFile(join(cacheFolder, filename), payload, "utf-8");
     logger.debug(`fetch: cache: ${url}: filesystem: finished writing to ${filename}`);
   } catch (err) {
-    if(err.code === "ENOENT") {
+    if (err.code === "ENOENT") {
       try {
         await fsp.mkdir(cacheFolder, { recursive: true });
         await fsp.writeFile(
           join(cacheFolder, filename), payload, "utf-8"
-        )
+        );
         logger.debug(`fetch: cache: ${url}: filesystem: finished writing to ${filename}`);
       } catch (err) {
         logger.error(err, `cache: ${url}: filesystem: ENOENT & mkdir failed`);
@@ -83,40 +83,40 @@ async function writeCache(url, payload) {
   }
 }
 
-async function checkCache (url) {
+async function checkCache(url) {
   const cache = cacheStore.get(url);
 
-  if(!cache) {
+  if (!cache) {
     logger.debug(`fetch: cache: ${url}: check: missed`);
     return null;
   }
 
   const timeElapsed = Date.now() - cache.timestamp;
-  if(timeElapsed >= cache.maxAge) {
+  if (timeElapsed >= cache.maxAge) {
     logger.debug(`fetch: cache: ${url}: check: timeElapsed >= cache.maxAge: ${timeElapsed} >= ${cache.maxAge}`);
     return null;
   }
 
-  if(timeElapsed >= cache.minFresh) {
+  if (timeElapsed >= cache.minFresh) {
     logger.debug(`fetch: cache: ${url}: check: timeElapsed >= cache.minFresh: ${timeElapsed} >= ${cache.minFresh}`);
     scheduleRefresh(url);
   }
 
   cache.lastAccess = Date.now();
 
-  if(cache.content) {
+  if (cache.content) {
     logger.debug(`fetch: cache: ${url}: check: in memory: hit`);
-    return { 
-      url, 
+    return {
+      url,
       headers: cache.headers,
-      payload: cache.content, 
-      hash: cache.hash  
+      payload: cache.content,
+      hash: cache.hash
     };
   }
 
   const fileContent = await readCache(url);
 
-  if(sha1(fileContent) !== cache.hash) {
+  if (sha1(fileContent) !== cache.hash) {
     logger.debug(`fetch: cache: ${url}: check: filesytem: hashes mismatch`);
     // await fsp.rm(join(cacheFolder, filename), { force: true })
     cacheStore.delete(url);
@@ -127,19 +127,19 @@ async function checkCache (url) {
   cache.content = fileContent;
   cacheMemoryFootprint += cache.content?.length || 0;
   logger.debug(`fetch: cache: global: in-memory: footprint: ${cacheMemoryFootprint}`);
-  return { 
-    url, 
-    headers: cache.headers, 
-    payload: cache.content, 
-    hash: cache.hash 
+  return {
+    url,
+    headers: cache.headers,
+    payload: cache.content,
+    hash: cache.hash
   };
 }
 
 const schedules = new Set();
 function scheduleRefresh(url) {
-  if(schedules.has(url)) {
+  if (schedules.has(url)) {
     logger.debug(`fetch: cache: ${url}: scheduleRefresh: schedules.has(url)`);
-    return ;
+    return;
   }
 
   logger.debug(`fetch: cache: ${url}: refreshing`);
@@ -151,12 +151,12 @@ function scheduleRefresh(url) {
   });
 }
 
-function pruneCacheStore () {
+function pruneCacheStore() {
   let cacheStoreEmpty = true;
   for (const [url, cache] of cacheStore.entries()) {
-    if(cache.content) {
+    if (cache.content) {
       const timeElapsed = Date.now() - cache.lastAccess;
-      if(
+      if (
         freemem() < cacheMemoryFootprint * 2 * 8 // UTF-16
         || timeElapsed > 1000 * 600) { // 10 minutes
         cacheMemoryFootprint -= cache.content.length;
@@ -169,7 +169,7 @@ function pruneCacheStore () {
     }
   }
 
-  if(cacheStoreEmpty) {
+  if (cacheStoreEmpty) {
     cacheMemoryFootprint = 0;
     logger.debug(`fetch: cacheStoreEmpty: cache memory footprint: ${cacheMemoryFootprint}`);
   }
@@ -196,50 +196,59 @@ function cache({ headers, payload, url }) {
   logger.debug(`fetch: cache: global: in-memory: footprint: ${cacheMemoryFootprint}`);
 
   writeCache(url, payload);
-  return { 
-    url, 
-    headers: headers, 
-    payload: payload, 
-    hash: cache.hash 
+  return {
+    url,
+    headers: headers,
+    payload: payload,
+    hash: cache.hash
   };
 }
 
-async function fetch (url) {
+async function fetch(url) {
   return new Promise((resolve, reject) => {
     try {
       const uriObject = new URL(url);
       let get = request;
-      if (uriObject.protocol == "http:" ) {
+      if (uriObject.protocol == "http:") {
         logger.debug(`fetch: request: ${url}: using requestHTTP`);
         get = requestHTTP;
       }
 
       const req = get(url, {
         headers: {
-          "accept": "application/json, text/plain, */*",
-          "user-agent": "ClashforWindows/0.19.6",
+          'Connection': 'keep-alive',
+          'pragma': 'no-cache',
+          'Accept': 'application/json, text/plain, */*',
+          'sec-ch-ua-mobile': '?0',
+          'User-Agent': 'ClashforWindows/0.20.7',
+          'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="102"',
+          'sec-ch-ua-platform': '"Windows"',
+          'Sec-Fetch-Site': 'cross-site',
+          'Sec-Fetch-Mode': 'cors',
+          'Sec-Fetch-Dest': 'empty',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Accept-Language': 'en-US'
         }
       });
-  
+
       req.once("response", res => {
         logger.debug(`fetch: request: ${url}: ${res.statusCode}`);
-        if(res.statusCode !== 200) {
+        if (res.statusCode !== 200) {
           return reject(
             new Error(
-              `${url}: ${res.statusCode} ${
-                res.statusMessage
+              `${url}: ${res.statusCode} ${res.statusMessage
               }`
             )
           );
         }
-  
+
         let data = '';
         pipeline(
           res,
           new StringReader(),
           new Writable({
             objectMode: true,
-            write (content, encoding, cb) {
+            write(content, encoding, cb) {
               if (data) {
                 logger.fatal(`fetch: request: ${url}: StringReader: unexpected multiple read`);
                 return cb(new Error(`Guess pigs can fly after all`));
@@ -250,8 +259,8 @@ async function fetch (url) {
             }
           }),
           err => err ? reject(err) : resolve({
-              headers: res.headers, payload: data, url
-            }
+            headers: res.headers, payload: data, url
+          }
           )
         );
       });
@@ -268,17 +277,17 @@ const processingRequests = new Map();
 async function fetchWrapper(url) {
   url = new URL(url).toString();
   const previousReq = processingRequests.get(url);
-  if(previousReq) {
+  if (previousReq) {
     logger.debug(`fetch: profile: ${url}: found an exisiting same request`);
     return await previousReq;
   }
 
   const cached = await checkCache(url);
-  if(cached) {
+  if (cached) {
     logger.debug(`fetch: profile: ${url}: cached`);
     return cached;
   }
-  
+
   logger.debug(`fetch: profile: ${url}: fetching`);
   const req = fetch(url);
   processingRequests.set(url, req);
@@ -295,4 +304,4 @@ async function fetchWrapper(url) {
   return res;
 }
 
-export { fetchWrapper as fetchProfile, fetchWrapper as fetchRuleset }
+export { fetchWrapper as fetchProfile, fetchWrapper as fetchRuleset };
