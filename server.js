@@ -365,7 +365,7 @@ async function serve (req, res, options) {
   const fileExtname = extname(filename);
 
   const type = mime[fileExtname] || "text/plain";
-  const charset = "utf8";
+  const charset = "utf-8";
   const bufferEncoding = "utf-8";
   const payload = Buffer.from(content, bufferEncoding);
 

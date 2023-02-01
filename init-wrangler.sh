@@ -20,6 +20,7 @@ workers_dev = false
 name = "$VAR_NAME"
 route = "$VAR_ROUTE"
 zone_id = "$ZONE_ID"
+compatibility_date = "2022-07-12"
 
 [site]
 bucket = "./external-rulesets"

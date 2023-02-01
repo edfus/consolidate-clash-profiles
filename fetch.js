@@ -226,7 +226,7 @@ async function fetch(url) {
           'Sec-Fetch-Site': 'cross-site',
           'Sec-Fetch-Mode': 'cors',
           'Sec-Fetch-Dest': 'empty',
-          'Accept-Encoding': 'gzip, deflate, br',
+          // 'Accept-Encoding': 'gzip, deflate, br', //NOTE: doesn't have any encoding algorithms built into it yet
           'Accept-Language': 'en-US'
         }
       });
