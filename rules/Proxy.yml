@@ -12,6 +12,7 @@ payload:
   - DOMAIN-SUFFIX,doubleclick.net
   - DOMAIN-SUFFIX,gvt2.com
   - DOMAIN-SUFFIX,gvt3.com
+  - DOMAIN-SUFFIX,google.cn
   # ---
 
   # > Line
