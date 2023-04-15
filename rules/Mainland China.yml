@@ -1,7 +1,25 @@
 # https://github.com/dler-io/Rules
 # https://raw.dler.io/main/Clash/Provider/Domestic.yaml
 payload:
-
+  - DOMAIN-SUFFIX,upos-hz-mirrorakam.akamaizcd.com
+  - DOMAIN-SUFFIX,ioffershow.com
+  - DOMAIN-SUFFIX,flyert.com
+  - DOMAIN-SUFFIX,tenxcloud.com
+  - DOMAIN-SUFFIX,daocloud.io
+  - DOMAIN-SUFFIX,irm.mihoyo.com
+  - DOMAIN-SUFFIX,tencentmusic.com
+  - DOMAIN-SUFFIX,zsxq.com
+  - DOMAIN-SUFFIX,webank.com
+  - DOMAIN-SUFFIX,tupu360.com
+  - DOMAIN-SUFFIX,qcc.com
+  - DOMAIN-SUFFIX,showmebug.com
+  - DOMAIN-SUFFIX,nowcoder.com
+  - DOMAIN-SUFFIX,xinrenxinshi.com
+  - DOMAIN-SUFFIX,pddpic.com
+  - DOMAIN-SUFFIX,pinduoduo.com
+  - DOMAIN-SUFFIX,4399om.com
+  - DOMAIN-SUFFIX,weicewang.com
+  - DOMAIN-SUFFIX,pinduoduo.net
   - DOMAIN-SUFFIX,1688.com
   - DOMAIN-SUFFIX,bsccdn.net
   - DOMAIN-SUFFIX,cn.app.chat.xiaomi.net
