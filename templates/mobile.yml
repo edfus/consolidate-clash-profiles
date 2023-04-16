@@ -15,6 +15,10 @@ proxy-groups:
     type: select
     proxies:
       - Proxy
+  - name: OpenAI
+    type: select
+    proxies:
+      - Proxy
   - name: Steam
     type: select
     proxies:
@@ -64,7 +68,7 @@ rules:
   - RULE-SET,Netflix,Netflix
   - RULE-SET,Facebook,Facebook
   - RULE-SET,Steam,Steam
-  
+  - RULE-SET,OpenAI,OpenAI
   - RULE-SET,Proxy,Proxy
   - RULE-SET,Mainland China,Mainland China
   - RULE-SET,P2P Applications,P2P Applications
@@ -80,6 +84,12 @@ rule-providers:
     behavior: classical
     url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Reject.yml
     path: ./Rules/Reject
+    interval: 86400
+  OpenAI:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/OpenAI.yml
+    path: ./Rules/OpenAI
     interval: 86400
   Steam:
     type: http
