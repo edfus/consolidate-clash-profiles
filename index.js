@@ -187,28 +187,51 @@ async function parseProfile(profile, specifiedTemplate, specifiedUser = "default
       logger.debug(`profile: parse: ${profile.url}: profile.proxyGroups: ${JSON.stringify(configuredProxyGroup)}: discarded`);
       continue;
     }
-    const proxyGroupSettings = Object.assign({}, configuredProxyGroup.payload);
-    proxyGroupSettings.name = configuredProxyGroup.name || proxyGroupSettings.name;
-    if (!Array.isArray(proxyGroupSettings.proxies)) {
-      logger.debug(`profile: parse: ${profile.url}: profile.proxyGroups: ${proxyGroupSettings.name}: proxies: !Array.isArray(${proxyGroupSettings.proxies})`);
-      proxyGroupSettings.proxies = [];
-    }
-    if (configuredProxyGroup.exclusive) {
-      proxyGroupSettings.proxies = proxyGroupSettings.proxies.concat(
-        proxies.map(p => p.name)
-        // proxies.splice(0, proxies.length).map(p => p.name) // proxies removed
-      );
-      proxyGroups.exclusive.push(proxyGroupSettings);
-    } else {
-      proxyGroups.allInclusive.push(proxyGroupSettings);
-    }
+    const specifiedProxyGroupSettings = configuredProxyGroup.payload;
+    const proxyGroupSettings = Array.isArray(
+      specifiedProxyGroupSettings
+    ) ? [...specifiedProxyGroupSettings] : [specifiedProxyGroupSettings];
 
-    // inserted to the main proxy group if index is present
-    if("index" in configuredProxyGroup) {
-      if(typeof configuredProxyGroup.index === "number") {
-        proxyGroups.indexed.push([configuredProxyGroup.index, proxyGroupSettings.name]);
+    for (const specifedProxyGroupSetting of proxyGroupSettings) {
+      const proxyGroupSetting = Object.assign({}, specifedProxyGroupSetting);
+      if (typeof proxyGroupSetting.payload === "object") {
+        const payload = proxyGroupSetting.payload;
+        delete proxyGroupSetting.payload;
+        Object.assign(proxyGroupSetting, payload);
+      }
+
+      proxyGroupSetting.name = "name" in proxyGroupSetting ?
+        proxyGroupSetting.name : configuredProxyGroup.name;
+        if (!Array.isArray(proxyGroupSetting.proxies)) {
+        logger.debug(`profile: parse: ${profile.url}: profile.proxyGroups: ${proxyGroupSetting.name}: proxies: !Array.isArray(${proxyGroupSetting.proxies})`);
+        proxyGroupSetting.proxies = [];
+      }
+
+      const exclusive = "exclusive" in proxyGroupSetting ?
+        proxyGroupSetting.exclusive : configuredProxyGroup.exclusive;
+      const index = "index" in proxyGroupSetting ?
+        proxyGroupSetting.index : configuredProxyGroup.index;
+
+      delete proxyGroupSetting.exclusive;
+      delete proxyGroupSetting.index;
+
+      if (exclusive) {
+        proxyGroupSetting.proxies = proxyGroupSetting.proxies.concat(
+          proxies.map(p => p.name)
+          // proxies.splice(0, proxies.length).map(p => p.name) // proxies removed
+        );
+        proxyGroups.exclusive.push(proxyGroupSetting);
       } else {
-        proxyGroups.indexed.push([15, proxyGroupSettings.name]);
+        proxyGroups.allInclusive.push(proxyGroupSetting);
+      }
+
+      // inserted to the main proxy group if index is present
+      if (index !== undefined) {
+        if (typeof index === "number") {
+          proxyGroups.indexed.push([index, proxyGroupSetting.name]);
+        } else {
+          proxyGroups.indexed.push([Infinity, proxyGroupSetting.name]);
+        }
       }
     }
   }
@@ -267,7 +290,7 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
               proxyGroupsInProfiles.allInclusive = proxyGroupsInProfiles.allInclusive.concat(
                 profile.proxyGroups.allInclusive
               );
-              
+
               proxyGroupsInProfiles.indexed = proxyGroupsInProfiles.indexed.concat(
                 profile.proxyGroups.indexed
               );
@@ -361,7 +384,7 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
       mainProxyName = proxyGroup.name;
       mainProxyGroup = proxyGroup;
       combinedProfile["proxy-groups"].splice(index, 1);
-      logger.debug(`profile: process: mainProxyGroup: [${index}, ${mainProxyName}]: selected as main proxy`)
+      logger.debug(`profile: process: mainProxyGroup: [${index}, ${mainProxyName}]: selected as main proxy`);
       break;
     }
   }
@@ -371,7 +394,7 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
     mainProxyName = combinedProfile["proxy-groups"][index].name;
     mainProxyGroup = combinedProfile["proxy-groups"][index];
     combinedProfile["proxy-groups"].splice(index, 1);
-    logger.debug(`profile: process: mainProxyGroup: [${index}, ${mainProxyName}]: selected as main proxy`)
+    logger.debug(`profile: process: mainProxyGroup: [${index}, ${mainProxyName}]: selected as main proxy`);
   }
 
   let customRules = rulesInProfiles.prepended;
@@ -384,12 +407,12 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
             name: key,
             type: "select",
             proxies:
-              injections[key].direct === false 
-              ? [mainProxyName]
-              : ["DIRECT", mainProxyName]
+              injections[key].direct === false
+                ? [mainProxyName]
+                : ["DIRECT", mainProxyName]
           }
         );
-        logger.debug(`profile: process: injections: ${key}: added to proxy-groups: ["DIRECT", ${mainProxyName}]`)
+        logger.debug(`profile: process: injections: ${key}: added to proxy-groups: ["DIRECT", ${mainProxyName}]`);
       }
 
       customRules = customRules.concat(
@@ -403,40 +426,48 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
   ).concat(rulesInProfiles.appended);
 
   for (const newProxyGroup of proxyGroupsInProfiles.allInclusive) {
-    if(newProxyGroup.name === mainProxyName) {
+    if (newProxyGroup.name === mainProxyName) {
       mainProxyGroup = newProxyGroup;
-      logger.debug(`profile: process: proxyGroupsInProfiles.allInclusive: main proxy: ${mainProxyName}: overwritten`)
+      logger.debug(`profile: process: proxyGroupsInProfiles.allInclusive: main proxy: ${mainProxyName}: overwritten`);
       continue;
     }
+
     for (const [presentIndex, presentGroup] of combinedProfile["proxy-groups"].entries()) {
       if (presentGroup.name === newProxyGroup.name) {
         combinedProfile["proxy-groups"][presentIndex] = newProxyGroup;
-        logger.debug(`profile: process: proxyGroupsInProfiles.allInclusive: [${presentIndex}, ${presentGroup.name}]: overwritten`)
+        logger.debug(`profile: process: proxyGroupsInProfiles.allInclusive: [${presentIndex}, ${presentGroup.name}]: overwritten`);
         break;
       }
     }
     combinedProfile["proxy-groups"].push(newProxyGroup);
   }
 
+  // indexed Proxies are added to the main proxy list
   const addedMainProxies = proxyGroupsInProfiles.indexed.sort(
     (groupA, groupB) => {
-    if (groupA[0] <= groupB[0]) {
-      return -1;
-    }
+      if (groupA[0] <= groupB[0]) {
+        return -1;
+      }
 
-    return 1;
-  }).map(
-    g => g[1]
-  ).concat(
-    proxies.map(p => p.name)
-  );
+      return 1;
+    }).map(
+      g => g[1]
+    ).concat(
+      proxies.map(p => p.name) // rest of the proxies
+    ); // only used for mainProxyGroup.proxies
 
+  const seenMainProxies = new Set();
+  // fill main proxy list with unique proxies and proxy groups
   mainProxyGroup.proxies = (
     Array.isArray(mainProxyGroup.proxies)
       ? mainProxyGroup.proxies.concat(addedMainProxies)
       : addedMainProxies
+  ).filter(
+    proxyName => seenMainProxies.has(proxyName) ? false 
+    : (seenMainProxies.add(proxyName), true)
   );
 
+  // all inclusive and in template proxy groups
   combinedProfile["proxy-groups"].forEach(
     group => group.proxies = (
       Array.isArray(group.proxies)
@@ -445,26 +476,43 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
     )
   );
 
+  // exclusive proxy groups
+  const exclusiveCombinedMap = new Map();
+  for (const exclusiveProxyGroup of proxyGroupsInProfiles.exclusive) {
+    const savedResult = exclusiveCombinedMap.get(exclusiveProxyGroup.name);
+    if(savedResult) {
+      savedResult.proxies = savedResult.proxies.concat(
+        exclusiveProxyGroup.proxies
+      );
+    } else {
+      exclusiveCombinedMap.set(
+        exclusiveProxyGroup.name,
+        exclusiveProxyGroup
+      );
+    }
+  }
+  const uniqueExclusives = [...exclusiveCombinedMap.values()];
+
   combinedProfile["proxy-groups"] =
-    [ 
-      mainProxyGroup
+    [
+      mainProxyGroup // Proxy
     ]
-    .concat(
-      proxyGroupsInProfiles.exclusive.concat(
-        combinedProfile["proxy-groups"]
-      )
-      .sort( //TODO: CHORE
-          (groupA, groupB) => {
-            if (groupA.name.length <= groupB.name.length) {
-              return -1;
+      .concat(
+        uniqueExclusives.concat(
+          combinedProfile["proxy-groups"].sort( //TODO: CHORE
+            (groupA, groupB) => {
+              if (groupA.name?.length <= groupB.name?.length) {
+                return -1;
+              }
+
+              return 1;
             }
-
-            return 1;
-          }
+          )
         )
-    );
-  logger.debug(`profile: process: proxy-groups: sorted by length`)
+      );
+  logger.debug(`profile: process: proxy-groups: sorted by length`);
 
+  // deduplicate: prefer exclusive groups over all inclusive groups
   const seenGroups = new Set();
   combinedProfile["proxy-groups"] = combinedProfile["proxy-groups"].filter(
     group => seenGroups.has(group.name) ? false : (seenGroups.add(group.name), true)

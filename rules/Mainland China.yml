@@ -1,7 +1,6 @@
 # https://github.com/dler-io/Rules
 # https://raw.dler.io/main/Clash/Provider/Domestic.yaml
 payload:
-  - DOMAIN-SUFFIX,upos-hz-mirrorakam.akamaizcd.com
   - DOMAIN-SUFFIX,ioffershow.com
   - DOMAIN-SUFFIX,flyert.com
   - DOMAIN-SUFFIX,tenxcloud.com
