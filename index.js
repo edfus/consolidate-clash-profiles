@@ -352,7 +352,7 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
   const proxies = Array.from(proxyTable.values());
 
   if (!proxies.length) {
-    throw new Error("Every profile processing has failed.");
+    throw new Error("Consolidate: Parse: Panick: Every profile processing has failed.");
   }
 
   const combinedProfile = profileTemplate;
@@ -454,7 +454,8 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
       g => g[1]
     ).concat(
       proxies.map(p => p.name) // rest of the proxies
-    ); // only used for mainProxyGroup.proxies
+    ); // addedMainProxies only used for mainProxyGroup.proxies
+  // can unset proxies now, use mainProxyGroup.proxies from here
 
   const seenMainProxies = new Set();
   // fill main proxy list with unique proxies and proxy groups
@@ -469,11 +470,15 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
 
   // all inclusive and in template proxy groups
   combinedProfile["proxy-groups"].forEach(
-    group => group.proxies = (
-      Array.isArray(group.proxies)
-        ? group.proxies.concat(proxies.map(p => p.name))
-        : proxies.map(p => p.name)
-    )
+    group => {
+      if(Array.isArray(group.proxies)) {
+        group.proxies = [...new Set(
+          group.proxies.concat(mainProxyGroup.proxies)
+        )];
+      } else {
+        group.proxies = mainProxyGroup.proxies;
+      }
+    }
   );
 
   // exclusive proxy groups
@@ -512,11 +517,75 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
       );
   logger.debug(`profile: process: proxy-groups: sorted by length`);
 
-  // deduplicate: prefer exclusive groups over all inclusive groups
-  const seenGroups = new Set();
-  combinedProfile["proxy-groups"] = combinedProfile["proxy-groups"].filter(
-    group => seenGroups.has(group.name) ? false : (seenGroups.add(group.name), true)
+  // // deduplicate: prefer exclusive groups over all inclusive groups
+  // const seenGroups = new Set();
+  // combinedProfile["proxy-groups"] = combinedProfile["proxy-groups"].filter(
+  //   group => seenGroups.has(group.name) ? false : (seenGroups.add(group.name), true)
+  // );
+
+  // const combinedProfile = {};
+  // combinedProfile["proxy-groups"] = [
+  //   {
+  //     name: "a1",
+  //     proxies: [
+  //       "a1",
+  //       "a1",
+  //       "a2",
+  //       "a3",
+  //       "a4",
+  //     ],
+  //   },
+  //   {
+  //     name: "a2",
+  //     proxies: [
+  //       "a1",
+  //       "a1",
+  //       "a2",
+  //       "a3",
+  //       "a4",
+  //     ],
+  //   },
+  //   {
+  //     name: "a3",
+  //     proxies: [
+  //       "a1",
+  //       "a1",
+  //       "a2",
+  //       "a3",
+  //       "a4",
+  //     ],
+  //   }
+  // ]
+
+  // deduplicate & remove loop, prefer exclusive groups over all inclusive groups
+  const proxyGroupMap = new Map(
+    combinedProfile["proxy-groups"].map(
+      pg => [pg.name, pg.proxies]
+    ).values()
   );
+  const visitedGroups = new Set();
+  const removeLoops = groupName => {
+    if(visitedGroups.has(groupName)) {
+      return false;
+    }
+    visitedGroups.add(groupName);
+    proxyGroupMap.set(
+      groupName, proxyGroupMap.get(groupName).filter(
+        pg => {
+          if(proxyGroupMap.has(pg)) {
+            return removeLoops(pg);
+          }
+          return true;
+        })
+    );
+    
+    visitedGroups.delete(groupName);
+    return true;
+  }
+  
+  for (const groupName of proxyGroupMap.keys()) {
+    removeLoops(groupName);
+  }
 
   const nameservers = (
     Array.isArray(combinedProfile.dns.fallback)
