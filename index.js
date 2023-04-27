@@ -66,7 +66,7 @@ async function parseProfile(profile, specifiedTemplate, specifiedUser = "default
   const userInfo = response.headers["subscription-userinfo"];
   const content = load(response.payload);
 
-  const proxies = profile.map(content);
+  const proxies = profile.map(content).filter(Boolean);
   if (!Array.isArray(proxies)) {
     throw new TypeError(
       `profile: parse: ${response.url}: map: malformed function: expected returned value to be of type Array`
@@ -185,7 +185,11 @@ async function parseProfile(profile, specifiedTemplate, specifiedUser = "default
   for (const configuredProxyGroup of profile.proxyGroups) {
     if (typeof configuredProxyGroup?.payload != "object") {
       logger.debug(`profile: parse: ${profile.url}: profile.proxyGroups: ${JSON.stringify(configuredProxyGroup)}: discarded`);
-      continue;
+      if(configuredProxyGroup?.name) {
+        configuredProxyGroup.payload = Object.assign({}, configuredProxyGroup);
+      } else {
+        continue;
+      }
     }
     const specifiedProxyGroupSettings = configuredProxyGroup.payload;
     const proxyGroupSettings = Array.isArray(
