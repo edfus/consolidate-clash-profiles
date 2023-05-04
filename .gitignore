@@ -9,3 +9,4 @@ output
 external-rulesets
 dist
 *.log
+*_split_*

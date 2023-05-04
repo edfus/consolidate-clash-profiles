@@ -2,6 +2,18 @@
 # https://raw.dler.io/main/Clash/Provider/Domestic.yaml
 payload:
 
+  # 奇虎旗下的CDN，FBI也在用？
+  # - DOMAIN-SUFFIX,baomitu.com
+
+  # 哈啰
+  - DOMAIN-SUFFIX,hello-inc.com
+  - DOMAIN-SUFFIX,hellobike.com
+
+  # 草料二维码
+  - DOMAIN-SUFFIX,cli.im
+  - DOMAIN-SUFFIX,clewm.net
+
+  - DOMAIN-SUFFIX,91160.com
   - DOMAIN-SUFFIX,ke.com
   - DOMAIN-SUFFIX,ioffershow.com
   - DOMAIN-SUFFIX,flyert.com
@@ -9,18 +21,26 @@ payload:
   - DOMAIN-SUFFIX,daocloud.io
   - DOMAIN-SUFFIX,irm.mihoyo.com
   - DOMAIN-SUFFIX,tencentmusic.com
+  
+  # 知识星球
   - DOMAIN-SUFFIX,zsxq.com
   - DOMAIN-SUFFIX,webank.com
   - DOMAIN-SUFFIX,tupu360.com
+  # 企查查
   - DOMAIN-SUFFIX,qcc.com
+  #面试
   - DOMAIN-SUFFIX,showmebug.com
-  - DOMAIN-SUFFIX,nowcoder.com
   - DOMAIN-SUFFIX,xinrenxinshi.com
+  - DOMAIN-SUFFIX,weicewang.com
+
+  - DOMAIN-SUFFIX,nowcoder.com
+  # 拼多多
   - DOMAIN-SUFFIX,pddpic.com
   - DOMAIN-SUFFIX,pinduoduo.com
+
   - DOMAIN-SUFFIX,4399om.com
-  - DOMAIN-SUFFIX,weicewang.com
   - DOMAIN-SUFFIX,pinduoduo.net
+
   - DOMAIN-SUFFIX,1688.com
   - DOMAIN-SUFFIX,bsccdn.net
   - DOMAIN-SUFFIX,cn.app.chat.xiaomi.net
