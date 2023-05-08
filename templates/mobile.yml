@@ -19,6 +19,10 @@ proxy-groups:
     type: select
     proxies:
       - Proxy
+  - name: miHoYo
+    type: select
+    proxies:
+      - Proxy
   - name: Steam
     type: select
     proxies:
@@ -67,6 +71,7 @@ rules:
   - RULE-SET,Reject,Ad Blocking
   - RULE-SET,Netflix,Netflix
   - RULE-SET,Facebook,Facebook
+  - RULE-SET,Mihoyo,miHoYo
   - RULE-SET,Steam,Steam
   - RULE-SET,OpenAI,OpenAI
   - RULE-SET,Proxy,Proxy
@@ -96,6 +101,12 @@ rule-providers:
     behavior: classical
     url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Steam.yml
     path: ./Rules/Steam
+    interval: 86400
+  Mihoyo:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Mihoyo.yml
+    path: ./Rules/Mihoyo
     interval: 86400
   Facebook:
     type: http

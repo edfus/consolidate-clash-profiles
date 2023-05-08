@@ -5,6 +5,10 @@ payload:
   # 奇虎旗下的CDN，FBI也在用？
   # - DOMAIN-SUFFIX,baomitu.com
 
+  # 客服和数据统计
+  - DOMAIN-SUFFIX,cnzz.com
+  - DOMAIN-SUFFIX,live800.com
+
   # 哈啰
   - DOMAIN-SUFFIX,hello-inc.com
   - DOMAIN-SUFFIX,hellobike.com

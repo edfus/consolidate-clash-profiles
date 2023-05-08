@@ -2,8 +2,9 @@
 
 # Define the servers list (use a space-separated list of server IP addresses or hostnames)
 encoded_servers="aG9zdGRhcmUgc2VydmFyaWNh"
-# encoded_servers="aG9zdGRhcmU="
+# encoded_servers="aG9zdGRhcmU=" # h
 # encoded_servers="c2VydmFyaWNh"
+# encoded_servers="ZG1pdA=="
 
 # Decode the servers list
 servers="$(echo "$encoded_servers" | base64 --decode)"
@@ -35,7 +36,6 @@ for server in $servers; do
   # Remove the split files from the remote server
   ssh -o MACs=hmac-sha2-256 "$remote_user@$server" "rm ${remote_directory}/profiles_split_*"
 done
-
 
 # Remove the split files from the local machine
 rm profiles_split_*

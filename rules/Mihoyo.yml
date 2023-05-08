@@ -1,0 +1,63 @@
+payload:
+  # Star Rail
+  - DOMAIN-SUFFIX,geetest.com
+
+  # 米哈游
+  - DOMAIN-SUFFIX,mhyurl.cn
+  - DOMAIN-SUFFIX,mihayo.com
+  - DOMAIN-SUFFIX,mihayou.com
+  - DOMAIN-SUFFIX,mihoyo.com
+  - DOMAIN-SUFFIX,mihoyocg.com
+  - DOMAIN-SUFFIX,mihoyogift.com
+  - DOMAIN-SUFFIX,mihoyomall.com
+  - DOMAIN-SUFFIX,miyoushe.com
+
+  # 崩坏2
+  - DOMAIN-SUFFIX,benghuai.com
+
+  # 崩坏3
+  - DOMAIN-SUFFIX,bh3.com
+
+  # 星穹铁道
+  - DOMAIN-SUFFIX,bhsr.com
+
+  # 未定事件簿
+  - DOMAIN-SUFFIX,themisweeps.com
+
+  # 原神
+  - DOMAIN-SUFFIX,yuanshen.com
+
+  # Akamai
+  - DOMAIN-SUFFIX,mihayo.akamaized.net
+
+  # > Genshin
+  - DOMAIN-SUFFIX,api-os-takumi.mihoyo.com
+  - DOMAIN-SUFFIX,hk4e-api-os-static.mihoyo.com
+  - DOMAIN-SUFFIX,hk4e-sdk-os.mihoyo.com
+  - DOMAIN-SUFFIX,dispatchosglobal.yuanshen.com
+  - DOMAIN-SUFFIX,osusadispatch.yuanshen.com
+  - DOMAIN-SUFFIX,account.mihoyo.com
+  - DOMAIN-SUFFIX,log-upload-os.mihoyo.com
+  - DOMAIN-SUFFIX,dispatchcntest.yuanshen.com
+  - DOMAIN-SUFFIX,devlog-upload.mihoyo.com
+  - DOMAIN-SUFFIX,webstatic.mihoyo.com
+  - DOMAIN-SUFFIX,log-upload.mihoyo.com
+  - DOMAIN-SUFFIX,hk4e-sdk.mihoyo.com
+  - DOMAIN-SUFFIX,api-beta-sdk.mihoyo.com
+  - DOMAIN-SUFFIX,api-beta-sdk-os.mihoyo.com
+  - DOMAIN-SUFFIX,cnbeta01dispatch.yuanshen.com
+  - DOMAIN-SUFFIX,dispatchcnglobal.yuanshen.com
+  - DOMAIN-SUFFIX,cnbeta02dispatch.yuanshen.com
+  - DOMAIN-SUFFIX,sdk-os-static.mihoyo.com
+  - DOMAIN-SUFFIX,webstatic-sea.mihoyo.com
+  - DOMAIN-SUFFIX,webstatic-sea.hoyoverse.com
+  - DOMAIN-SUFFIX,hk4e-sdk-os-static.hoyoverse.com
+  - DOMAIN-SUFFIX,sdk-os-static.hoyoverse.com
+  - DOMAIN-SUFFIX,api-account-os.hoyoverse.com
+  - DOMAIN-SUFFIX,hk4e-sdk-os.hoyoverse.com
+  - DOMAIN-SUFFIX,overseauspider.yuanshen.com
+  - DOMAIN-SUFFIX,gameapi-account.mihoyo.com
+  - DOMAIN-SUFFIX,minor-api.mihoyo.com
+  - DOMAIN-SUFFIX,public-data-api.mihoyo.com
+  - DOMAIN-SUFFIX,uspider.yuanshen.com
+  - DOMAIN-SUFFIX,sdk-static.mihoyo.com
