@@ -1,6 +1,14 @@
 payload:
   # Star Rail
   - DOMAIN-SUFFIX,geetest.com
+  - DOMAIN-SUFFIX,starrails.com
+  - DOMAIN-SUFFIX,anticheatexpert.com
+  # - DOMAIN-SUFFIX,abtest-api-data-sg.hoyoverse.com
+  # - DOMAIN-SUFFIX,hkrpg-sdk-os.hoyoverse.com
+  - DOMAIN-SUFFIX,hoyoverse.com
+  # - DOMAIN-SUFFIX,sg-hkrpg-api.hoyoverse.com
+
+
 
   # 米哈游
   - DOMAIN-SUFFIX,mhyurl.cn

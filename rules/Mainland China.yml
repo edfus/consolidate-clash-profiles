@@ -2,6 +2,7 @@
 # https://raw.dler.io/main/Clash/Provider/Domestic.yaml
 payload:
 
+  - DOMAIN-SUFFIX,mokahr.com
   # 奇虎旗下的CDN，FBI也在用？
   # - DOMAIN-SUFFIX,baomitu.com
 
