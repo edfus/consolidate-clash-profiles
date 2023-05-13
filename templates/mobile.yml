@@ -60,10 +60,12 @@ proxy-groups:
 script:
   shortcuts:
     QUIC: network == 'udp' and dst_port == 443 and (geoip(resolve_ip(host)) != 'CN' or geoip(dst_ip) != 'CN')
+    StarRail: network == 'udp' and dst_port == 23301
 # [UDP] 192.168.2.244:57264 --> www.google-analytics.com:443 match GeoIP(CN) using Mainland China[DIRECT]
 
 rules:
   - SCRIPT,QUIC,Quick UDP Internet Connections,no-resolve
+  - SCRIPT,StarRail,miHoYo,no-resolve
   - DOMAIN,dns.msftncsi.com,Microsoft Network Connectivity Status Indicator
   - DOMAIN,www.msftncsi.com,Microsoft Network Connectivity Status Indicator
   - DOMAIN,www.msftconnecttest.com,Microsoft Network Connectivity Status Indicator

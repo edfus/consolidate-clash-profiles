@@ -59,9 +59,10 @@ proxy-groups:
 script:
   shortcuts:
     QUIC: network == 'udp' and dst_port == 443 and (geoip(resolve_ip(host)) != 'CN' or geoip(dst_ip) != 'CN')
-
+    StarRail: network == 'udp' and dst_port == 23301
 rules:
   - SCRIPT,QUIC,Quick UDP Internet Connections,no-resolve
+  - SCRIPT,StarRail,miHoYo,no-resolve
   - DOMAIN,dns.msftncsi.com,Microsoft Network Connectivity Status Indicator
   - DOMAIN,www.msftncsi.com,Microsoft Network Connectivity Status Indicator
   - DOMAIN,www.msftconnecttest.com,Microsoft Network Connectivity Status Indicator
@@ -143,11 +144,6 @@ rule-providers:
     path: ./Rules/Private Network
     interval: 86400
 hosts:
-  # dns.google: 8.8.8.8
-  # dns-unfiltered.adguard.com: 94.140.14.140
-  # sandbox.opendns.com: 208.67.222.2
-  # dns10.quad9.net: 9.9.9.10
-  # security-filter-dns.cleanbrowsing.org: 185.228.168.9
 dns:
   enable: true
   listen: 0.0.0.0:53
