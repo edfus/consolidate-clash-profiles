@@ -1,6 +1,9 @@
 # https://github.com/dler-io/Rules
 # https://raw.dler.io/main/Clash/Provider/Domestic.yaml
 payload:
+  # KFC
+  - DOMAIN-SUFFIX,hwwt8.com
+  - DOMAIN-SUFFIX,yumchina.com
 
   - DOMAIN-SUFFIX,mokahr.com
   # 奇虎旗下的CDN，FBI也在用？
