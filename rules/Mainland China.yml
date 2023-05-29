@@ -1,6 +1,10 @@
 # https://github.com/dler-io/Rules
 # https://raw.dler.io/main/Clash/Provider/Domestic.yaml
 payload:
+  # 大众点评
+  - DOMAIN-SUFFIX,dpfile.com
+  # China Mobile
+  - DOMAIN-SUFFIX,cmpassort.com
   # KFC
   - DOMAIN-SUFFIX,hwwt8.com
   - DOMAIN-SUFFIX,yumchina.com
