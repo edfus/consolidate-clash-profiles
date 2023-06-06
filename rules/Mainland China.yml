@@ -1,6 +1,10 @@
 # https://github.com/dler-io/Rules
 # https://raw.dler.io/main/Clash/Provider/Domestic.yaml
 payload:
+
+  - DOMAIN-SUFFIX,prod-public-bucket.oss-cn-shanghai.aliyuncs.com
+  - DOMAIN-SUFFIX,liveyu.com
+
   # 大众点评
   - DOMAIN-SUFFIX,dpfile.com
   # China Mobile
