@@ -8,5 +8,6 @@ cached
 output
 external-rulesets
 dist
+configs
 *.log
 *_split_*
