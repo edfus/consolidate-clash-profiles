@@ -1,7 +1,6 @@
 # https://github.com/dler-io/Rules
 # https://raw.dler.io/main/Clash/Provider/Domestic.yaml
 payload:
-
   - DOMAIN-SUFFIX,luckincoffeecdn.com
   - DOMAIN-SUFFIX,prod-public-bucket.oss-cn-shanghai.aliyuncs.com
   - DOMAIN-SUFFIX,liveyu.com
