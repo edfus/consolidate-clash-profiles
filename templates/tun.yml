@@ -67,6 +67,9 @@ rules:
   - DOMAIN,www.msftncsi.com,Microsoft Network Connectivity Status Indicator
   - DOMAIN,www.msftconnecttest.com,Microsoft Network Connectivity Status Indicator
   - DOMAIN,ipv6.msftconnecttest.com,Microsoft Network Connectivity Status Indicator
+  - DOMAIN,www.reddit.com,REJECT
+  - DOMAIN,boards.4channel.org,REJECT
+  - RULE-SET,Mihoyo,REJECT
   - RULE-SET,Reject,Ad Blocking
   - RULE-SET,Netflix,Netflix
   - RULE-SET,Facebook,Facebook

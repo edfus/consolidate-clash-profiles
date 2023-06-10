@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Define the servers list (use a space-separated list of server IP addresses or hostnames)
-encoded_servers="aG9zdGRhcmUgc2VydmFyaWNh"
+# encoded_servers="aG9zdGRhcmUgc2VydmFyaWNh"
 # encoded_servers="aG9zdGRhcmU=" # h
-# encoded_servers="c2VydmFyaWNh"
+encoded_servers="c2VydmFyaWNh"
 # encoded_servers="ZG1pdA=="
 
 # Decode the servers list
