@@ -2,6 +2,8 @@
 # https://raw.dler.io/main/Clash/Provider/Reject.yaml
 # Ads in Video apps
 payload:
+# 
+  - DOMAIN-SUFFIX,device.marketingcloudapis.com
   - DOMAIN-SUFFIX,msn.cn
   # > iqiyi & pps
   - DOMAIN-SUFFIX,a.ckm.iqiyi.com

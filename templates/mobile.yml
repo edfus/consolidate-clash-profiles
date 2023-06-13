@@ -36,6 +36,11 @@ proxy-groups:
     proxies: 
       - REJECT
       - Proxy
+  - name: Hong Kong
+    type: select
+    proxies: 
+      - DIRECT
+      - Proxy
   - name: Mainland China
     type: select
     proxies: 
@@ -76,6 +81,7 @@ rules:
   - RULE-SET,Mihoyo,miHoYo
   - RULE-SET,Steam,Steam
   - RULE-SET,OpenAI,OpenAI
+  - RULE-SET,Hong Kong,Hong Kong
   - RULE-SET,Proxy,Proxy
   - RULE-SET,Mainland China,Mainland China
   - RULE-SET,P2P Applications,P2P Applications
@@ -127,6 +133,12 @@ rule-providers:
     behavior: classical
     url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Netflix.yml
     path: ./Rules/Netflix
+    interval: 86400
+  Hong Kong:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Hong%20Kong.yml
+    path: ./Rules/Hong Kong
     interval: 86400
   Mainland China:
     type: http

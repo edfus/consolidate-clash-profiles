@@ -5,6 +5,11 @@ payload:
   - DOMAIN-SUFFIX,prod-public-bucket.oss-cn-shanghai.aliyuncs.com
   - DOMAIN-SUFFIX,liveyu.com
 
+  # 天猫国际/京东国际
+  - DOMAIN-SUFFIX,taobao.hk
+  - DOMAIN-SUFFIX,tmall.hk
+  - DOMAIN-SUFFIX,jd.hk
+
   # 大众点评
   - DOMAIN-SUFFIX,dpfile.com
   # China Mobile
@@ -125,8 +130,6 @@ payload:
   - DOMAIN-SUFFIX,aliyuncs.com
   - DOMAIN-SUFFIX,tmall.com
   - DOMAIN-SUFFIX,taobao.com
-  - DOMAIN-SUFFIX,taobao.hk
-  - DOMAIN-SUFFIX,tmall.hk
 
   - DOMAIN-SUFFIX,sfbuy.com
   - DOMAIN-SUFFIX,tanx.com # ad
@@ -499,7 +502,6 @@ payload:
   - DOMAIN-SUFFIX,tencent.cn
   - DOMAIN-SUFFIX,tencent.com
   - DOMAIN-SUFFIX,tencent.com.cn
-  - DOMAIN-SUFFIX,tencent.com.hk
   - DOMAIN-SUFFIX,tencent.net.cn
   - DOMAIN-SUFFIX,tencentads.com
   - DOMAIN-SUFFIX,tencentapps.com
@@ -584,7 +586,6 @@ payload:
   - DOMAIN-SUFFIX,wechat.com
   - DOMAIN-SUFFIX,wechatlegal.net
   - DOMAIN-SUFFIX,wechatpay.com
-  - DOMAIN-SUFFIX,wechatpay.com.hk
   - DOMAIN-SUFFIX,wegame.com
   - DOMAIN-SUFFIX,wegame.com.cn
   - DOMAIN-SUFFIX,weiaixiaoshuo.com
@@ -799,7 +800,6 @@ payload:
   - DOMAIN-SUFFIX,ithome.com
   - DOMAIN-SUFFIX,ixdzs.com
   - DOMAIN-SUFFIX,jd.com
-  - DOMAIN-SUFFIX,jd.hk
 
   - DOMAIN-SUFFIX,jianshu.com
   - DOMAIN-SUFFIX,jianshu.io
