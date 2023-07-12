@@ -1,6 +1,12 @@
 # https://github.com/dler-io/Rules
 # https://raw.dler.io/main/Clash/Provider/Domestic.yaml
 payload:
+  - DOMAIN-SUFFIX,jdl.com
+  - DOMAIN-SUFFIX,healthjd.com
+  - DOMAIN-SUFFIX,jdcloud.com
+  - DOMAIN-SUFFIX,epns.eset.com
+  
+  - DOMAIN-SUFFIX,jdh.com
   - DOMAIN-SUFFIX,luckincoffeecdn.com
   - DOMAIN-SUFFIX,prod-public-bucket.oss-cn-shanghai.aliyuncs.com
   - DOMAIN-SUFFIX,liveyu.com

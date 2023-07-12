@@ -65,9 +65,12 @@ script:
   shortcuts:
     QUIC: network == 'udp' and dst_port == 443 and (geoip(resolve_ip(host)) != 'CN' or geoip(dst_ip) != 'CN')
     StarRail: network == 'udp' and dst_port == 23301
+    # PrivateCompanyMonitor: network == 'tcp' and dst_port == 2000
+    PrivateCompanyVPNHongKong: network == 'tcp' and dst_port == 441 # 202.77
 rules:
   - SCRIPT,QUIC,Quick UDP Internet Connections,no-resolve
   - SCRIPT,StarRail,miHoYo,no-resolve
+  - SCRIPT,PrivateCompanyVPNHongKong,P2P Applications,no-resolve
   - DOMAIN,dns.msftncsi.com,Microsoft Network Connectivity Status Indicator
   - DOMAIN,www.msftncsi.com,Microsoft Network Connectivity Status Indicator
   - DOMAIN,www.msftconnecttest.com,Microsoft Network Connectivity Status Indicator
