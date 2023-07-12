@@ -566,6 +566,9 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
       pg => [pg.name, pg]
     ).values()
   );
+  const allReferrableProxyObjs = new Set(
+    [...proxyGroupMap.keys(), ...mainProxyGroup.proxies,
+    ...["DIRECT", "REJECT"]])
   const visitedGroups = new Set();
   const removeLoops = groupName => {
     if (visitedGroups.has(groupName)) {
@@ -575,6 +578,8 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
     const pgObj = proxyGroupMap.get(groupName);
     pgObj.proxies = pgObj.proxies.filter(
       pg => {
+        if (!allReferrableProxyObjs.has(pg))
+          return false;
         if (proxyGroupMap.has(pg)) {
           return removeLoops(pg);
         }
