@@ -9,4 +9,4 @@ payload:
   - DOMAIN-SUFFIX,futunn.com
   - DOMAIN-SUFFIX,three.com.hk
   - DOMAIN-SUFFIX,cn-hongkong.aliyuncs.com
-  - DOMAIN-SUFFIX,hk
+  # - DOMAIN-SUFFIX,hk
