@@ -1,6 +1,12 @@
 # https://github.com/dler-io/Rules
 # https://raw.dler.io/main/Clash/Provider/Domestic.yaml
 payload:
+  - DOMAIN-SUFFIX,16fan.com
+  - DOMAIN-SUFFIX,jd-eit.com
+  - DOMAIN-SUFFIX,umeng.com
+  - DOMAIN-SUFFIX,cmbimg.com
+  - DOMAIN-SUFFIX,cmbchina.com
+  - DOMAIN-SUFFIX,114yygh.com
   - DOMAIN-SUFFIX,beikongyun.com
   - DOMAIN-SUFFIX,bdstatic.com
   - DOMAIN-SUFFIX,jingpin360.com
