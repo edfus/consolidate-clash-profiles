@@ -1,6 +1,8 @@
 # https://github.com/dler-io/Rules
 # https://raw.dler.io/main/Clash/Provider/Domestic.yaml
 payload:
+  - DOMAIN-SUFFIX,jdcloud-oss.com
+  - DOMAIN-SUFFIX,healthjd.com
   - DOMAIN-SUFFIX,16fan.com
   - DOMAIN-SUFFIX,jd-eit.com
   - DOMAIN-SUFFIX,umeng.com
