@@ -1,6 +1,11 @@
 # https://github.com/dler-io/Rules
 # https://raw.dler.io/main/Clash/Provider/Domestic.yaml
 payload:
+  - DOMAIN-SUFFIX,libvio.vip
+  - DOMAIN-SUFFIX,libvio.cc
+  - DOMAIN-SUFFIX,libvio.la
+  - DOMAIN-SUFFIX,libvio.fun
+  - DOMAIN-SUFFIX,libvio.pro
   - DOMAIN-SUFFIX,jdcloud-oss.com
   - DOMAIN-SUFFIX,healthjd.com
   - DOMAIN-SUFFIX,16fan.com
