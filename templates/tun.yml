@@ -23,6 +23,16 @@ proxy-groups:
     type: select
     proxies:
       - Proxy
+  - name: Nintendo
+    type: select
+    proxies:
+      - Proxy
+      - DIRECT
+  - name: Bilibili
+    type: select
+    proxies:
+      - DIRECT
+      - Proxy
   - name: Steam
     type: select
     proxies:
@@ -76,15 +86,17 @@ rules:
   - DOMAIN,www.msftconnecttest.com,Microsoft Network Connectivity Status Indicator
   - DOMAIN,ipv6.msftconnecttest.com,Microsoft Network Connectivity Status Indicator
   - RULE-SET,Reject,Ad Blocking
+  - RULE-SET,P2P Applications,P2P Applications
   - RULE-SET,Netflix,Netflix
   - RULE-SET,Facebook,Facebook
   - RULE-SET,OpenAI,OpenAI
   - RULE-SET,Steam,Steam
+  - RULE-SET,Bilibili,Bilibili
+  - RULE-SET,Nintendo,Nintendo
   - RULE-SET,Mihoyo,miHoYo
   - RULE-SET,Hong Kong,Hong Kong
   - RULE-SET,Proxy,Proxy
   - RULE-SET,Mainland China,Mainland China
-  - RULE-SET,P2P Applications,P2P Applications
   - RULE-SET,Private Network,DIRECT
   - DOMAIN,localhost,DIRECT
   - DOMAIN-SUFFIX,local,DIRECT
@@ -115,6 +127,18 @@ rule-providers:
     behavior: classical
     url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Mihoyo.yml
     path: ./Rules/Mihoyo
+    interval: 86400
+  Bilibili:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Bilibili.yml
+    path: ./Rules/Bilibili
+    interval: 86400
+  Nintendo:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Nintendo.yml
+    path: ./Rules/Nintendo
     interval: 86400
   Facebook:
     type: http
