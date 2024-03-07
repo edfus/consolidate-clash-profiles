@@ -5,6 +5,8 @@
 # DOMAIN-SUFFIX: 126
 # IP-CIDR: 1
 # TOTAL: 127
+
+# NOTE P2P 部分放在了P2P Applications里面
 payload:
   - DOMAIN-SUFFIX,100classicbooks.com
   - DOMAIN-SUFFIX,ac-pocketcamp.com

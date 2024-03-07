@@ -1,6 +1,16 @@
 # https://github.com/dler-io/Rules
 # https://raw.dler.io/main/Clash/Provider/Domestic.yaml
 payload:
+  - DOMAIN-SUFFIX,pangolin-sdk-toutiao.com
+  - DOMAIN-SUFFIX,pangolin-sdk-toutiao-1.com
+  - DOMAIN-SUFFIX,pangolin-sdk-toutiao-2.com
+  - DOMAIN-SUFFIX,pangolin-sdk-toutiao-3.com
+  - DOMAIN-SUFFIX,pangolin-sdk-toutiao-a.com
+  - DOMAIN-SUFFIX,pangolin-sdk-toutiao-b.com
+  - DOMAIN-SUFFIX,volces.com
+  
+  - DOMAIN-SUFFIX,ctobsnssdk.com
+  - DOMAIN-SUFFIX,kakamobi.com
   # Alipay
   - DOMAIN-SUFFIX,alipay
   - DOMAIN-SUFFIX,alipay-corp.com
