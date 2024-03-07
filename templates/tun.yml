@@ -56,6 +56,11 @@ proxy-groups:
     proxies: 
       - DIRECT
       - Proxy
+  - name: P2P Gaming
+    type: select
+    proxies: 
+      - DIRECT
+      - Proxy
   - name: P2P Applications
     type: select
     proxies: 
@@ -87,6 +92,7 @@ rules:
   - DOMAIN,ipv6.msftconnecttest.com,Microsoft Network Connectivity Status Indicator
   - RULE-SET,Reject,Ad Blocking
   - RULE-SET,P2P Applications,P2P Applications
+  - RULE-SET,P2P Gaming,P2P Gaming
   - RULE-SET,Netflix,Netflix
   - RULE-SET,Facebook,Facebook
   - RULE-SET,OpenAI,OpenAI
@@ -169,6 +175,12 @@ rule-providers:
     behavior: classical
     url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/Mainland%20China.yml
     path: ./Rules/Mainland China
+    interval: 86400
+  P2P Gaming:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/edfus/consolidate-profiles/master/rules/P2P%20Gaming.yml
+    path: ./Rules/P2P Gaming
     interval: 86400
   P2P Applications:
     type: http

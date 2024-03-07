@@ -22,5 +22,3 @@ payload:
   - PROCESS-NAME,uTorrent
   - PROCESS-NAME,WebTorrent
   - PROCESS-NAME,WebTorrent Helper
-  - DOMAIN-SUFFIX,npln.srv.nintendo.net,DIRECT
-  - DOMAIN-SUFFIX,n.n.srv.nintendo.net,DIRECT
