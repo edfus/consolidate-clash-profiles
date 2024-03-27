@@ -18,7 +18,7 @@ payload:
   - DOMAIN-SUFFIX,cm.steampowered.com
   - DOMAIN-SUFFIX,steam-chat.com
 
-  - DOMAIN-SUFFIX,oss-cn-shanghai.aliyuncs.com
+  # - DOMAIN-SUFFIX,oss-cn-shanghai.aliyuncs.com
   - DOMAIN-SUFFIX,st.dl.eccdnx.com
   - DOMAIN-SUFFIX,steampipe.steamcontent.tnkjmec.com
   - DOMAIN-SUFFIX,st.dl.bscstorage.net
