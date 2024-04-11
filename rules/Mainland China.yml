@@ -1,6 +1,7 @@
 # https://github.com/dler-io/Rules
 # https://raw.dler.io/main/Clash/Provider/Domestic.yaml
 payload:
+  - DOMAIN-SUFFIX,incopat.com
   - DOMAIN-SUFFIX,cubox.pro
   - DOMAIN-SUFFIX,yinxiang.com
   - DOMAIN-SUFFIX,aliyuncs.com
