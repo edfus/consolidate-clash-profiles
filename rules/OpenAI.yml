@@ -1,5 +1,7 @@
 # NAME: Facebook
 # https://github.com/Semporia/ClashX-Pro/blob/master/Filter/Facebook.yaml
 payload:
+  - DOMAIN-SUFFIX,chatgpt.com
   - DOMAIN-SUFFIX,openai.com
+  - DOMAIN-SUFFIX,chatgpt.livekit.cloud
   - DOMAIN-SUFFIX,intercom.io
