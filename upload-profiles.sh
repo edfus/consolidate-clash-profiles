@@ -42,7 +42,9 @@ function transfer_file() {
     ssh -o MACs=hmac-sha2-256 "$remote_user@$server" "rm ${remote_directory}/${file_name}_split_*"
 
     # Remove the split files from the local machine
-    rm ${local_files}
+    for local_file in $local_files; do
+      rm ${local_file}
+    done
   else
     echo "Transfer failed. Skipping $file_path"
   fi
@@ -88,6 +90,7 @@ function process_file() {
     # Check if the file is a valid YAML file
     if ! yq e . "$file_path" >/dev/null 2>&1; then
       echo "Skipping $file_path because it is not a valid YAML file"
+      cat "$file_path" | head -n 3
       return 1
     fi
   fi
@@ -110,7 +113,8 @@ function process_file() {
 
 # Define the servers list (use a space-separated list of server IP addresses or hostnames)
 # encoded_servers="aG9zdGRhcmUgc2VydmFyaWNh"
-encoded_servers="aG9zdGRhcmU=" # h
+# encoded_servers="aG9zdGRhcmU=" # h
+encoded_servers="ZG1pdCBob3N0ZGFyZQo=" # dmit + h 
 # encoded_servers="c2VydmFyaWNh"
 # encoded_servers="ZG1pdA=="
 
@@ -154,11 +158,16 @@ for server in $servers; do
   done
 done
 
+# Remove the split files from the local machine
+for local_file in "*_split_*"; do
+  rm ${local_file}
+done
 
 set -e
 echo "All uploads complete. Press any key to continue."
 read 
-command='bash -i -c "cd /root/C && ./index.sh update down up -c"'
+# command='bash -i -c "cd /root/C && ./index.sh -c && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh"'
+command='bash -i -c "cd /root/C && ./index.sh update down up -c && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh"'
 
 # Loop through the servers and use ssh to execute the command
 for server in $servers; do
