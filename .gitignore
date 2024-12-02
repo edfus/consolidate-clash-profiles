@@ -11,3 +11,5 @@ dist
 configs
 *.log
 *_split_*
+.wrangler
+.DS_Store

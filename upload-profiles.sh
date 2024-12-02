@@ -96,9 +96,16 @@ function process_file() {
   fi
 
   # Check the file size (in bytes)
-  file_size=$(stat -c%s "$file_path")
+  # Detect the operating system
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS
+    file_size=$(stat -f%z "$file_path")
+  else
+    # Linux
+    file_size=$(stat -c%s "$file_path")
+  fi
 
-  # Set use_chunks=0 if the file is larger than 10MB (1MB = 1048576 bytes)
+  # Set use_chunks=0 if the file is larger than 10MB
   if [ "$file_size" -gt 10048576 ]; then
     transfer_file $server $file_path $remote_user $remote_directory 0
   else
