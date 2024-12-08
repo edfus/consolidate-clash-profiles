@@ -201,9 +201,14 @@ dns:
   use-hosts: true
   nameserver:
   - 223.5.5.5
-  fallback: []
-  ipv6: true
-  fake-ip-range: 28.0.0.0/8
+  fallback:
+    - https://dns.alidns.com/dns-query
+    - tls://8.8.4.4
+    - tls://1.1.1.1
+  proxy-server-nameserver:
+    - https://doh.pub/dns-query
+  ipv6: false
+  fake-ip-range: 198.18.0.1/16
   fake-ip-filter:
   - music.163.com
   - "*.music.163.com"
@@ -273,12 +278,15 @@ dns:
   - "+.dns.google"
   
   fallback-filter:
-    geoip: false
+    geoip: true
+    geoip-code: CN
     ipcidr:
       - 0.0.0.0/32
       - 240.0.0.0/4
+      - 127.0.0.0/4
     domain:
     - "+.google.com"
+    - "+.github.com"
     - "+.facebook.com"
     - "+.apple.com"
     - "+.youtube.com"
@@ -286,7 +294,6 @@ dns:
     - "+.googlevideo.com"
     - "+.returnyoutubedislikeapi.com"
     - "+.googleapis.com"
-    - "+.google-analytics.com"
     - "+.gvt1.com"
     - "+.gvt2.com"
     - "+.citibankonline.com"
@@ -301,7 +308,6 @@ dns:
     - "+.obsidian.md"
     - "+.doubleclick.net"
     - "+.3gppnetwork.org"
-
   nameserver-policy:
     '+.baidu.com': '223.5.5.5'
     '+.io.mi.com': '223.5.5.5'

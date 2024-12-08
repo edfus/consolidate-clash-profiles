@@ -202,7 +202,12 @@ dns:
   use-hosts: true
   nameserver:
   - 223.5.5.5
-  fallback: []
+  fallback:
+    - https://dns.alidns.com/dns-query
+    - tls://8.8.4.4
+    - tls://1.1.1.1
+  proxy-server-nameserver:
+    - https://doh.pub/dns-query
   ipv6: false
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter:
@@ -279,8 +284,10 @@ dns:
     ipcidr:
       - 0.0.0.0/32
       - 240.0.0.0/4
+      - 127.0.0.0/4
     domain:
     - "+.google.com"
+    - "+.github.com"
     - "+.facebook.com"
     - "+.apple.com"
     - "+.youtube.com"
