@@ -1,5 +1,43 @@
 #!/bin/bash
 
+# Default operation is to restart containers
+RESTART_CONTAINERS=1
+DEPLOY=0
+
+# Help function
+show_help() {
+  echo "Usage: $0 [OPTIONS]"
+  echo "Upload profiles and execute commands on remote servers."
+  echo ""
+  echo "Options:"
+  echo "  --deploy              Run deployment commands instead of just restarting containers"
+  echo "  --restart-containers  Restart all Docker containers (default behavior)"
+  echo "  --help                Display this help message and exit"
+  echo ""
+}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --deploy)
+      RESTART_CONTAINERS=0
+      DEPLOY=1
+      shift
+      ;;
+    --restart-containers)
+      RESTART_CONTAINERS=1
+      DEPLOY=0
+      shift
+      ;;
+    --help)
+      show_help
+      exit 0
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
 
 # Function to transfer a single file
 function transfer_file() {
@@ -173,8 +211,18 @@ done
 set -e
 echo "All uploads complete. Press any key to continue."
 read 
-# command='bash -i -c "cd /root/C && ./index.sh -c && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh"'
-command='bash -i -c "cd /root/C && ./index.sh update down up -c && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh"'
+
+# Set the command based on the operation option
+if [ "$RESTART_CONTAINERS" -eq 1 ]; then
+  command='bash -i -c "docker restart \$(docker ps -q)"'
+  echo "Will restart all containers on remote servers"
+elif [ "$DEPLOY" -eq 1 ]; then
+  command='bash -i -c "cd /root/C && ./index.sh update down up -c && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh && ./srv-shuf-fallback.sh"'
+  echo "Will run deployment commands on remote servers"
+else
+  echo "No action specified. Exiting."
+  exit 0
+fi
 
 # Loop through the servers and use ssh to execute the command
 for server in $servers; do
