@@ -1,0 +1,38 @@
+# =======================
+# Cursor AI 服务路由配置
+# =======================
+# 核心 API 服务（AI对话）
+
+payload:
+  - DOMAIN,api2.cursor.sh
+  - DOMAIN-SUFFIX,api2.cursor.sh
+
+  # 代码补全服务
+  - DOMAIN,api3.cursor.sh
+  - DOMAIN-SUFFIX,api3.cursor.sh
+  - DOMAIN,api4.cursor.sh
+  - DOMAIN-SUFFIX,api4.cursor.sh
+
+  # 代码库索引服务
+  - DOMAIN,repo42.cursor.sh
+  - DOMAIN-SUFFIX,repo42.cursor.sh
+
+  # 全球加速节点
+  - DOMAIN,us-asia.gcpp.cursor.sh
+  - DOMAIN-SUFFIX,us-asia.gcpp.cursor.sh
+  - DOMAIN,us-eu.gcpp.cursor.sh
+  - DOMAIN-SUFFIX,us-eu.gcpp.cursor.sh
+  - DOMAIN,us-only.gcpp.cursor.sh
+  - DOMAIN-SUFFIX,us-only.gcpp.cursor.sh
+
+  # 扩展市场和CDN
+  - DOMAIN,marketplace.cursorapi.com
+  - DOMAIN-SUFFIX,marketplace.cursorapi.com
+  - DOMAIN-SUFFIX,cursor-cdn.com
+
+  # 客户端更新服务
+  - DOMAIN,download.todesktop.com
+  - DOMAIN-SUFFIX,download.todesktop.com
+
+  # 通配符规则（兜底保护）
+  - DOMAIN-SUFFIX,cursor.sh

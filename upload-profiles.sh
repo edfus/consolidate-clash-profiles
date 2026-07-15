@@ -159,12 +159,13 @@ function process_file() {
 # Define the servers list (use a space-separated list of server IP addresses or hostnames)
 # encoded_servers="aG9zdGRhcmUgc2VydmFyaWNh"
 # encoded_servers="aG9zdGRhcmU=" # h
-encoded_servers="ZG1pdCBob3N0ZGFyZQo=" # dmit + h 
+# encoded_servers="ZG1pdCBob3N0ZGFyZQo=" # dmit + h 
 # encoded_servers="c2VydmFyaWNh"
-# encoded_servers="ZG1pdA=="
+encoded_servers="ZG1pdA=="
 
 # Decode the servers list
-servers="$(echo "$encoded_servers" | base64 --decode)"
+# servers="$(echo "$encoded_servers" | base64 --decode)"
+servers="aliyun"
 
 # Define the remote user and directory where you want to upload the profiles.js file
 remote_user="root"
@@ -193,7 +194,7 @@ fi
 
 # Define the local path to the files
 local_files="wrangler.toml injections.yml profiles.js"
-#!/bin/bash
+
 # Loop through all servers
 for server in $servers; do
   # Loop through all files
@@ -202,6 +203,22 @@ for server in $servers; do
     process_file $server $file_path $remote_user $remote_base_directory
   done
 done
+
+# Upload templates directory (meta.yml, mobile.yml, tun.yml)
+input_templates_directory="./templates"
+remote_templates_directory="$remote_base_directory/consolidate-clash-profiles/templates"
+
+if [ ! -d "$input_templates_directory" ]; then
+  echo "Directory $input_templates_directory does not exist."
+else
+  template_files=$(find "$input_templates_directory" -type f)
+
+  for server in $servers; do
+    for file_path in $template_files; do
+      process_file $server $file_path $remote_user $remote_templates_directory
+    done
+  done
+fi
 
 # Remove the split files from the local machine
 for local_file in "*_split_*"; do

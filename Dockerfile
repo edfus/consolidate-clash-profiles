@@ -1,7 +1,7 @@
-FROM node:16-alpine
+FROM node:20-alpine
 
-# https://github.com/cloudflare/wrangler/issues/803#issuecomment-551431152
-RUN npm install -g @cloudflare/wrangler --unsafe-perm=true --allow-root
+# Use modern wrangler package
+RUN npm install -g wrangler
 RUN wrangler --version
 
 USER root
