@@ -227,6 +227,8 @@ dns:
   proxy-server-nameserver:
     - udp://127.0.0.1:1053 # 或者改为你实际 listen 的端口
   ipv6: false
+  direct-nameserver:
+    - system
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter:
     - +.22991163.xyz
