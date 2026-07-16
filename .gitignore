@@ -13,3 +13,4 @@ configs
 *_split_*
 .wrangler
 .DS_Store
+*.pem
