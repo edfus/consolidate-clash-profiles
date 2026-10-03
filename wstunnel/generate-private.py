@@ -32,7 +32,7 @@ files={
   reverse_proxy kk-wstunnel-server:8080
  }}
 ''',
- 'deployment.json':json.dumps({'endpoint':a.endpoint,'sshPort':a.ssh_port,'target':'127.0.0.1:22','version':'11.0.0'},indent=2)+'\n',
+ 'deployment.json':json.dumps({'endpoint':a.endpoint,'sshPort':a.ssh_port,'target':'127.0.0.1:22022','version':'11.0.0'},indent=2)+'\n',
 }
 for name,text in files.items():
  f=out/name;f.write_text(text);f.chmod(0o600)
