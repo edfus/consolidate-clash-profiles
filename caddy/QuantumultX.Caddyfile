@@ -1,7 +1,12 @@
 :3000 {
-    root * /srv
-    @text path /quantumultx/*.conf /quantumultx/*.list /quantumultx/*.txt
-    header @text Content-Type "text/plain; charset=utf-8"
-    header /quantumultx/* Cache-Control "no-cache"
-    file_server
+    @publicFilter path /quantumultx/Anthropic.list
+    handle @publicFilter {
+        root * /srv
+        header Content-Type "text/plain; charset=utf-8"
+        header Cache-Control "no-cache"
+        file_server
+    }
+    handle {
+        respond "Not Found" 404
+    }
 }

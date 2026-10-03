@@ -14,3 +14,7 @@ configs
 .wrangler
 .DS_Store
 *.pem
+# Private Quantumult X configurations and server credentials
+/private/
+/caddy/quantumultx/*
+!/caddy/quantumultx/Anthropic.list

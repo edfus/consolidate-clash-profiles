@@ -1,16 +1,16 @@
-Quantumult X HTTPS distribution
+Quantumult X distribution
 
-Public files contain no subscriptions or credentials. Keep private profiles.js outside this directory.
-URLs:
-https://ladyfirst.uk/quantumultx/quanx.anthropic.conf
-https://ladyfirst.uk/quantumultx/Anthropic.list
-https://ladyfirst.uk/quantumultx/quantumultx-anthropic.zip
+Only public filter rules belong in caddy/quantumultx/ and GitHub.
+Public URL: https://ladyfirst.uk/quantumultx/Anthropic.list
+The public Caddy service allows this exact file only; all other paths return 404.
 
-Copy this directory to /root/C/caddy/ without --delete (other existing VPS files must stay).
-Start/update:
+Full configs, packages, server addresses, subscription URLs, passwords and keys must stay under ignored private/ locally. Never commit them. Deploy them separately to /root/C/caddy/config/quantumultx/ on the VPS, served by the existing HTTPS Basic Auth route /.config/quantumultx/. Do not copy them into the public quantumultx directory.
+HTTPS encrypts transport and Basic Auth protects access; this does not provide encryption at rest.
+
+Public deployment:
+Copy this caddy directory to /root/C/caddy/ without --delete.
 cd /root/C/caddy
 docker-compose -p profile-quantumultx -f profile-quantumultx.yml config --quiet
-docker-compose -p profile-quantumultx -f profile-quantumultx.yml up -d
+docker-compose -p profile-quantumultx -f profile-quantumultx.yml up -d --force-recreate
 
-The existing Caddy Docker proxy discovers the /quantumultx/* route. Existing Trojan TLS termination and Caddy port 8080 are reused. No additional public port is opened. File-only updates take effect immediately; regenerate ZIP when changing its contents. No directory listing is enabled.
-Rollback: docker-compose -p profile-quantumultx -f profile-quantumultx.yml down
+The main Caddy Docker proxy discovers /quantumultx/*. Existing TLS termination is reused; no new public ports are opened.
