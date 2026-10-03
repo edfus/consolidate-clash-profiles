@@ -1,0 +1,21 @@
+services:
+  quantumultx:
+    image: lucaslorentz/caddy-docker-proxy:2.8-alpine
+    entrypoint: caddy
+    command: [run, --config, /etc/caddy/Caddyfile, --adapter, caddyfile]
+    volumes:
+      - ./quantumultx:/srv/quantumultx:ro
+      - ./QuantumultX.Caddyfile:/etc/caddy/Caddyfile:ro
+    networks:
+      - caddy
+    labels:
+      caddy: "http://:8080"
+      caddy.reverse_proxy: "/quantumultx/* {{upstreams 3000}}"
+    restart: unless-stopped
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+networks:
+  caddy:
+    external: true

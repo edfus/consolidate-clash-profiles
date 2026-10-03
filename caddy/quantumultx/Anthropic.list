@@ -1,0 +1,15 @@
+# Anthropic / Claude: dedicated domains and inbound API IP ranges
+host-suffix,anthropic.com,Anthropic
+host-suffix,clau.de,Anthropic
+host-suffix,claude.ai,Anthropic
+host-suffix,claude.com,Anthropic
+host-suffix,claude.dev,Anthropic
+host-suffix,claudeusercontent.com,Anthropic
+host-suffix,claudemcpclient.com,Anthropic
+host-suffix,claudemcpcontent.com,Anthropic
+host,servd-anthropic-website.b-cdn.net,Anthropic
+host,anthropic.auth0.com,Anthropic
+host,anthropic.com.cdn.cloudflare.net,Anthropic
+host,anthropic-com.ghost.io,Anthropic
+ip-cidr,160.79.104.0/23,Anthropic,no-resolve
+ip6-cidr,2607:6bc0::/48,Anthropic,no-resolve

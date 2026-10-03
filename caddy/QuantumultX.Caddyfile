@@ -1,0 +1,7 @@
+:3000 {
+    root * /srv
+    @text path /quantumultx/*.conf /quantumultx/*.list /quantumultx/*.txt
+    header @text Content-Type "text/plain; charset=utf-8"
+    header /quantumultx/* Cache-Control "no-cache"
+    file_server
+}
