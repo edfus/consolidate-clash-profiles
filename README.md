@@ -16,3 +16,17 @@ profiles.js
 
 
 
+
+## Anthropic / Claude routing
+
+All three Mihomo templates and `consolidate()` embed the Anthropic rules first.
+Coverage includes service domains, telemetry dependencies, official IPv4/IPv6
+inbound ranges, HTTP/TLS/QUIC sniffing and native Claude process fallbacks.
+
+Private `profiles.js` exports `proxyGroupFilters.Anthropic` to restrict the final
+selector to Los Angeles node IDs 02/06. No matching node is an error; generic
+Proxy groups cannot bypass the restriction. Other profile modules can export
+`proxyGroupFilters` as a map of group names to node predicate functions.
+
+See [routing details, sources, scope and migration](docs/anthropic-routing.md).
+Run `node --test tests/anthropic-routing.test.js` with installed dependencies.

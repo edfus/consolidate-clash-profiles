@@ -6,12 +6,30 @@ log-level: info
 external-controller: 127.0.0.1:9090
 experimental:
   ignore-resolve-fail: true
+# Recover domain names from IP-only HTTP/TLS/QUIC connections (Mihomo).
+find-process-mode: strict
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  override-destination: false
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
 proxies: []
 proxy-groups:
   - name: Proxy
     type: select
     proxies: []
   - name: Netflix
+    type: select
+    proxies:
+      - Proxy
+  - name: Anthropic
     type: select
     proxies:
       - Proxy
@@ -76,16 +94,44 @@ proxy-groups:
     proxies:
       - Proxy
       - DIRECT
-script:
-  shortcuts:
-    QUIC: network == 'udp' and dst_port == 443 and (geoip(resolve_ip(host)) != 'CN' or geoip(dst_ip) != 'CN')
-    StarRail: network == 'udp' and dst_port == 23301
-    # PrivateCompanyMonitor: network == 'tcp' and dst_port == 2000
-    PrivateCompanyVPNHongKong: network == 'tcp' and dst_port == 441 # 202.77
 rules:
-  - SCRIPT,QUIC,Quick UDP Internet Connections,no-resolve
-  - SCRIPT,StarRail,miHoYo,no-resolve
-  - SCRIPT,PrivateCompanyVPNHongKong,P2P Applications,no-resolve
+  - DOMAIN-SUFFIX,anthropic.com,Anthropic
+  - DOMAIN-SUFFIX,clau.de,Anthropic
+  - DOMAIN-SUFFIX,claude.ai,Anthropic
+  - DOMAIN-SUFFIX,claude.com,Anthropic
+  - DOMAIN-SUFFIX,claude.dev,Anthropic
+  - DOMAIN-SUFFIX,claudeusercontent.com,Anthropic
+  - DOMAIN-SUFFIX,claudemcpclient.com,Anthropic
+  - DOMAIN-SUFFIX,claudemcpcontent.com,Anthropic
+  - DOMAIN,servd-anthropic-website.b-cdn.net,Anthropic
+  - DOMAIN,anthropic.auth0.com,Anthropic
+  - DOMAIN,anthropic.com.cdn.cloudflare.net,Anthropic
+  - DOMAIN,anthropic-com.ghost.io,Anthropic
+  - DOMAIN-KEYWORD,anthropic,Anthropic
+  - DOMAIN-KEYWORD,claude,Anthropic
+  - DOMAIN-SUFFIX,sentry.io,Anthropic
+  - DOMAIN-SUFFIX,statsig.com,Anthropic
+  - DOMAIN-SUFFIX,statsigapi.net,Anthropic
+  - DOMAIN,cdn.growthbook.io,Anthropic
+  - DOMAIN,cdn.usefathom.com,Anthropic
+  - DOMAIN,http-intake.logs.datadoghq.com,Anthropic
+  - DOMAIN,http-intake.logs.us5.datadoghq.com,Anthropic
+  - DOMAIN,browser-intake-us5-datadoghq.com,Anthropic
+  - DOMAIN-SUFFIX,intercom.io,Anthropic
+  - DOMAIN-SUFFIX,intercomcdn.com,Anthropic
+  - DOMAIN,challenges.cloudflare.com,Anthropic
+  - DOMAIN,storage.googleapis.com,Anthropic
+  - IP-CIDR,160.79.104.0/23,Anthropic,no-resolve
+  - IP-CIDR6,2607:6bc0::/48,Anthropic,no-resolve
+  - PROCESS-NAME,claude,Anthropic
+  - PROCESS-NAME,Claude,Anthropic
+  - PROCESS-NAME,claude.exe,Anthropic
+  - PROCESS-NAME,Claude.exe,Anthropic
+  - PROCESS-NAME,Claude Helper,Anthropic
+  - PROCESS-NAME,Claude Helper (Renderer),Anthropic
+  - AND,((NETWORK,udp),(DST-PORT,443),(NOT,((GEOIP,CN)))),Quick UDP Internet Connections
+  - AND,((NETWORK,udp),(DST-PORT,23301)),miHoYo
+  - AND,((NETWORK,tcp),(DST-PORT,441)),P2P Applications
   - DOMAIN,dns.msftncsi.com,Microsoft Network Connectivity Status Indicator
   - DOMAIN,www.msftncsi.com,Microsoft Network Connectivity Status Indicator
   - DOMAIN,www.msftconnecttest.com,Microsoft Network Connectivity Status Indicator

@@ -267,13 +267,15 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
   const specifiedTemplate = basename(template);
   const profileRecordsURL = profileRecordsPath instanceof URL ? profileRecordsPath : pathToFileURL(profileRecordsPath);
 
+  const profileModule = await import(profileRecordsURL);
+
   logger.debug(`profile: arguments: specifiedTemplate: ${basename(template)}`);
   logger.debug(`profile: arguments: specifiedUser: ${specifiedUser}`);
   logger.debug(`profile: arguments: specifiedUserProfile: ${specifiedUserProfile}`);
 
   const [profileTemplate, fetchedProxies, injections] = await Promise.all([
     fsp.readFile(template, "utf-8").then(load),
-    import(profileRecordsURL).then(data => data.default)
+    Promise.resolve(profileModule.default)
       .then(profiles => Promise.allSettled(
         profiles.map(p => parseProfile(
           p, specifiedTemplate, specifiedUser, specifiedUserProfile).then(
@@ -429,9 +431,24 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
     }
   }
 
-  combinedProfile.rules = customRules.concat(
-    combinedProfile.rules
-  ).concat(rulesInProfiles.appended);
+  // Keep Claude routing ahead of profile/injection overrides and broad rule sets.
+  // Embed local rules so migration does not depend on a published remote provider.
+  const anthropicRules = load(await fsp.readFile(
+    new URL("./rules/Anthropic.yml", import.meta.url), "utf-8"
+  )).payload.map(rule => {
+    const [type, value, ...options] = rule.split(",");
+    return [type, value, "Anthropic", ...options].join(",");
+  });
+  if (!combinedProfile["proxy-groups"].some(group => group.name === "Anthropic")) {
+    combinedProfile["proxy-groups"].push({
+      name: "Anthropic", type: "select", proxies: [mainProxyName]
+    });
+  }
+  const anthropicRuleSet = new Set(anthropicRules);
+  combinedProfile.rules = anthropicRules.concat(
+    customRules.concat(combinedProfile.rules, rulesInProfiles.appended)
+      .filter(rule => !anthropicRuleSet.has(rule))
+  );
 
   for (const newProxyGroup of proxyGroupsInProfiles.allInclusive) {
     if (newProxyGroup.name === mainProxyName) {
@@ -596,6 +613,22 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
   }
 
   combinedProfile["proxy-groups"] = [...proxyGroupMap.values()];
+
+  // Apply profile-owned restrictions last, using actual nodes only. Group aliases
+  // such as Proxy must not provide a way around a restricted region selector.
+  for (const [name, accepts] of Object.entries(profileModule.proxyGroupFilters || {})) {
+    if (typeof accepts !== "function") throw new TypeError(`Invalid node filter: ${name}`);
+    const group = combinedProfile["proxy-groups"].find(group => group.name === name);
+    if (!group) throw new Error(`Filtered proxy group not found: ${name}`);
+    const selected = combinedProfile.proxies.filter(accepts).map(proxy => proxy.name);
+    if (!selected.length) throw new Error(`No eligible nodes for restricted group: ${name}`);
+    group.type = "select";
+    group.proxies = [...new Set(selected)];
+    delete group.use;
+    delete group["include-all"];
+    delete group["include-all-proxies"];
+    delete group["include-all-providers"];
+  }
 
   const nameservers = (
     Array.isArray(combinedProfile.dns.fallback)
