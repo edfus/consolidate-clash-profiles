@@ -95,6 +95,21 @@ proxy-groups:
       - Proxy
       - DIRECT
 rules:
+  - DOMAIN-SUFFIX,todesk.com,DIRECT
+  - DOMAIN-SUFFIX,kylinlot.com,DIRECT
+  - PROCESS-NAME,ToDesk,DIRECT
+  - PROCESS-NAME,ToDesk_Service,DIRECT
+  - PROCESS-NAME,ToDesk_Session,DIRECT
+  - PROCESS-NAME,ToDesk_Lite,DIRECT
+  - PROCESS-NAME,ToDesk_RemoteAssistance,DIRECT
+  - PROCESS-NAME,ToDesk_Setup,DIRECT
+  - PROCESS-NAME,todesk,DIRECT
+  - PROCESS-NAME,ToDesk.exe,DIRECT
+  - PROCESS-NAME,ToDesk_Service.exe,DIRECT
+  - PROCESS-NAME,ToDesk_Session.exe,DIRECT
+  - PROCESS-NAME,ToDesk_Lite.exe,DIRECT
+  - PROCESS-NAME,ToDesk_RemoteAssistance.exe,DIRECT
+  - PROCESS-NAME,ToDesk_Setup.exe,DIRECT
   - DOMAIN-SUFFIX,anthropic.com,Anthropic
   - DOMAIN-SUFFIX,clau.de,Anthropic
   - DOMAIN-SUFFIX,claude.ai,Anthropic

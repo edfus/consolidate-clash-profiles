@@ -431,6 +431,11 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
     }
   }
 
+  // Explicit ToDesk bypass must precede every proxy/domain override, including
+  // shared telemetry rules: native ToDesk traffic remains DIRECT even by IP.
+  const todeskRules = load(await fsp.readFile(
+    new URL("./rules/ToDesk.yml", import.meta.url), "utf-8"
+  )).payload.map(rule => `${rule},DIRECT`);
   // Keep Claude routing ahead of profile/injection overrides and broad rule sets.
   // Embed local rules so migration does not depend on a published remote provider.
   const anthropicRules = load(await fsp.readFile(
@@ -444,8 +449,9 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
       name: "Anthropic", type: "select", proxies: [mainProxyName]
     });
   }
-  const anthropicRuleSet = new Set(anthropicRules);
-  combinedProfile.rules = anthropicRules.concat(
+  const priorityRules = todeskRules.concat(anthropicRules);
+  const anthropicRuleSet = new Set(priorityRules);
+  combinedProfile.rules = priorityRules.concat(
     customRules.concat(combinedProfile.rules, rulesInProfiles.appended)
       .filter(rule => !anthropicRuleSet.has(rule))
   );

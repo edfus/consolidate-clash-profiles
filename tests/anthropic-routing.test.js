@@ -82,7 +82,15 @@ test('all templates and consolidated profiles route Claude before conflicting ov
         assert.equal(config.sniffer['parse-pure-ip'], true);
         assert.equal(config.sniffer.enable, true);
         const block = config.rules.filter(r => r.split(',')[2] === 'Anthropic');
-        assert.deepEqual(config.rules.slice(0, block.length), block);
+        const directBlock = load(await readFile(new URL('rules/ToDesk.yml', root), 'utf8')).payload.map(r => `${r},DIRECT`);
+        assert.deepEqual(config.rules.slice(0, directBlock.length), directBlock);
+        assert.deepEqual(config.rules.slice(directBlock.length, directBlock.length + block.length), block);
+        for (const host of ['todesk.com', 'relay.todesk.com', 'kylinlot.com', 'relay.kylinlot.com']) assert.equal(firstMatch(config.rules, host), 'DIRECT');
+        for (const process of ['ToDesk','ToDesk_Service','ToDesk_Session','todesk','ToDesk.exe','ToDesk_Service.exe','ToDesk_Session.exe','ToDesk_Lite.exe','ToDesk_RemoteAssistance.exe','ToDesk_Setup.exe']) {
+          assert.equal(firstMatch(config.rules, '1.1.1.1', process), 'DIRECT');
+          assert.equal(firstMatch(config.rules, 'sentry.io', process), 'DIRECT');
+        }
+        assert.equal(firstMatch(config.rules, 'sentry.io', 'unrelated'), 'Anthropic');
         assert.equal(new Set(block).size, block.length);
       }
       const group = generated['proxy-groups'].find(g => g.name === 'Anthropic');

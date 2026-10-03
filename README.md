@@ -19,7 +19,8 @@ profiles.js
 
 ## Anthropic / Claude routing
 
-All three Mihomo templates and `consolidate()` embed the Anthropic rules first.
+All three Mihomo templates and `consolidate()` prioritize explicit ToDesk DIRECT
+rules, followed by Anthropic rules before general routing.
 Coverage includes service domains, telemetry dependencies, official IPv4/IPv6
 inbound ranges, HTTP/TLS/QUIC sniffing and native Claude process fallbacks.
 
@@ -30,3 +31,8 @@ Proxy groups cannot bypass the restriction. Other profile modules can export
 
 See [routing details, sources, scope and migration](docs/anthropic-routing.md).
 Run `node --test tests/anthropic-routing.test.js` with installed dependencies.
+
+## ToDesk direct routing
+
+ToDesk domains and native processes use `DIRECT` before general and AI rules in
+all three templates and generated subscriptions. See [sources and process-matching scope](docs/todesk-direct.txt).

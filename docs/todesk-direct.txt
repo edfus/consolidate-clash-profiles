@@ -1,0 +1,16 @@
+ToDesk direct routing — 2026-10-03
+
+GitHub research:
+https://github.com/cutethotw/ClashRule/blob/main/Rule/Custom_Direct.list
+Lists todesk.com, kylinlot.com and ToDesk Windows/macOS/Linux process names.
+https://github.com/hiyouga/LlamaFactory/issues/5878
+Provides a Linux process example /opt/todesk/bin/ToDesk_Session.
+https://github.com/MetaCubeX/Meta-Docs/blob/main/docs/config/rules/index.en.md
+Mihomo uses first matching rule; PROCESS-NAME requires local process metadata.
+
+rules/ToDesk.yml is embedded first in meta/mobile/tun templates and in consolidate(), before Anthropic, profile/injection rules and generic providers. Domains use exact suffix matching. The process list covers native ToDesk and common service/session/lite/setup/remote-assistance executables, including Unix names without .exe. No broad keyword, shared CDN domain or guessed IP range is included. Generic processes retain existing routing.
+
+find-process-mode: strict is already enabled in all three templates. Router-forwarded traffic cannot reliably identify an originating application on another device; domain matching still works, while arbitrary peer IPs require local process identification. This change does not guarantee that every remote session becomes peer-to-peer; DIRECT means Mihomo does not send the matched traffic through a proxy.
+
+Validation: node --test tests/anthropic-routing.test.js tests/quantumultx*.test.js
+ToDesk priority is checked for domains, IP-only process traffic, and shared domains otherwise routed to Anthropic. Existing Anthropic selection restrictions remain tested.
