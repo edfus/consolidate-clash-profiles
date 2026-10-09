@@ -57,3 +57,32 @@ https://robberphex.com/how-to-build-tunnel-over-websocket/
 Dedicated sshd rollback: stop the PID in ~/.config/kk-tunnel-sshd/sshd.pid
 (after verifying it belongs to this instance), and remove only the user crontab
 line ending in # kk-tunnel-sshd. Leave the original system sshd untouched.
+
+Multiple independent machines
+Generate with --name hello --ssh-port 22223 and a separate private directory.
+Set WSTUNNEL_NAME=hello for install-sshd-user.sh, start-client.sh and
+start-server.sh. Names must contain only lowercase letters, digits and hyphens.
+Set WSTUNNEL_AUTHORIZED_KEYS to a dedicated authorized_keys file before
+installing the sshd, so this public entry accepts a separately revocable key.
+WSTUNNEL_BIND_IP=127.0.0.1 on start-server.sh keeps the published reverse
+port private during review. After successful end-to-end key authentication,
+password rejection and tunnel restriction tests, recreate only that server
+with WSTUNNEL_BIND_IP=0.0.0.0 to publish its chosen TCP port.
+WSTUNNEL_CREATE_ONLY=1 creates the client without starting it.
+
+Security review for hello deployment (2026-10-09)
+The independent sshd binds only 127.0.0.1:22022 and allows only hello using a
+new dedicated Ed25519 key. Password, keyboard-interactive, empty password,
+root login, SSH TCP/socket/agent/X11 forwarding and tunnel devices are disabled.
+The client validates the VPS TLS certificate. The server requires an independent
+random path AND bearer credential, allowing only TCP reverse port 22223.
+The backend WebSocket port 8080 is internal to Docker; existing RDP/NFS ports
+on hello are not forwarded. The VPS port is initially loopback-only for review.
+Unauthenticated callers can still scan or consume resources on a public SSH
+port. MaxStartups/MaxAuthTries/LoginGraceTime limit pre-authentication work;
+they do not prevent network denial of service. Source IP filtering, if needed,
+belongs on the VPS because hello sees the reverse tunnel as a loopback client.
+A successful login grants the existing hello account's privileges (including
+Docker membership). Disabling SSH forwarding does not sandbox a shell user.
+A stolen unencrypted client key grants this access: protect the transfer package,
+and revoke by removing its public key from the dedicated authorized_keys file.
