@@ -41,6 +41,9 @@ ERR_CONNECTION_CLOSED for the same mirror, so this is not apt-specific.
 Candidate generated client config with the three edits: USTC socat.deb HTTP
 200, 349118 bytes; Chrome InRelease HTTP 200, 2548 bytes; apt-helper exit 0.
 The original client runtime was restored after the experiment.
+ChatGPT was not a passing control: it also failed under the original config,
+with logs selecting the OpenAI proxy group. This change does not claim to repair
+that separate proxy/service connection problem.
 
 Deployment / rollback
 Back up the deployed templates and running image before uploading changes.
@@ -51,3 +54,20 @@ Clients need to refresh their subscription and reload the profile.
 For rollback, restore the saved templates and prior image/runtime templates,
 then restart only the subscription service; refresh affected clients again.
 Do not run the broad helper that restarts every container on the server.
+
+Deployment record
+User approved deployment after agent verification, with this review record.
+Fix commit: 722cc6a. All three regression tests passed.
+VPS: aliyun, /root/C/consolidate-clash-profiles/templates.
+Backup: /root/C/dns-fix-backup-722cc6a/templates.
+Previous image: local/clash-profiles:dns-before-722cc6a.
+Updated image: profile-clash-consolidation-clash-profiles:latest (93f646edea00).
+Only profile-clash-consolidation-clash-profiles-1 was restarted. Its three
+template SHA-256 hashes match the committed files. The updated image layers only
+the templates over the prior image, preserving the deployed application.
+kk fetched the live subscription successfully: both outbound DNS override keys
+were absent and the shared cn/apple/private policy contained only explicit DNS
+servers. Its stored subscription and active runtime DNS were updated; backup
+files use the suffix .before-dns-722cc6a alongside the original files.
+Post-deployment kk verification passed: USTC HTTP 200 / 349118 bytes, Chrome
+InRelease HTTP 200 / 2548 bytes, apt-helper exit 0 / complete socat download.
