@@ -1,0 +1,53 @@
+TUN DNS recursion fix (2026-10-09)
+
+Cause
+The Linux system resolver (127.0.0.53) forwards queries to the Mihomo TUN DNS.
+With direct-nameserver: [system], a DIRECT connection re-resolves a real
+destination through that stub and gets a Fake-IP. The outbound dial times out
+against 198.18.x.x; curl and apt report a prematurely closed TLS connection.
+
+Changes in meta.yml, mobile.yml and tun.yml
+- Omit direct-nameserver. DIRECT uses nameserver-policy/nameserver/fallback.
+- Omit proxy-server-nameserver pointing to our own 127.0.0.1:1053 listener.
+  Node hostnames likewise use existing domain policies and configured upstreams.
+- Remove system from the shared cn/apple/private nameserver policy so it cannot
+  race external DNS with a Fake-IP answer. Keep the two explicit DNS servers.
+- Keep traffic routing, proxy selections, DNS listener, Fake-IP, certificates,
+  nameservers and fallback servers otherwise unchanged.
+
+Official references (checked 2026-10-09)
+https://wiki.metacubex.one/config/dns/#direct-nameserver
+https://wiki.metacubex.one/config/dns/#proxy-server-nameserver
+https://wiki.metacubex.one/config/dns/#nameserver-policy
+https://wiki.metacubex.one/config/dns/diagram/
+The documentation explicitly states that omitting either outbound-specific
+resolver uses nameserver-policy, nameserver and fallback instead.
+
+Human review
+1. Inspect the three-template diff: only DNS upstream selection changes.
+2. Run node --test tests/dns-routing.test.js tests/anthropic-routing.test.js.
+3. On a Linux TUN client, test the actual generated configuration, not just YAML
+   syntax. Test a domestic mirror, Chrome's repository and a proxied service.
+4. Check live Mihomo logs: outbound dial destinations must be real server IPs,
+   not 198.18.x.x. The application's displayed remote Fake-IP is still normal.
+5. Check custom intranet names separately. Networks requiring split DNS should
+   add a narrowly scoped domain policy pointing to their actual LAN DNS IP;
+   do not put system back into a shared public-domain resolver list.
+
+Observed verification on kk, Mihomo v1.19.32
+Original config: curl and apt-helper fail downloading socat; logs show the
+DIRECT resolver receiving a Fake-IP from system DNS. Fresh Chrome also reports
+ERR_CONNECTION_CLOSED for the same mirror, so this is not apt-specific.
+Candidate generated client config with the three edits: USTC socat.deb HTTP
+200, 349118 bytes; Chrome InRelease HTTP 200, 2548 bytes; apt-helper exit 0.
+The original client runtime was restored after the experiment.
+
+Deployment / rollback
+Back up the deployed templates and running image before uploading changes.
+Deploy only the three templates to the subscription service and clear its
+in-memory response cache by restarting that service. Keep an updated image for
+container recreation. Verify a freshly generated subscription's DNS fields.
+Clients need to refresh their subscription and reload the profile.
+For rollback, restore the saved templates and prior image/runtime templates,
+then restart only the subscription service; refresh affected clients again.
+Do not run the broad helper that restarts every container on the server.
