@@ -8,7 +8,7 @@ wstunnel server on Docker network caddy. Backend port 8080 is not published.
 SSH uses a dedicated host key and requires an authorized public key.
 
 Install
-Use Linux x86_64 with Docker. Run install.sh on both hosts. It verifies the
+Use Linux x86_64 or ARM64 with Docker. Run install.sh on both hosts. It verifies the
 pinned official v11.0.0 release checksum and builds local/wstunnel:11.0.0.
 Generate once from the repository root:
   python3 wstunnel/generate-private.py --output private/wstunnel-kk
@@ -86,3 +86,13 @@ A successful login grants the existing hello account's privileges (including
 Docker membership). Disabling SSH forwarding does not sandbox a shell user.
 A stolen unencrypted client key grants this access: protect the transfer package,
 and revoke by removing its public key from the dedicated authorized_keys file.
+
+AGX-2 deployment (2026-10-10)
+Uses WSTUNNEL_NAME=agx-2, VPS TCP 22224, WSS 47.95.2.2:8443,
+and local dedicated sshd 127.0.0.1:22022 for user lzl. A separately generated
+key is authorized only in ~/.config/agx-2-tunnel-sshd/authorized_keys.
+ARM64 uses the verified upstream linux_arm64 asset. The install script sets
+binary mode 0755 before building the image so a non-root container can execute it.
+The same key-only, no-root, no-forwarding, strict TLS and separate tunnel token
+restrictions used for hello apply. Public ports can be scanned and keys grant
+the account's existing privileges, including Docker group membership.
