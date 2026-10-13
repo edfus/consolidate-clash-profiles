@@ -5,6 +5,14 @@ Approved decisions: manual HK-first ASMR selection, REJECT when HK/JP is absent,
 and scoped Futu domain/process matching without shared-cloud CIDRs.
 Deployment results will be recorded separately after production acceptance.
 
+## Follow-up awaiting review
+
+The current local follow-up adds an independent `Futu` selector to both Clash
+and Quantumult X, defaulting to Proxy/proxy. Quantumult X also receives ASMR.
+This follow-up is not committed or deployed. See
+[the follow-up review](quantumultx-asmr-futu-review.txt) for changes and validation.
+The previous deployment behavior and its research record are retained below.
+
 ## Proposed behavior
 
 - `asmr.one` and subdomains use an independent `ASMR` select group. Only actual

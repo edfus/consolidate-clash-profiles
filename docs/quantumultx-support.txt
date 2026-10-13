@@ -1,0 +1,107 @@
+Quantumult X / Mihomo compatibility review — 2026-10-03
+
+Finding
+AnyTLS is supported by Quantumult X. The developer's App Store history identifies
+1.6.0 (May 21) as the stable release adding AnyTLS; the current page lists 1.8.0.
+The installed client version remains unknown, and no QX runtime test was run.
+Do not interpret old open feature requests as proof of current non-support.
+
+Official capability matrix (not the narrower converter contract)
+- Shadowsocks / SSR: documented; plugins and ciphers have individual restrictions.
+- SS2022: AES-128 and AES-256 variants added in QX 1.5.1. Do not infer every
+  Mihomo SS2022 cipher, multi-user key mode or plugin is supported.
+- VMess: documented TCP/HTTP obfuscation/WS/TLS combinations. No verified blanket
+  compatibility with Mihomo transports, alterId, multiplexing or fingerprint fields.
+- VLESS: added 1.5.0; current sample documents WS/TLS, Reality and Vision.
+- Trojan: standard TLS and WSS documented. The two modes use different QX fields.
+- HTTP / SOCKS5: documented, including TLS variants; HTTP obfs is unsupported.
+- AnyTLS: stable >= 1.6.0; native UDP over TCP and session reuse are documented.
+  QX describes AnyTLS+Reality, while current Mihomo documentation explicitly
+  disallows AnyTLS+Reality. Do not invent a common conversion for that combination.
+- Hysteria/Hysteria2, TUIC, WireGuard, SSH and other Mihomo types: no supported
+  QX node syntax found in the current official sample. Treat as unverified and
+  reject generation; this is not a claim that future releases cannot add them.
+
+Protocol identity alone is insufficient
+Mihomo YAML is not native QX server syntax. SNI becomes tls-host for standard
+Trojan/AnyTLS, ALPN uses length-prefixed hex, and skip-cert-verify has inverse
+semantics to tls-verification. WS Host and SNI can be distinct in Mihomo; QX's
+obfs-host serves both for WSS, so a blind rename can change behavior. Fingerprints,
+ECH, certificate pinning, chained proxies, mux and AnyTLS idle/session tuning
+need explicit mappings or rejection. QX does not use Mihomo's engine.
+
+Repository state and minimal implementation
+index.js exports consolidateQuantumultConf, but it immediately returns
+"deprecated". The unreachable implementation was a Trojan-only interpolation.
+It remains disabled. No running QX subscription generator was re-enabled.
+
+converters/quantumultx.js is a pure, explicit closed-set conversion module:
+- Shadowsocks: aes-128-gcm, aes-256-gcm, chacha20-ietf-poly1305; optional
+  simple-obfs plugin with mode http/tls and host only. No other plugin options.
+- Trojan: standard TLS over TCP, verified certificates by default.
+- AnyTLS: standard TLS, verified certificates by default, with { anytls: true } after
+  checking the receiving client is QX >= 1.6.0. This flag confirms capability;
+  it does not check the device version or prove connectivity.
+- Maps names, address/port, password, UDP and TCP Fast Open, plus SNI and ALPN
+  for TLS types. UDP defaults to false; plain SS explicitly disables UDP-over-TCP.
+- Rejects every unmapped field, including unknown metadata. Name is preserved.
+  This conservative policy can reject an otherwise usable node; a future caller
+  may explicitly strip independently audited metadata, never connection options.
+- Rejects unsupported types, unauthorized source TLS bypass, transport extensions, duplicate names,
+  invalid values and separators that could inject QX configuration lines.
+- Errors contain fixed codes only. Batch conversion returns no partial list.
+- inspectQuantumultXNodes reports total/accepted/rejected/insecureSourceTLS,
+  byType counts, and failures with zero-based input indices, known protocol types
+  (unknown values masked) and fixed reason codes. Batch errors expose this as
+  error.report. No input name, address, SNI, password or unknown field is reported.
+- allowInsecureSourceTLS defaults to false. Explicit true preserves an existing
+  skip-cert-verify:true as tls-verification=false; it NEVER turns verification off
+  for a node whose source does not request it. This option concerns upstream node
+  connections only, never the HTTPS subscription download. Do not enable it just
+  to achieve a desired count; audit the original setting and user authorization.
+
+Actual private snapshot inspected (no connection secrets recorded here)
+The supplied 140-node snapshot contains 90 SS aes-128-gcm/simple-obfs HTTP nodes,
+8 standard Trojan TLS nodes, and 42 AnyTLS nodes with skip-cert-verify:true.
+With AnyTLS enabled and normal certificate validation policy, inspection accepts
+98 and rejects 42, all for insecure-tls-not-enabled. With explicit preservation of
+source TLS bypass, inspection accepts all 140. This is field compatibility only,
+not evidence that any node connects or that its certificate is trustworthy.
+SS2022 and VMess syntax was reviewed but not added: neither occurs in this source,
+and adding broad speculative conversions is unnecessary. Future occurrences fail
+closed until individually mapped and tested.
+
+Usage inside a private generation process
+  import { convertQuantumultXNodes } from './converters/quantumultx.js';
+  const privateText = convertQuantumultXNodes(alreadyParsedMihomoNodes,
+    { anytls: true });
+
+privateText contains connection secrets. Do not print it, add it to Git, include
+it in generic logs, or publish it under the public Caddy directory. This module
+does not fetch subscriptions, write files, add policies, or deploy anything.
+A future integration must construct policy membership only from successfully
+accepted nodes and fail on an empty required group. It must preserve atomic
+updates, authentication and private storage. This module review did not publish live nodes; the private snapshot was read only
+for compatibility counts. Deployment and client verification are separate steps.
+
+Validation
+  node --test tests/quantumultx.test.js
+Synthetic fixtures cover TLS/SNI/ALPN mapping, AnyTLS capability gating, IPv6,
+unknown protocol/options, delimiter injection, duplicate names, secret-free errors
+and atomic rejection. A 140-node synthetic fixture ensures all nodes are accounted
+for, including the explicit source-TLS policy gate. These are converter tests,
+not QX tunnel/runtime tests.
+Before publishing a live subscription, test import and TCP/UDP routing on the
+actual target QX version against representative permitted nodes.
+
+Official sources checked
+https://apps.apple.com/us/app/quantumult-x/id1443988620
+https://github.com/crossutility/Quantumult-X/blob/master/sample.conf
+https://github.com/crossutility/Quantumult-X/blob/master/README.md
+https://wiki.metacubex.one/en/config/proxies/anytls/
+https://wiki.metacubex.one/en/config/proxies/tls/
+
+Additional references
+https://wiki.metacubex.one/en/config/proxies/ss/
+https://wiki.metacubex.one/en/config/proxies/vmess/
+https://wiki.metacubex.one/en/config/proxies/transport/

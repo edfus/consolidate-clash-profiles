@@ -1,0 +1,51 @@
+Quantumult X private configuration generation
+
+The converter is deliberately closed-set. The generator does not silently discard unsupported nodes. It requires an explicit expected node count and an Anthropic group referencing actual accepted nodes.
+
+Current private source snapshot: 140 nodes, including 90 Shadowsocks with HTTP obfs, 42 AnyTLS, 8 Trojan. The 42 AnyTLS source nodes already disable node certificate verification. Preserving this is an explicit generator option. Subscription HTTPS verification is independent and must remain enabled.
+
+Requirements: Node.js 20 or newer; target Quantumult X >=1.6.0 for AnyTLS. Node conversion does not prove successful app import or proxy traffic.
+
+Generate locally (all input and generated connection data stay under ignored private/):
+node scripts/generate-quantumultx.mjs private/quantumultx/source.json private/quantumultx/quanx.anthropic.conf private/quantumultx/generated --expected-count=140 --anytls --preserve-source-node-tls
+
+Outputs under private/quantumultx/generated/current/:
+- quanx.conf: complete private configuration, all nodes embedded for a single import.
+- servers.list: the same nodes as a separate remote server resource; add this to an existing QX config only when not already importing the full config, to avoid duplicate nodes.
+- summary.json: non-secret counts.
+
+The full config preserves the source Anthropic group's exact candidate nodes and gives AI Suite its own selector. It references the public Anthropic filter and retains embedded Anthropic rules as fallback. The generator adds independent ASMR and Futu selectors. ASMR lists only actual
+HK/JP nodes (HK first) and falls back to reject when neither region is present.
+Futu lists built-in proxy first, then all embedded nodes as manual alternatives.
+Existing other filters/DNS/rewrites remain in the private template.
+
+Publishing is atomic through the current symlink; files are mode0600 and release directories0700. Failed validation leaves current unchanged. Generated config and node list must never be tracked by Git or mounted in the public Caddy resource directory. Anthropic.list and Apps.list are the two explicitly whitelisted public files.
+Apps.list contains destination rules only, never nodes or credentials.
+
+This is a generated snapshot, not an automatically refreshed upstream subscription. To refresh, safely fetch a new meta source JSON on the VPS from the running internal backend, transfer only into private/, rerun generation, validate expected count and upload generated/ preserving the symlink. Do not print source bodies or authenticated URLs. A changed node count requires review and updating --expected-count.
+
+Private deployment paths (availability depends on firewall rules):
+https://47.95.2.2:8443/.config/quantumultx/quanx.conf
+https://47.95.2.2:8443/.config/quantumultx/servers.list
+Public filter URL: https://47.95.2.2:8443/quantumultx/Anthropic.list
+Both private URLs require the existing Basic authentication. Keep encoded credentials from the original subscription URL; never publish them. Public node-download availability and actual Quantumult X runtime verification are separate acceptance checks.
+
+App routing synchronization (candidate, awaiting review)
+
+node scripts/sync-quantumultx-app-rules.mjs
+node scripts/sync-quantumultx-app-rules.mjs --check
+
+Apps.list is generated from the public ToDesk/ASMR/Futu destinations and the
+existing QX Anthropic scope. It is the first inserted remote filter, without
+force-policy because its rules target different groups. Existing remote resources
+keep their settings and relative order. A managed local copy precedes the old
+local rules and AI block. If Apps.list cannot refresh while a conflicting inserted
+remote resource remains active, the local copy cannot guarantee overriding it;
+publish and verify Apps.list before activating a new private release.
+
+Clash PROCESS-NAME entries are omitted explicitly. QX host rules do not match
+unattributed pure-IP traffic; no shared-cloud CIDRs have been added.
+The private generated/current pointer on the VPS remains unchanged until review.
+
+Tests:
+node --test tests/quantumultx.test.js tests/quantumultx-generation.test.js tests/quantumultx-cli.test.js tests/quantumultx-app-routing.test.js

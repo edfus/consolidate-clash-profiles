@@ -41,6 +41,9 @@ def port():
 config = json.loads(Path(sys.argv[2]).read_text())
 asmr = next(g for g in config['proxy-groups'] if g['name'] == 'ASMR')
 assert asmr['proxies'] and asmr['proxies'] != ['REJECT']
+futu = next(g for g in config['proxy-groups'] if g['name'] == 'Futu')
+assert futu['type'] == 'select' and futu['proxies'][0] == 'Proxy'
+assert futu['proxies'][1:] == [p['name'] for p in config['proxies']]
 seen, held = queue.Queue(), []
 upstream = socket.socket()
 upstream.bind(('127.0.0.1', 0))
@@ -77,16 +80,21 @@ proxyport, apiport = port(), port()
 api = f'http://127.0.0.1:{apiport}'
 
 
-def request(path):
-    with urllib.request.urlopen(api + path, timeout=2) as response:
-        return json.load(response)
+def request(path, body=None):
+    req = urllib.request.Request(api + path,
+          data=None if body is None else json.dumps(body).encode(),
+          method='GET' if body is None else 'PUT', headers={'Content-Type': 'application/json'})
+    with urllib.request.urlopen(req, timeout=2) as response:
+        data = response.read()
+        return json.loads(data) if data else None
 
 
 hosts = ['asmr.one', 'api.asmr.one', 'api.futunn.com', 'q.futunn.com',
          'futu.cn', 'cdn.futustatic.com', 'api.moomoobull.com', 'api.anthropic.com']
 groups = [asmr, {'name': 'Proxy', 'type': 'select', 'proxies': ['fixture-proxy']},
-          {'name': 'Anthropic', 'type': 'select', 'proxies': ['fixture-anthropic']}]
-node_names = asmr['proxies'] + ['fixture-proxy', 'fixture-anthropic']
+          {'name': 'Anthropic', 'type': 'select', 'proxies': ['fixture-anthropic']},
+          {'name': 'Futu', 'type': 'select', 'proxies': ['Proxy', 'fixture-futu-alt']}]
+node_names = asmr['proxies'] + ['fixture-proxy', 'fixture-anthropic', 'fixture-futu-alt']
 cfg = {'mixed-port': proxyport, 'bind-address': '127.0.0.1', 'allow-lan': False,
        'external-controller': f'127.0.0.1:{apiport}', 'mode': 'rule', 'log-level': 'debug',
        'dns': {'enable': True, 'nameserver': ['127.0.0.1:1'], 'use-hosts': True},
@@ -97,7 +105,7 @@ cfg = {'mixed-port': proxyport, 'bind-address': '127.0.0.1', 'allow-lan': False,
        'proxy-groups': groups,
        'rules': [r for r in config['rules'] if r.split(',')[0] in
                  ['DOMAIN', 'DOMAIN-SUFFIX', 'DOMAIN-KEYWORD', 'PROCESS-NAME', 'IP-CIDR', 'IP-CIDR6']
-                 and r.split(',')[2] in ['ASMR', 'Proxy', 'Anthropic', 'DIRECT']] + ['MATCH,REJECT']}
+                 and r.split(',')[2] in ['ASMR', 'Proxy', 'Anthropic', 'Futu', 'DIRECT']] + ['MATCH,REJECT']}
 with tempfile.TemporaryDirectory(prefix='mihomo-app-routing-') as tmp:
     path = Path(tmp) / 'config.json'
     path.write_text(json.dumps(cfg))
@@ -166,18 +174,24 @@ with tempfile.TemporaryDirectory(prefix='mihomo-app-routing-') as tmp:
             assert len(matches) == 1
             conn = matches[0]
             assert policy in conn['chains'], 'Unexpected routing policy'
+            if policy == 'Futu':
+                choice = request('/proxies/Futu')['now']
+                expected = 'fixture-proxy' if choice == 'Proxy' else 'fixture-futu-alt'
+                assert conn['chains'][0] == expected, 'Futu default/manual selection differs'
             if policy == 'ASMR':
                 assert conn['chains'][0] == asmr['proxies'][0], 'ASMR initial node differs'
             results.append({'case': sni or http_host or host, 'policy': policy, 'rule': conn['rule']})
 
         for host in hosts:
             probe(host, 'ASMR' if host.endswith('asmr.one') else
-                  'Anthropic' if host.endswith('anthropic.com') else 'Proxy')
-        probe('203.0.113.20', 'Proxy', 443, sni='api.futunn.com')
+                  'Anthropic' if host.endswith('anthropic.com') else 'Futu')
+        probe('203.0.113.20', 'Futu', 443, sni='api.futunn.com')
         probe('203.0.113.21', 'ASMR', 80, http_host='asmr.one')
         probe('203.0.113.22', 'REJECT')
         probe('notasmr.one', 'REJECT')
         probe('futunn.com.example', 'REJECT')
+        request('/proxies/Futu', {'name': 'fixture-futu-alt'})
+        probe('q.futunn.com', 'Futu')
         print(json.dumps({'mihomo': request('/version')['version'], 'passed': len(results),
                           'cases': results}, ensure_ascii=False))
     finally:

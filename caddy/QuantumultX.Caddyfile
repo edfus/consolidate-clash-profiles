@@ -1,5 +1,5 @@
 :3000 {
-    @publicFilter path /quantumultx/Anthropic.list
+    @publicFilter path /quantumultx/Anthropic.list /quantumultx/Apps.list
     handle @publicFilter {
         root * /srv
         header Content-Type "text/plain; charset=utf-8"

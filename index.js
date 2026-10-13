@@ -451,7 +451,7 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
   }
   // App-specific routes precede source overrides and broad CN/DIRECT rules.
   const appRules = [];
-  for (const [file, policy] of [["ASMR", "ASMR"], ["Futu", mainProxyName]]) {
+  for (const [file, policy] of [["ASMR", "ASMR"], ["Futu", "Futu"]]) {
     const { payload } = load(await fsp.readFile(
       new URL(`./rules/${file}.yml`, import.meta.url), "utf-8"
     ));
@@ -462,6 +462,9 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
   }
   if (!combinedProfile["proxy-groups"].some(group => group.name === "ASMR")) {
     combinedProfile["proxy-groups"].push({ name: "ASMR", type: "select", proxies: [] });
+  }
+  if (!combinedProfile["proxy-groups"].some(group => group.name === "Futu")) {
+    combinedProfile["proxy-groups"].push({ name: "Futu", type: "select", proxies: [mainProxyName] });
   }
   const priorityRules = todeskRules.concat(anthropicRules, appRules);
   const priorityRuleSet = new Set(priorityRules);
@@ -662,6 +665,13 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
   for (const key of Object.keys(asmrGroup)) delete asmrGroup[key];
   Object.assign(asmrGroup, { name: "ASMR", type: "select",
     proxies: asmrNodes.length ? [...new Set(asmrNodes)] : ["REJECT"] });
+
+  // The independent brokerage selector defaults to Proxy, with actual nodes
+  // as manual alternatives. Private injections must not make DIRECT the default.
+  const futuGroup = combinedProfile["proxy-groups"].find(group => group.name === "Futu");
+  for (const key of Object.keys(futuGroup)) delete futuGroup[key];
+  Object.assign(futuGroup, { name: "Futu", type: "select",
+    proxies: [mainProxyName, ...combinedProfile.proxies.map(proxy => proxy.name)] });
 
   const nameservers = (
     Array.isArray(combinedProfile.dns.fallback)

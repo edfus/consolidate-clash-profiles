@@ -41,7 +41,7 @@ test('all final profiles prioritize Futu/ASMR and restrict ASMR to HK/JP nodes',
         payload: { name: 'ASMR', type: 'select', proxies: ['Proxy', 'DIRECT'] } }]
     }])};`);
     const injections = join(dir, 'injections.yml');
-    await writeFile(injections, dump({ Proxy: { payload: ['DOMAIN-SUFFIX,futu.cn,DIRECT'] } }));
+    await writeFile(injections, dump({ Futu: { payload: ['DOMAIN-SUFFIX,futu.cn,DIRECT'] } }));
     const futu = load(await readFile(new URL('rules/Futu.yml', root), 'utf8')).payload;
     assert.equal(new Set(futu).size, futu.length);
     assert.ok(futu.every(rule => !rule.startsWith('IP-CIDR') && !rule.startsWith('DOMAIN-KEYWORD')));
@@ -56,10 +56,10 @@ test('all final profiles prioritize Futu/ASMR and restrict ASMR to HK/JP nodes',
         for (const rule of futu) {
           const [type, value] = rule.split(',');
           if (type === 'PROCESS-NAME') {
-            assert.equal(firstMatch(c.rules, '203.0.113.22', value), 'Proxy');
+            assert.equal(firstMatch(c.rules, '203.0.113.22', value), 'Futu');
           } else {
-            assert.equal(firstMatch(c.rules, value), 'Proxy');
-            if (type === 'DOMAIN-SUFFIX') assert.equal(firstMatch(c.rules, `api.${value}`), 'Proxy');
+            assert.equal(firstMatch(c.rules, value), 'Futu');
+            if (type === 'DOMAIN-SUFFIX') assert.equal(firstMatch(c.rules, `api.${value}`), 'Futu');
           }
         }
         for (const host of ['asmr.one.example', 'notasmr.one', 'futunn.com.example',
@@ -74,6 +74,9 @@ test('all final profiles prioritize Futu/ASMR and restrict ASMR to HK/JP nodes',
         name: 'ASMR', type: 'select', proxies: ['[TAG] Hong Kong 01', '🇭🇰 香港 02',
           'HK-03', 'Japan 01', '🇯🇵 Tokyo', 'JP-04']
       });
+      assert.deepEqual(config['proxy-groups'].find(g => g.name === 'Futu'), {
+        name: 'Futu', type: 'select', proxies: ['Proxy', ...names]
+      });
       assert.equal(config.proxies.length, names.length);
       const refs = new Set(['DIRECT', 'REJECT', ...config.proxies.map(p => p.name),
         ...config['proxy-groups'].map(g => g.name)]);
@@ -82,15 +85,15 @@ test('all final profiles prioritize Futu/ASMR and restrict ASMR to HK/JP nodes',
         for (const ref of g.proxies) assert.ok(refs.has(ref), `${g.name}: invalid reference`);
       }
       // Older templates are upgraded too; no HK/JP nodes cannot fall through to DIRECT.
-      raw['proxy-groups'] = raw['proxy-groups'].filter(g => g.name !== 'ASMR');
-      raw.rules = raw.rules.filter(r => !r.includes(',ASMR') && !futu.includes(r.replace(/,Proxy$/, '')));
+      raw['proxy-groups'] = raw['proxy-groups'].filter(g => !['ASMR','Futu'].includes(g.name));
+      raw.rules = raw.rules.filter(r => !r.includes(',ASMR') && !futu.includes(r.replace(/,Futu$/, '')));
       const legacy = join(dir, `${template}.yml`);
       await writeFile(legacy, dump(raw));
       const onlyUS = join(dir, `${template}-us.mjs`);
       await writeFile(onlyUS, `export default [{url: ${JSON.stringify(`http://127.0.0.1:${server.address().port}/fixture`)}, map: p => p.proxies.filter(p => p.name === 'Test US')}];`);
       const upgraded = await consolidate(legacy, onlyUS);
       assert.deepEqual(upgraded['proxy-groups'].find(g => g.name === 'ASMR').proxies, ['REJECT']);
-      assert.equal(firstMatch(upgraded.rules, 'futu.cn'), 'Proxy');
+      assert.equal(firstMatch(upgraded.rules, 'futu.cn'), 'Futu');
     }
   } finally {
     await new Promise(resolve => server.close(resolve));

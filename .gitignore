@@ -18,5 +18,6 @@ configs
 /private/
 /caddy/quantumultx/*
 !/caddy/quantumultx/Anthropic.list
+!/caddy/quantumultx/Apps.list
 
 /wstunnel/wstunnel
