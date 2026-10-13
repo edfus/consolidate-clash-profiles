@@ -25,6 +25,9 @@ proxy-groups:
   - name: Proxy
     type: select
     proxies: []
+  - name: ASMR
+    type: select
+    proxies: [REJECT] # Filled with actual HK/JP nodes by the consolidator.
   - name: Netflix
     type: select
     proxies:
@@ -148,6 +151,58 @@ rules:
   - DOMAIN,www.msftncsi.com,Microsoft Network Connectivity Status Indicator
   - DOMAIN,www.msftconnecttest.com,Microsoft Network Connectivity Status Indicator
   - DOMAIN,ipv6.msftconnecttest.com,Microsoft Network Connectivity Status Indicator
+  - DOMAIN-SUFFIX,asmr.one,ASMR
+  - DOMAIN,collect.us.moomoocrypto.com,Proxy
+  - DOMAIN-SUFFIX,ftesop.com,Proxy
+  - DOMAIN-SUFFIX,futu.cn,Proxy
+  - DOMAIN-SUFFIX,futu.com,Proxy
+  - DOMAIN-SUFFIX,futu.hk,Proxy
+  - DOMAIN-SUFFIX,futu.link,Proxy
+  - DOMAIN-SUFFIX,futu0.com,Proxy
+  - DOMAIN-SUFFIX,futu1.com,Proxy
+  - DOMAIN-SUFFIX,futu2.com,Proxy
+  - DOMAIN-SUFFIX,futu3.com,Proxy
+  - DOMAIN-SUFFIX,futu4.com,Proxy
+  - DOMAIN-SUFFIX,futu5.com,Proxy
+  - DOMAIN-SUFFIX,futu6.com,Proxy
+  - DOMAIN-SUFFIX,futu7.com,Proxy
+  - DOMAIN-SUFFIX,futu8.com,Proxy
+  - DOMAIN-SUFFIX,futu9.com,Proxy
+  - DOMAIN-SUFFIX,futuau.com,Proxy
+  - DOMAIN-SUFFIX,futubos.com,Proxy
+  - DOMAIN-SUFFIX,futubull.cn,Proxy
+  - DOMAIN-SUFFIX,futuchain.com,Proxy
+  - DOMAIN-SUFFIX,futuesop.com,Proxy
+  - DOMAIN-SUFFIX,futufin.com,Proxy
+  - DOMAIN-SUFFIX,futuhainan.com,Proxy
+  - DOMAIN-SUFFIX,futuhk.com,Proxy
+  - DOMAIN-SUFFIX,futuhk1.com,Proxy
+  - DOMAIN-SUFFIX,futuhk2.com,Proxy
+  - DOMAIN-SUFFIX,futuhkapp.com,Proxy
+  - DOMAIN-SUFFIX,futuhn.com,Proxy
+  - DOMAIN-SUFFIX,futuholdings.com,Proxy
+  - DOMAIN-SUFFIX,futuhongkong.com,Proxy
+  - DOMAIN-SUFFIX,futuie.com,Proxy
+  - DOMAIN-SUFFIX,futuinc.com,Proxy
+  - DOMAIN-SUFFIX,futuniuniu.com,Proxy
+  - DOMAIN-SUFFIX,futunn.com,Proxy
+  - DOMAIN-SUFFIX,futuoa.com,Proxy
+  - DOMAIN-SUFFIX,futusg.com,Proxy
+  - DOMAIN-SUFFIX,futustatic.com,Proxy
+  - DOMAIN-SUFFIX,fututrade.com,Proxy
+  - DOMAIN-SUFFIX,fututrustee.com,Proxy
+  - DOMAIN-SUFFIX,moomoo.ca,Proxy
+  - DOMAIN-SUFFIX,moomoo.com,Proxy
+  - DOMAIN-SUFFIX,moomoo.com.hk,Proxy
+  - DOMAIN-SUFFIX,moomooapp.com,Proxy
+  - DOMAIN-SUFFIX,moomoobull.com,Proxy
+  - DOMAIN-SUFFIX,moomoocn.com,Proxy
+  - DOMAIN-SUFFIX,moomooequity.com,Proxy
+  - DOMAIN-SUFFIX,moomootrustee.com,Proxy
+  - PROCESS-NAME,FTNN,Proxy
+  - PROCESS-NAME,FTNN.exe,Proxy
+  - PROCESS-NAME,FutuOpenD,Proxy
+  - PROCESS-NAME,FutuOpenD.exe,Proxy
   - RULE-SET,Reject,Ad Blocking
   - RULE-SET,P2P Applications,P2P Applications
   - RULE-SET,P2P Gaming,P2P Gaming

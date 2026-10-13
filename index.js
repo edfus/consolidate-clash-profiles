@@ -449,11 +449,25 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
       name: "Anthropic", type: "select", proxies: [mainProxyName]
     });
   }
-  const priorityRules = todeskRules.concat(anthropicRules);
-  const anthropicRuleSet = new Set(priorityRules);
+  // App-specific routes precede source overrides and broad CN/DIRECT rules.
+  const appRules = [];
+  for (const [file, policy] of [["ASMR", "ASMR"], ["Futu", mainProxyName]]) {
+    const { payload } = load(await fsp.readFile(
+      new URL(`./rules/${file}.yml`, import.meta.url), "utf-8"
+    ));
+    appRules.push(...payload.map(rule => {
+      const [type, value, ...options] = rule.split(",");
+      return [type, value, policy, ...options].join(",");
+    }));
+  }
+  if (!combinedProfile["proxy-groups"].some(group => group.name === "ASMR")) {
+    combinedProfile["proxy-groups"].push({ name: "ASMR", type: "select", proxies: [] });
+  }
+  const priorityRules = todeskRules.concat(anthropicRules, appRules);
+  const priorityRuleSet = new Set(priorityRules);
   combinedProfile.rules = priorityRules.concat(
     customRules.concat(combinedProfile.rules, rulesInProfiles.appended)
-      .filter(rule => !anthropicRuleSet.has(rule))
+      .filter(rule => !priorityRuleSet.has(rule))
   );
 
   for (const newProxyGroup of proxyGroupsInProfiles.allInclusive) {
@@ -635,6 +649,19 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
     delete group["include-all-proxies"];
     delete group["include-all-providers"];
   }
+
+  // Restrict ASMR after generic group expansion and private filters: aliases
+  // must not escape the requested HK/JP pool. HK is the initial selection.
+  const hk = /香港|Hong[ ._-]*Kong|(?:^|[^a-z])HK(?:[^a-z]|$)|🇭🇰/i;
+  const jp = /日本|东京|東京|大阪|Japan|Tokyo|Osaka|(?:^|[^a-z])JP(?:[^a-z]|$)|🇯🇵/i;
+  const asmrNodes = combinedProfile.proxies.filter(proxy => hk.test(proxy.name))
+    .concat(combinedProfile.proxies.filter(proxy => !hk.test(proxy.name) && jp.test(proxy.name)))
+    .map(proxy => proxy.name);
+  const asmrGroup = combinedProfile["proxy-groups"].find(group => group.name === "ASMR");
+  // A subscription without HK/JP nodes stays loadable without routing elsewhere.
+  for (const key of Object.keys(asmrGroup)) delete asmrGroup[key];
+  Object.assign(asmrGroup, { name: "ASMR", type: "select",
+    proxies: asmrNodes.length ? [...new Set(asmrNodes)] : ["REJECT"] });
 
   const nameservers = (
     Array.isArray(combinedProfile.dns.fallback)
