@@ -31,3 +31,15 @@ test('AI Suite explicitly lists every embedded node and stays independent of Ant
  assert.deepEqual(policy.split(',').slice(1),nodes.map(n=>n.name));
  assert.match(result.config,/static = Anthropic,Fixture 2,Fixture 6\n/);
 });
+
+test('QX Anthropic preserves Canada-only source candidates with node 03 first', async () => {
+ const {isCanadaNode,isCanada03Node}=await import('../policies/anthropic.js');
+ const nodes=['Canada 01','L.A. 03','Canada 02','Canada 03'].map(name=>({...node,name}));
+ const eligible=nodes.filter(isCanadaNode);
+ const selected=eligible.filter(isCanada03Node).concat(eligible.filter(n=>!isCanada03Node(n))).map(n=>n.name);
+ const result=buildQuantumultX({proxies:nodes,'proxy-groups':[{name:'Anthropic',proxies:selected}]},template,{expectedCount:4});
+ const line=result.config.split('\n').find(l=>l.startsWith('static = Anthropic,'));
+ assert.deepEqual(line.split(',').slice(1),['Canada 03','Canada 01','Canada 02']);
+ assert.equal(result.summary.outputCount,4);
+ assert.ok(result.servers.includes('tag=L.A. 03')); // Other groups keep all nodes.
+});

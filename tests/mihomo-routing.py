@@ -30,7 +30,8 @@ def port():
 
 config=json.loads(Path(sys.argv[2]).read_text())
 group=next(g for g in config['proxy-groups'] if g['name']=='Anthropic')
-assert group['proxies']==['[TAG] L.A. 02 1x','[TAG] L.A. 06 1x'],group
+assert group['proxies']==['[TAG] Canada- Residential 03 1x',
+ '[TAG] Canada- Residential 01 2x','[TAG] Canada- Residential 02 2x'], 'Unexpected Canada selector'
 seen=queue.Queue(); held=[]
 upstream=socket.socket();upstream.bind(('127.0.0.1',0));upstream.listen()
 
@@ -90,8 +91,11 @@ with tempfile.TemporaryDirectory(prefix='mihomo-routing-') as tmp:
             matches=[c for c in request('/connections')['connections'] if c['metadata'].get('sourcePort')==str(s.getsockname()[1])]
             assert len(matches)==1,matches
             c=matches[0];assert 'Anthropic' in c['chains'],c
+            selected=request('/proxies/Anthropic')['now']
+            assert c['chains'][0]==selected, 'Traffic did not follow selected Canada node'
             assert c['rule']==expected,(c['rule'],expected)
             results.append({'host':sni or http_host or host,'rule':c['rule'],'chain':c['chains']})
+        assert request('/proxies/Anthropic')['now']==group['proxies'][0], 'Canada 03 must be the fresh default'
         probe('api.anthropic.com')
         probe('160.79.104.10',expected='IPCIDR')
         probe('160.79.105.254',expected='IPCIDR')

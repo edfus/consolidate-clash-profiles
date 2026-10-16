@@ -643,7 +643,16 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
     if (typeof accepts !== "function") throw new TypeError(`Invalid node filter: ${name}`);
     const group = combinedProfile["proxy-groups"].find(group => group.name === name);
     if (!group) throw new Error(`Filtered proxy group not found: ${name}`);
-    const selected = combinedProfile.proxies.filter(accepts).map(proxy => proxy.name);
+    let candidates = combinedProfile.proxies.filter(accepts);
+    const preferred = profileModule.proxyGroupPriorities?.[name];
+    if (preferred !== undefined) {
+      if (typeof preferred !== "function") throw new TypeError(`Invalid node priority: ${name}`);
+      // Stable partition: a preference never bypasses the group's node filter.
+      const first = [], rest = [];
+      for (const proxy of candidates) (preferred(proxy) ? first : rest).push(proxy);
+      candidates = first.concat(rest);
+    }
+    const selected = candidates.map(proxy => proxy.name);
     if (!selected.length) throw new Error(`No eligible nodes for restricted group: ${name}`);
     group.type = "select";
     group.proxies = [...new Set(selected)];

@@ -124,15 +124,17 @@ test('all templates and consolidated profiles route Claude before conflicting ov
 });
 
 // Private profiles.js is intentionally ignored by Git; validate it when present.
-test('private profile policy only accepts LA node IDs 02 and 06, all templates retain inputs',
+test('private profile policy accepts only Canada nodes and prefers Canada 03, all templates retain inputs',
   {skip: !existsSync(new URL('../profiles.js', import.meta.url))}, async () => {
-    const { default: profiles, proxyGroupFilters } = await import('../profiles.js');
+    const { default: profiles, proxyGroupFilters, proxyGroupPriorities } = await import('../profiles.js');
     const accepts = name => proxyGroupFilters.Anthropic({ name });
-    for (const name of ['[TAG] L.A. 02 1x', '[TAG] L.A. 06 1x',
-      '🇺🇸 美国-洛杉矶 02丨1x US', 'US Los Angeles 6', 'LAX 2']) assert.ok(accepts(name), name);
-    for (const name of ['[TAG] L.A. 12 1x', 'L.A. 16', 'L.A. 26', 'L.A. 01 2x',
-      'L.A. 01 6倍', 'Seattle 02', '[Ytoo] U.S. 02', 'West Coast 06',
-      'L.A. 01 [Expire in 2 days]', 'L.A. 01 [96%]', 'L.A. 01 1x (2)']) assert.ok(!accepts(name), name);
+    const prefers = name => proxyGroupPriorities.Anthropic({ name });
+    for (const name of ['[TAG] Canada- Residential 01 2x', '[TAG] Canada- Residential 03 1x',
+      '加拿大 02', '🇨🇦 03']) assert.ok(accepts(name), name);
+    for (const name of ['[TAG] L.A. 02 1x','[TAG] L.A. 06 1x','California 03','CA 03',
+      'Proxy','DIRECT','CanadaWest 03']) assert.ok(!accepts(name), name);
+    assert.ok(prefers('[TAG] Canada- Residential 03 1x'));
+    for (const name of ['Canada 01 3x','Canada 13','Canada 01 [Expire in 3 days]']) assert.ok(!prefers(name), name);
     for (const name of ['tun.yml', 'meta.yml', 'mobile.yml']) {
       assert.ok(profiles.some(p => p.templates.includes(name)), name);
     }

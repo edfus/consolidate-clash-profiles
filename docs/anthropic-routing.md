@@ -1,6 +1,6 @@
 # Anthropic / Claude 路由与节点限制
 
-核对日期：2026-10-03。此更新适用于 Mihomo / Clash Meta。
+更新日期：2026-10-16。此更新适用于 Mihomo / Clash Meta；Quantumult X 同步使用加拿大节点及 03 首选。
 
 ## 路由覆盖
 
@@ -19,16 +19,21 @@ Sentry、Statsig、Intercom、Google Storage 和部分精确 CDN/日志主机是
 
 ## profiles.js 的节点限制
 
-被 Git 忽略的 `profiles.js` 新增命名导出 `proxyGroupFilters.Anthropic`。生成器在组装结束时应用筛选，候选只来自实际代理节点，不接受 Proxy、DIRECT、地区组或 provider 作为间接入口。
+被 Git 忽略的 `profiles.js` 从公开的 `policies/anthropic.js` 引用 `proxyGroupFilters` 和 `proxyGroupPriorities`。筛选只接受名称带独立 Canada 单词、加拿大或 🇨🇦 标识的实际代理节点；不接受 Proxy、DIRECT、地区组、provider 或含义不明确的 CA 简称。
 
-只接受洛杉矶名称（`洛杉矶`、`Los Angeles`、`L.A.`、`LAX`、`LA`）后紧跟编号 2/6，包括 02/06。12、16、26、倍率 2x、到期天数、重复节点后缀均不算。若没有符合节点则明确报错，避免静默回退到其他地区。
+加拿大区域标识后的第一个数字字段为 03/3 时，节点排在首位；其余加拿大节点保留原有顺序。不将 13/30/003、倍率 3x、到期天数或重复后缀当作节点 03。偏好排序在区域筛选后应用，不能放入非加拿大节点。
 
-本地 TAG 订阅快照经实际 profiles.js 映射、injections 和三种模板合并后，该组均为：
+当前三套实时订阅均有三个加拿大候选。目标顺序：
 
-- `[TAG] L.A. 02 1x`
-- `[TAG] L.A. 06 1x`
+- `[TAG] Canada- Residential 03 1x`（默认首选）
+- `[TAG] Canada- Residential 01 2x`
+- `[TAG] Canada- Residential 02 2x`
 
-按节点名称筛选不等于测定出口 IP 地理位置；供应商改变实际出口时需要重新核验。另外修复了 metaProfiles 原地改写 tunProfiles 的问题，使 tun.yml 仍有自己的有效输入记录。
+如果没有 03，保持其他加拿大节点的顺序；如果没有任何加拿大节点，沿用既有限制组的明确报错行为，不回退到其他地区。
+
+此前的洛杉矶 02/06 白名单由本次候选替换。规则目标、ToDesk 优先级、ASMR/Futu、DNS 与节点内容不变。Quantumult X 通过实际生成的 meta 配置同步 Anthropic 候选及顺序，保留现有节点、其他策略与规则；其 static 分组同样以 03 开始。meta/mobile/tun 的模板无需修改：同一私密来源策略在三套配置生成结束时统一应用。
+
+节点标签不等于实际出口位置证明；供应商改变实际出口时需要重新核验。select 的第一项是新加载配置的默认值，客户端保留的历史手选可能需要切换到 03。
 
 ## 来源及采用范围
 
@@ -44,11 +49,11 @@ Sentry、Statsig、Intercom、Google Storage 和部分精确 CDN/日志主机是
 
 ## 验证及范围
 
-`node --test tests/anthropic-routing.test.js` 验证三个模板、合并优先级、旧模板升级、IP 边界、进程规则、域名、策略组限制和无可用节点时报错。若本地存在 profiles.js，还验证真实筛选函数及三个模板的记录。
+`node --test tests/anthropic-routing.test.js` 验证三个模板、合并优先级、旧模板升级、IP 边界、进程规则、域名、策略组限制和无可用节点时报错。`tests/anthropic-canada.test.js` 另验证 Canada 标签边界、03 首选、无 03 回退及无加拿大节点时报错。若本地存在 profiles.js，还验证真实筛选函数及三个模板的记录。
 
-Mihomo v1.19.29 的实际内核离线测试通过 8 条连接：域名、IPv4 两个边界内地址、IPv6、Datadog、以纯 IP 建连的 TLS SNI 和 HTTP Host，以及切换到 06 节点。`tests/mihomo-routing.py` 可复现此测试，输入为生成后的配置 JSON。测试保留生成的 Anthropic 组、规则和 sniffer，将远端节点替换为本地 SOCKS 记录器，不连接真实服务。
+Mihomo v1.19.29 的实际内核离线测试通过 8 条连接：域名、IPv4 两个边界内地址、IPv6、Datadog、以纯 IP 建连的 TLS SNI 和 HTTP Host，以及从默认加拿大 03 切换到加拿大 01 节点。`tests/mihomo-routing.py` 可复现此测试，输入为生成后的配置 JSON。测试保留生成的 Anthropic 组、规则和 sniffer，将远端节点替换为本地 SOCKS 记录器，不连接真实服务。
 
-本地订阅快照验证使用 TAG/Ytoo；没有快照的来源使用显式测试节点以检查完整配置结构，不将缓存或测试节点冒充实时订阅。三个完整生成配置均通过 Mihomo `-t`。tun/mobile 的旧 SCRIPT 语法已换成原生 AND/NETWORK/DST-PORT/GEOIP 组合规则，以匹配 UDP 443 非中国目标、星铁 UDP 23301 及原 tun 的 TCP 441 规则。本次没有修改正在运行的 Clash Verge、发布配置或验证远端节点连通性。
+2026-10-16 验证使用 VPS 当前生产镜像与只读私密输入，在隔离容器中实时生成三套配置；节点数为 140 / 137 / 140。节点、DNS、规则内容与其他分组成员及默认项均保持不变。QX 候选通过实际 meta 结果重新生成，140 个节点保持不变，除 Anthropic 策略行外与当前发布配置逐字节一致。客户端刷新后需检查 Anthropic 的实际选中项为 Canada 03；订阅排序不会强制覆盖客户端保存的手选状态。
 
 域名不可见（例如 ECH）且进程不可识别、目的 IP 又不在官方网段时，无法可靠分类。浏览器共享进程、Node/Python 包装的 CLI、自定义 OTLP trace 收集器、Bedrock/Vertex、自定义 API 网关可能需要额外明确域名。任意自定义 telemetry 地址不能从服务名称推断。
 
