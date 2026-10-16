@@ -13,6 +13,11 @@ sniffer:
   force-dns-mapping: true
   parse-pure-ip: true
   override-destination: false
+  # Keep Fake-IP; force sniffing for Claude / Anthropic domains.
+  force-domain:
+    - +.claude.ai
+    - +.claude.com
+    - +.anthropic.com
   sniff:
     HTTP:
       ports: [80, 8080-8880]
@@ -102,6 +107,8 @@ proxy-groups:
       - DIRECT
 
 rules:
+  # Block QUIC/UDP 443 before all domain and process routes.
+  - AND,((NETWORK,UDP),(DST-PORT,443)),REJECT
   - DOMAIN-SUFFIX,todesk.com,DIRECT
   - DOMAIN-SUFFIX,kylinlot.com,DIRECT
   - PROCESS-NAME,ToDesk,DIRECT
@@ -151,7 +158,6 @@ rules:
   - PROCESS-NAME,Claude.exe,Anthropic
   - PROCESS-NAME,Claude Helper,Anthropic
   - PROCESS-NAME,Claude Helper (Renderer),Anthropic
-  - AND,((NETWORK,udp),(DST-PORT,443),(NOT,((GEOIP,CN)))),Quick UDP Internet Connections
   - AND,((NETWORK,udp),(DST-PORT,23301)),miHoYo
   - DOMAIN,dns.msftncsi.com,Microsoft Network Connectivity Status Indicator
   - DOMAIN,www.msftncsi.com,Microsoft Network Connectivity Status Indicator

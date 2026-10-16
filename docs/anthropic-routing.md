@@ -31,7 +31,7 @@ Sentry、Statsig、Intercom、Google Storage 和部分精确 CDN/日志主机是
 
 如果没有 03，保持其他加拿大节点的顺序；如果没有任何加拿大节点，沿用既有限制组的明确报错行为，不回退到其他地区。
 
-此前的洛杉矶 02/06 白名单由本次候选替换。规则目标、ToDesk 优先级、ASMR/Futu、DNS 与节点内容不变。Quantumult X 通过实际生成的 meta 配置同步 Anthropic 候选及顺序，保留现有节点、其他策略与规则；其 static 分组同样以 03 开始。meta/mobile/tun 的模板无需修改：同一私密来源策略在三套配置生成结束时统一应用。
+此前的洛杉矶 02/06 白名单已由加拿大策略替换。加拿大筛选那次更新保持规则目标、ToDesk 优先级、ASMR/Futu、DNS 与节点内容不变；下方的传输优化候选另调整 UDP 443 优先级。Quantumult X 通过实际生成的 meta 配置同步 Anthropic 候选及顺序，保留现有节点、其他策略与规则；其 static 分组同样以 03 开始。加拿大筛选通过同一私密来源策略在三套配置生成结束时统一应用。
 
 节点标签不等于实际出口位置证明；供应商改变实际出口时需要重新核验。select 的第一项是新加载配置的默认值，客户端保留的历史手选可能需要切换到 03。
 
@@ -57,8 +57,20 @@ Mihomo v1.19.29 的实际内核离线测试通过 8 条连接：域名、IPv4 �
 
 域名不可见（例如 ECH）且进程不可识别、目的 IP 又不在官方网段时，无法可靠分类。浏览器共享进程、Node/Python 包装的 CLI、自定义 OTLP trace 收集器、Bedrock/Vertex、自定义 API 网关可能需要额外明确域名。任意自定义 telemetry 地址不能从服务名称推断。
 
-纯 IP 规则只作用于已经进入 Mihomo 的连接；系统代理不能保证所有应用流量被接管。模板原有 TUN 设置保持不变，目标机器需按客户端实际情况启用 TUN 或显式代理。现有 IPv6 开关保持不变；IPv6 目的匹配已经验证，但不意味着已启用系统 IPv6。
+纯 IP 规则只作用于已经进入 Mihomo 的连接；系统代理不能保证所有应用流量被接管。TUN 保留原有设置：meta/tun 使用 system，mobile 不新增 TUN 配置。目标机器仍需按客户端实际情况启用 TUN 或显式代理。现有 IPv6 开关保持不变；IPv6 目的匹配已经验证，但不意味着已启用系统 IPv6。
 
 ## 应用
 
-备份目标项目，将更新包 files/ 下文件覆盖到项目根目录（含 profiles.js），按需 `npm install` 修复依赖；重启生成服务并刷新客户端订阅。使用 Rule 模式，在 Anthropic 组选择 02 或 06。不要继续使用旧 output 中未重新生成的配置。
+Review 通过后，备份本次涉及的远端文件并保存旧镜像，通过明确文件清单 rsync 更新公开代码，构建并验证包含 index.js/templates 的新镜像，仅重建 clash-profiles。私密配置留在挂载和 Git ignore 中。本次不改依赖。客户端随后刷新订阅、重新加载，使用 Rule 模式，并检查 Anthropic 实际选中 Canada Residential 03。不要继续使用旧 output 中未重新生成的配置。
+
+## Claude 传输优化（2026-10-16）
+
+meta/mobile/tun 保留 `dns.enhanced-mode: fake-ip`，将 `+.claude.ai`、`+.claude.com`、`+.anthropic.com` 加入 `sniffer.force-domain`，不加入 `fake-ip-filter`。后者在当前 blacklist 模式下会返回真实 IP，与本次选择相反。保留原有 DNS 上游与防回环设置。
+
+全局 `AND,((NETWORK,UDP),(DST-PORT,443)),REJECT` 放在第一条，包括 profiles/injections、ToDesk、Anthropic、Futu 和国内路由之前。因此 ToDesk 的 UDP 443 也会被拒绝；其他 ToDesk 连接继续优先 DIRECT。删除 mobile/tun 中原有的境外 UDP 443 可选路由，保留其分组以兼容客户端手选。QUIC 8443 不受这条规则影响。
+
+根据 review 决定，本次不切换 gvisor：meta/tun 保留 `tun.stack: system` 和所有原有 TUN 开关，mobile 不新增 TUN 配置。UDP 拒绝不会转换成 TCP；支持回退的应用会重试 TCP，仅支持 QUIC 的应用可能无法连接。ECH 或缺失域名仍可能使嗅探失效。此变更不修改 Quantumult X。
+
+官方语义：[DNS Fake-IP filter](https://wiki.metacubex.one/config/dns/#fake-ip-filter)、[force-domain](https://wiki.metacubex.one/config/sniff/#force-domain)、[TUN stack](https://wiki.metacubex.one/config/inbound/tun/)、[首条命中及逻辑规则](https://wiki.metacubex.one/config/rules/)。
+
+候选验证：三套真实生成订阅通过 Mihomo v1.19.29 的完整配置解析。`tests/mihomo-claude-transport.py` 对每套结果验证六个主域/子域仍返回 Fake-IP、九类 UDP 443 请求命中 REJECT，以及 UDP 9000 的前后正向对照；出站只进入本机 SOCKS 记录器，不访问真实目标。`tests/mihomo-routing.py` 保留全局 UDP 拒绝规则后，每套八个 TCP 路由探针仍通过，加拿大 03 默认及手选 01 均有效。尚未在实际客户端启用操作系统 TUN，也未验证真实服务连接和应用 TCP 回退；上线后需刷新并重新加载客户端实测。

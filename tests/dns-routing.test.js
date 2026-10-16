@@ -23,7 +23,18 @@ test('generated DNS upstreams cannot resolve through the TUN system stub or thei
       const path = fileURLToPath(new URL(`../templates/${name}.yml`, import.meta.url));
       const raw = load(await readFile(path, 'utf8'));
       const generated = await consolidate(path, profiles);
-      for (const { dns } of [raw, generated]) {
+      for (const config of [raw, generated]) {
+        const { dns } = config;
+        assert.deepEqual(config.sniffer['force-domain'], ['+.claude.ai', '+.claude.com', '+.anthropic.com']);
+        for (const domain of config.sniffer['force-domain']) {
+          assert.ok(!dns['fake-ip-filter'].includes(domain), `${name}: retain Fake-IP for ${domain}`);
+        }
+        if (name === 'mobile') assert.equal(config.tun, undefined);
+        else {
+          assert.equal(config.tun.stack, 'system');
+          assert.equal(config.tun.enable, true);
+          assert.equal(config.tun['auto-route'], false);
+        }
         assert.ok(dns.enable, `${name}: keep the internal DNS resolver enabled`);
         assert.equal(dns['enhanced-mode'], 'fake-ip');
         assert.ok(dns.nameserver.length && dns.fallback.length);

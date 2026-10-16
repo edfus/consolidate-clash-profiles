@@ -22,8 +22,9 @@ const domains = ['anthropic.com', 'api.anthropic.com', 'console.anthropic.com',
   'http-intake.logs.datadoghq.com', 'http-intake.logs.us5.datadoghq.com',
   'browser-intake-us5-datadoghq.com', 'widget.intercom.io', 'js.intercomcdn.com',
   'storage.googleapis.com', 'challenges.cloudflare.com', 'trace.anthropic.com'];
-function firstMatch(rules, host, process = '') {
-  return rules.find(rule => {
+function firstMatch(rules, host, process = '', network = 'tcp', port = 443) {
+  const matched = rules.find(rule => {
+    if (rule === 'AND,((NETWORK,UDP),(DST-PORT,443)),REJECT') return network === 'udp' && port === 443;
     const [type, value] = rule.split(',');
     if (type === 'IP-CIDR' || type === 'IP-CIDR6') {
       if (!isIP(host)) return false;
@@ -36,7 +37,8 @@ function firstMatch(rules, host, process = '') {
     return type === 'MATCH' || (type === 'DOMAIN' && host === value) ||
       (type === 'DOMAIN-SUFFIX' && (host === value || host.endsWith(`.${value}`))) ||
       (type === 'DOMAIN-KEYWORD' && host.includes(value));
-  })?.split(',')[2];
+  });
+  return matched === 'AND,((NETWORK,UDP),(DST-PORT,443)),REJECT' ? 'REJECT' : matched?.split(',')[2];
 }
 
 test('all templates and consolidated profiles route Claude before conflicting overrides', async () => {
@@ -83,8 +85,21 @@ test('all templates and consolidated profiles route Claude before conflicting ov
         assert.equal(config.sniffer.enable, true);
         const block = config.rules.filter(r => r.split(',')[2] === 'Anthropic');
         const directBlock = load(await readFile(new URL('rules/ToDesk.yml', root), 'utf8')).payload.map(r => `${r},DIRECT`);
-        assert.deepEqual(config.rules.slice(0, directBlock.length), directBlock);
-        assert.deepEqual(config.rules.slice(directBlock.length, directBlock.length + block.length), block);
+        assert.equal(config.rules[0], 'AND,((NETWORK,UDP),(DST-PORT,443)),REJECT');
+        assert.equal(config.rules.filter(r => r === config.rules[0]).length, 1);
+        assert.ok(!config.rules.some(r => r.endsWith(',Quick UDP Internet Connections')));
+        for (const host of ['claude.ai', 'api.anthropic.com', 'futunn.com', 'example.cn',
+          'todesk.com', '160.79.104.10', '1.1.1.1', '2607:6bc0::1', '2001:db8::1']) {
+          for (const process of ['', 'ToDesk', 'claude']) {
+            assert.equal(firstMatch(config.rules, host, process, 'udp', 443), 'REJECT');
+          }
+        }
+        assert.equal(firstMatch(config.rules, 'claude.ai', '', 'tcp', 443), 'Anthropic');
+        assert.equal(firstMatch(config.rules, 'claude.ai', '', 'udp', 8443), 'Anthropic');
+        assert.equal(firstMatch(config.rules, 'todesk.com', '', 'udp', 8443), 'DIRECT');
+        assert.equal(firstMatch(config.rules, '1.1.1.1', 'ToDesk', 'tcp', 443), 'DIRECT');
+        assert.deepEqual(config.rules.slice(1, 1 + directBlock.length), directBlock);
+        assert.deepEqual(config.rules.slice(1 + directBlock.length, 1 + directBlock.length + block.length), block);
         for (const host of ['todesk.com', 'relay.todesk.com', 'kylinlot.com', 'relay.kylinlot.com']) assert.equal(firstMatch(config.rules, host), 'DIRECT');
         for (const process of ['ToDesk','ToDesk_Service','ToDesk_Session','todesk','ToDesk.exe','ToDesk_Service.exe','ToDesk_Session.exe','ToDesk_Lite.exe','ToDesk_RemoteAssistance.exe','ToDesk_Setup.exe']) {
           assert.equal(firstMatch(config.rules, '1.1.1.1', process), 'DIRECT');

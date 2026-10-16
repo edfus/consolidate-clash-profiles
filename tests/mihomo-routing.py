@@ -61,7 +61,8 @@ cfg={'mixed-port':proxyport,'bind-address':'127.0.0.1','allow-lan':False,
  'hosts':{h:'203.0.113.11' for h in ['api.anthropic.com','claude.ai','http-intake.logs.us5.datadoghq.com','statsig.anthropic.com','cdn.growthbook.io']},'sniffer':config['sniffer'],'find-process-mode':'off',
  'proxies':[{'name':name,'type':'socks5','server':'127.0.0.1','port':upstream.getsockname()[1]}
             for name in group['proxies']], 'proxy-groups':[group],
- 'rules':[r for r in config['rules'] if len(r.split(','))>2 and r.split(',')[2]=='Anthropic']+['MATCH,REJECT']}
+ 'rules':[r for r in config['rules'] if r == 'AND,((NETWORK,UDP),(DST-PORT,443)),REJECT' or
+          (len(r.split(','))>2 and r.split(',')[2]=='Anthropic')]+['MATCH,REJECT']}
 with tempfile.TemporaryDirectory(prefix='mihomo-routing-') as tmp:
     f=Path(tmp)/'config.json';f.write_text(json.dumps(cfg));log=open(Path(tmp)/'mihomo.log','w+')
     check=subprocess.run([sys.argv[1],'-t','-d',tmp,'-f',str(f)],capture_output=True,text=True)
@@ -88,7 +89,13 @@ with tempfile.TemporaryDirectory(prefix='mihomo-routing-') as tmp:
             elif http_host:s.sendall(f'GET / HTTP/1.1\r\nHost: {http_host}\r\n\r\n'.encode())
             else:s.sendall(b'routing-test'*32)
             routed=seen.get(timeout=5)
-            matches=[c for c in request('/connections')['connections'] if c['metadata'].get('sourcePort')==str(s.getsockname()[1])]
+            # The upstream recorder can accept before the connection appears
+            # in the controller's tracking snapshot.
+            for _ in range(100):
+                matches=[c for c in (request('/connections')['connections'] or [])
+                         if c['metadata'].get('sourcePort')==str(s.getsockname()[1])]
+                if matches: break
+                time.sleep(.02)
             assert len(matches)==1,matches
             c=matches[0];assert 'Anthropic' in c['chains'],c
             selected=request('/proxies/Anthropic')['now']
@@ -96,7 +103,7 @@ with tempfile.TemporaryDirectory(prefix='mihomo-routing-') as tmp:
             assert c['rule']==expected,(c['rule'],expected)
             results.append({'host':sni or http_host or host,'rule':c['rule'],'chain':c['chains']})
         assert request('/proxies/Anthropic')['now']==group['proxies'][0], 'Canada 03 must be the fresh default'
-        probe('api.anthropic.com')
+        probe('api.anthropic.com',443,sni='api.anthropic.com')
         probe('160.79.104.10',expected='IPCIDR')
         probe('160.79.105.254',expected='IPCIDR')
         probe('2607:6bc0::10',expected='IPCIDR')
@@ -105,7 +112,7 @@ with tempfile.TemporaryDirectory(prefix='mihomo-routing-') as tmp:
         probe('203.0.113.10',80,http_host='cdn.growthbook.io',expected='Domain')
         from urllib.parse import quote
         request('/proxies/'+quote('Anthropic'),{'name':group['proxies'][1]})
-        probe('claude.ai')
+        probe('claude.ai',443,sni='claude.ai')
         assert results[-1]['chain'][0]==group['proxies'][1],results[-1]
         print(json.dumps({'mihomo':request('/version'),'passed':len(results),'probes':results},ensure_ascii=False,indent=2))
     except Exception:

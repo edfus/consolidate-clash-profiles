@@ -71,3 +71,32 @@ servers. Its stored subscription and active runtime DNS were updated; backup
 files use the suffix .before-dns-722cc6a alongside the original files.
 Post-deployment kk verification passed: USTC HTTP 200 / 349118 bytes, Chrome
 InRelease HTTP 200 / 2548 bytes, apt-helper exit 0 / complete socat download.
+
+Claude transport update (2026-10-16)
+Keep Fake-IP in all three templates. Add +.claude.ai, +.claude.com and
++.anthropic.com to sniffer.force-domain, not dns.fake-ip-filter. The current
+blacklist filter would return real addresses for those domains. Preserve all
+upstream DNS settings and the recursion protections above.
+
+The first generated rule rejects ALL UDP destination port 443, including
+ToDesk, domestic and IP-only traffic. TCP 443 and other UDP ports retain their
+existing routing. This encourages TCP fallback only where the application
+supports it; it does not convert UDP to TCP. Existing explicit h3 DNS upstream
+options are unchanged: the global traffic rule is not a promise to disable
+Mihomo's own resolver transports.
+
+TUN settings are unchanged after review: meta/tun retain system, and mobile
+does not gain a TUN block. ECH or missing hostname metadata can still prevent
+classification.
+
+Before deployment, validate the actual generated subscriptions and the real
+Mihomo parser. Build a candidate image containing the changed index.js and
+templates over the current image; rsync/restart alone does not update those
+image-contained files. Back up the affected files and old image, and recreate
+only clash-profiles after review approval. Clients then refresh and reload.
+
+Official references
+https://wiki.metacubex.one/config/dns/#fake-ip-filter
+https://wiki.metacubex.one/config/sniff/#force-domain
+https://wiki.metacubex.one/config/inbound/tun/
+https://wiki.metacubex.one/config/rules/

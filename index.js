@@ -431,8 +431,7 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
     }
   }
 
-  // Explicit ToDesk bypass must precede every proxy/domain override, including
-  // shared telemetry rules: native ToDesk traffic remains DIRECT even by IP.
+  // ToDesk bypass precedes domain/proxy overrides, after the global UDP443 ban.
   const todeskRules = load(await fsp.readFile(
     new URL("./rules/ToDesk.yml", import.meta.url), "utf-8"
   )).payload.map(rule => `${rule},DIRECT`);
@@ -466,7 +465,9 @@ async function consolidate(template, profileRecordsPath, injectionsPath, specifi
   if (!combinedProfile["proxy-groups"].some(group => group.name === "Futu")) {
     combinedProfile["proxy-groups"].push({ name: "Futu", type: "select", proxies: [mainProxyName] });
   }
-  const priorityRules = todeskRules.concat(anthropicRules, appRules);
+  // A domain/process match (including ToDesk) must not bypass UDP443 rejection.
+  const udp443Reject = "AND,((NETWORK,UDP),(DST-PORT,443)),REJECT";
+  const priorityRules = [udp443Reject].concat(todeskRules, anthropicRules, appRules);
   const priorityRuleSet = new Set(priorityRules);
   combinedProfile.rules = priorityRules.concat(
     customRules.concat(combinedProfile.rules, rulesInProfiles.appended)
