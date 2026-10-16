@@ -102,6 +102,26 @@ with tempfile.TemporaryDirectory(prefix='mihomo-routing-') as tmp:
             assert c['chains'][0]==selected, 'Traffic did not follow selected Canada node'
             assert c['rule']==expected,(c['rule'],expected)
             results.append({'host':sni or http_host or host,'rule':c['rule'],'chain':c['chains']})
+        # /version and the SOCKS listener become available before ApplyConfig
+        # calls tunnel.OnRunning(). Prove traffic readiness using the local
+        # recorder, rather than racing that startup window with the first test.
+        for _ in range(30):
+            warm = None
+            try:
+                warm = socket.create_connection(('127.0.0.1',proxyport),timeout=.5)
+                warm.settimeout(.5)
+                warm.sendall(b'\x05\x01\x00');assert exact(warm,2)==b'\x05\x00'
+                warm.sendall(b'\x05\x01\x00'+encode('160.79.104.10')+struct.pack('!H',9000))
+                reply=exact(warm,4);assert reply[1]==0
+                address(warm,reply[3]);exact(warm,2);warm.sendall(b'core-ready')
+                assert seen.get(timeout=.15)==('160.79.104.10',9000)
+                break
+            except (OSError,EOFError,queue.Empty):
+                time.sleep(.025)
+            finally:
+                if warm: warm.close()
+        else: raise AssertionError('Mihomo traffic handling did not become ready')
+        while not seen.empty(): seen.get_nowait()
         assert request('/proxies/Anthropic')['now']==group['proxies'][0], 'Canada 03 must be the fresh default'
         probe('api.anthropic.com',443,sni='api.anthropic.com')
         probe('160.79.104.10',expected='IPCIDR')
