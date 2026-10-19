@@ -1,0 +1,80 @@
+Quantumult X 富途社区覆盖扩展 — review 候选（2026-10-18）
+
+结果与范围
+用户已要求扩大覆盖并保持新鲜度。本候选仅修改 Quantumult X：
+- 保留现有 47 条富途域名规则，新增 9 条，合计 56 条域名规则。
+- 新增 64 条 IP 规则：7 条 /23、36 条 /24、21 条 /32。
+- 去重后的 IPv4 地址范围合计 12821 个；不新增 IPv6 网段。
+- 指向现有 Futu 独立分组，默认仍为内置 proxy；其他策略选择不变。
+- 公开 Apps.list 从 64 条变为 137 条，私密配置的本地兜底同步更新。
+- Clash 的 index.js、rules/Futu.yml、meta/mobile/tun、私密 sources 和认证不改。
+
+新增域名与用途
+futuapi.com、futuin.com、qtlcdn.com：社区富途段中的业务/CDN 域名后缀。
+9oju31.launches.appsflyersdk.com、sgqt0j.launches.appsflyersdk.com：应用级归因入口。
+cg.play-analytics.com：社区富途段中的精确统计主机。
+shortconn.im.qcloud.com、shortconnv6.im.qcloud.com、loginv6.im.qcloud.com：
+有富途客户端 SDK 核验记录的腾讯 IM 入口；第一个使用后缀，后两个精确主机。
+这些共享域名上的其他应用请求也会使用 Futu。
+
+来源与版本
+主来源：
+https://github.com/LingJingMaster/Shadowrocket-Rules/blob/f6b1652201f2208a63a64eca932e5034b7a4acfc/HK_Broker.list
+只提取「Futu - core domains」至第一个 Longbridge 标题之前的富途/Moomoo 区域，
+不导入长桥、老虎、嘉信等券商的域名。该区域包含共享云接入点，社区标注
+不是 IP 独占归属证明。主来源的 MIT 通知保存在
+rules/licenses/QuantumultX-Futu-LingJingMaster-MIT.txt。
+
+共享 IM：
+https://github.com/forecho/broker-rules/blob/88f05d3e0141fbadc47663ccdd7a1efe67c0d83a/Source/broker/_shared.conf
+核验说明：
+https://github.com/forecho/broker-rules/blob/88f05d3e0141fbadc47663ccdd7a1efe67c0d83a/Source/broker/futu-notes.md
+只采用该说明明确关联的三个腾讯 IM 主机，不导入整个共享域名表。
+
+保留的单主机补充：43.162.222.168/32，来源为
+https://github.com/blackmatrix7/ios_rule_script/issues/1687#issuecomment-4772080950
+这个旧的社区报告并不代表近期设备实测。
+
+新鲜度机制
+- node scripts/refresh-quantumultx-futu.mjs --check：只读获取上游最新文件提交，
+  再按不可变 SHA 下载并比较实际富途规则内容；不把其他券商更新当作富途变化。
+- node scripts/refresh-quantumultx-futu.mjs --update：仅生成本地 review 候选，
+  更新专用规则、来源清单、许可证及 Apps.list；不会提交、推送或部署。
+- rules/QuantumultX-Futu-Community.sources.json 保存每个来源的固定 SHA、
+  文件提交时间、内容哈希、检查时间和规则哈希，deviceVerifiedAt 保持 null。
+- 下载/元数据/许可证异常、标题边界变化、未支持语法、私有地址或大于 /23 的
+  网段会失败并保留现有文件。更新不会下载或执行社区脚本。
+- 已设置当前会话每日 09:00（上海时间）检查。无变化保持安静；新变化或来源
+  异常时给出 review，不自动改代码、提交、推送、发布或重建服务。
+- 最近成功的只读核对：见 private/futu-community-review/latest-upstream-check.json。
+  来源已核对不等于 IP 已验证有效。主文件的 10 月 1 日提交只涉及 Tiger，
+  不能声称富途接入点在 10 月重新测试。保持来源同步不保证覆盖所有动态目标。
+
+优先级与保护
+Apps.list 继续是第一个 inserted-resource，无 force-policy，位于国内直连资源前。
+本地 MANAGED APP ROUTING 块位于原有本地规则和 geoip/final 前。
+ToDesk、Anthropic、ASMR 的既有显式域名优先级保留，原有富途域名优先于 IP 兜底。
+新接入点按 /23、/24 或 /32 精确边界匹配，不扩大到整个 ASN 或整个云服务商。
+其他应用若访问上述共享地址，也会转到 Futu；这是此次扩大覆盖的明确取舍。
+
+验证
+30 项 Node 测试通过，包含：来源分区、跨券商排除、CIDR 规范化、所有网段
+首尾地址与相邻边界、国内直连冲突优先级、来源故障/元数据/许可证异常保护、
+ToDesk/Anthropic/ASMR/Futu 分组及其他 QX 配置段的回归。
+只读 --check 返回 up-to-date，核对前后公开规则、清单和 Apps.list 哈希不变。
+使用线上 meta 和当前 QX 配置生成完整候选：140 个节点保持，删除新增的
+73 条规则后与当前发布配置逐字节一致；节点、全部策略、DNS、rewrite/mitm
+及其他原有内容均不变。新远端资源和本地兜底逐条一致。
+目前没有用户设备上的真实 Quantumult X 导入/交易验收，不宣称交易已恢复。
+
+上线计划（review 通过后执行）
+1. 受限备份现有 Apps.list、公开代码、QX 当前 release 和 current 链接（700/600）。
+2. 只提交已 review 的公开文件，推送 GitHub，再按明确文件清单 rsync。
+3. 先原子更新 Apps.list，验证 HTTPS 内容，再发布私密 QX release 并原子切换
+   current；保留节点和认证，无需重建 Clash 或其他服务。
+4. 外部检查证书、匿名 401、认证后 200、节点及策略/规则，客户端刷新完整
+   QX 订阅和 App Routing 资源，重新加载。Futu 选择 proxy 或全局成功的节点。
+5. 用户验证业务连通性；不代用户操作登录或交易。若仍有漏匹配，再根据设备
+   连接记录定位未覆盖接入点，而不承诺社区集合已穷尽全部目标。
+回退：恢复 Apps.list 备份和旧 QX current 链接，客户端再次刷新资源和配置。
+2026-10-19：用户已批准部署本候选。发布结果、提交和备份标识由脱敏交付报告记录。

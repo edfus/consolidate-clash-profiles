@@ -88,6 +88,7 @@ export function buildQuantumultX(source, template, options = {}) {
     asmrCandidates: regional.length,
     futuCandidates: names.size,
     futuDomainRules: appRules.split('\n').filter(line => line.endsWith(',Futu')).length,
+    futuIPRules: appRules.split('\n').filter(line => /^ip-cidr,[^,]+,Futu,no-resolve$/.test(line)).length,
     omittedFutuProcessRules: 4,
     protocols: source.proxies.reduce((a,n) => { a[n.type] = (a[n.type] || 0) + 1; return a; }, {}),
     sourceInsecureTLS: source.proxies.filter(n => n['skip-cert-verify'] === true).length,

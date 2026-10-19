@@ -30,7 +30,7 @@ https://47.95.2.2:8443/.config/quantumultx/servers.list
 Public filter URL: https://47.95.2.2:8443/quantumultx/Anthropic.list
 Both private URLs require the existing Basic authentication. Keep encoded credentials from the original subscription URL; never publish them. Public node-download availability and actual Quantumult X runtime verification are separate acceptance checks.
 
-App routing synchronization (candidate, awaiting review)
+App routing synchronization
 
 node scripts/sync-quantumultx-app-rules.mjs
 node scripts/sync-quantumultx-app-rules.mjs --check
@@ -43,9 +43,28 @@ local rules and AI block. If Apps.list cannot refresh while a conflicting insert
 remote resource remains active, the local copy cannot guarantee overriding it;
 publish and verify Apps.list before activating a new private release.
 
-Clash PROCESS-NAME entries are omitted explicitly. QX host rules do not match
-unattributed pure-IP traffic; no shared-cloud CIDRs have been added.
-The private generated/current pointer on the VPS remains unchanged until review.
+Clash PROCESS-NAME entries are omitted explicitly. QX host rules alone do not
+match unattributed pure-IP traffic. The 2026-10-18 community review candidate
+adds 9 domain dependencies and 64 IPv4 /23, /24 or /32 rules, all routed to Futu.
+This includes shared cloud addresses and three Tencent IM endpoints. Other apps
+using those exact destinations may follow Futu too. Clash is unchanged.
+
+Sources and refresh:
+- rules/QuantumultX-Futu-Community.list: QX-only generated supplement.
+- rules/QuantumultX-Futu-Community.sources.json: pinned revisions, file dates,
+  content/rule hashes and check time. Device validation is recorded separately.
+- node scripts/refresh-quantumultx-futu.mjs --check (default): read-only actual
+  rule comparison; unrelated broker changes do not imply new Futu rules.
+- node scripts/refresh-quantumultx-futu.mjs --update: prepare a local candidate,
+  manifest, MIT notice and matching Apps.list. Never commits or publishes.
+- The current thread checks daily at 09:00 Asia/Shanghai, notifying on meaningful
+  differences or source failures, without automatically applying updates.
+
+Unsupported source syntax, missing section boundaries, non-public IPs and
+prefixes wider than /23 require review. Download/validation failure preserves
+existing snapshots. No upstream code is executed. See
+ docs/quantumultx-futu-ip-review.txt for scope, limitations and release procedure.
+Publishing requires explicit review approval; the existing release is retained for rollback.
 
 Tests:
 node --test tests/quantumultx.test.js tests/quantumultx-generation.test.js tests/quantumultx-cli.test.js tests/quantumultx-app-routing.test.js

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-10-17T18:42:38.405Z",
+  "deviceVerifiedAt": null,
+  "note": "Source/file dates and download checks do not prove current endpoint ownership, health or trading success.",
+  "policy": "QX only; community Futu section plus three audited shared IM endpoints; IPv4 /23, /24, /32 only; review before publishing.",
+  "sources": [
+    {
+      "key": "futu",
+      "repo": "LingJingMaster/Shadowrocket-Rules",
+      "path": "HK_Broker.list",
+      "revision": "f6b1652201f2208a63a64eca932e5034b7a4acfc",
+      "fileCommittedAt": "2026-10-01T04:26:21Z",
+      "url": "https://raw.githubusercontent.com/LingJingMaster/Shadowrocket-Rules/f6b1652201f2208a63a64eca932e5034b7a4acfc/HK_Broker.list",
+      "sha256": "8ab40480d0438c6ffd294ad62bdbf286174ee972430cee52aa0122f1db6f1174",
+      "license": "MIT",
+      "licenseSHA256": "756ff27a160a050c5305385e63229510b864d415af22166f367506759247f916"
+    },
+    {
+      "key": "sharedIM",
+      "repo": "forecho/broker-rules",
+      "path": "Source/broker/_shared.conf",
+      "revision": "88f05d3e0141fbadc47663ccdd7a1efe67c0d83a",
+      "fileCommittedAt": "2026-09-22T06:50:38Z",
+      "url": "https://raw.githubusercontent.com/forecho/broker-rules/88f05d3e0141fbadc47663ccdd7a1efe67c0d83a/Source/broker/_shared.conf",
+      "sha256": "49c26db123849debe63b0c4ac18e055a262c4ac3a3e90ae173ded3f788e6a540"
+    }
+  ],
+  "curated": [
+    {
+      "rule": "ip-cidr,43.162.222.168/32,Futu,no-resolve",
+      "source": "https://github.com/blackmatrix7/ios_rule_script/issues/1687#issuecomment-4772080950",
+      "reportedAt": "2026-06-22"
+    }
+  ],
+  "rulesSHA256": "6a542bb1096fbdfa4ea9944b8ced29e66f695e5e4474515f51c6eeb6d4982cc1",
+  "baselineSHA256": "4f6b11710dc82b38c28e172b9dc9921242e8a3025e62763af2833b2fbb1ef0f3"
+}
