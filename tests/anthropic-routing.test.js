@@ -139,17 +139,16 @@ test('all templates and consolidated profiles route Claude before conflicting ov
 });
 
 // Private profiles.js is intentionally ignored by Git; validate it when present.
-test('private profile policy accepts only Canada nodes and prefers Canada 03, all templates retain inputs',
+test('private profile policy selects only Ytoo Japan 02 and TAG Japan 5G, all templates retain inputs',
   {skip: !existsSync(new URL('../profiles.js', import.meta.url))}, async () => {
     const { default: profiles, proxyGroupFilters, proxyGroupPriorities } = await import('../profiles.js');
     const accepts = name => proxyGroupFilters.Anthropic({ name });
     const prefers = name => proxyGroupPriorities.Anthropic({ name });
-    for (const name of ['[TAG] Canada- Residential 01 2x', '[TAG] Canada- Residential 03 1x',
-      '加拿大 02', '🇨🇦 03']) assert.ok(accepts(name), name);
-    for (const name of ['[TAG] L.A. 02 1x','[TAG] L.A. 06 1x','California 03','CA 03',
-      'Proxy','DIRECT','CanadaWest 03']) assert.ok(!accepts(name), name);
-    assert.ok(prefers('[TAG] Canada- Residential 03 1x'));
-    for (const name of ['Canada 01 3x','Canada 13','Canada 01 [Expire in 3 days]']) assert.ok(!prefers(name), name);
+    for (const name of ['[Ytoo] Japan 02','[TAG] Japan-5G网络 10x']) assert.ok(accepts(name),name);
+    for (const name of ['[TAG] Canada- Residential 03 1x','[TAG] L.A. 02 1x','[Ytoo] Japan 020',
+      '[Ytoo] Japan 2','[Ytoo] U.S. 02','Proxy','DIRECT']) assert.ok(!accepts(name),name);
+    assert.ok(prefers('[Ytoo] Japan 02'));
+    assert.ok(!prefers('[TAG] Japan-5G网络 10x'));
     for (const name of ['tun.yml', 'meta.yml', 'mobile.yml']) {
       assert.ok(profiles.some(p => p.templates.includes(name)), name);
     }

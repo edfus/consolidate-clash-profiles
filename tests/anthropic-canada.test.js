@@ -6,32 +6,29 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { dump } from 'js-yaml';
 import { consolidate } from '../index.js';
-import { isCanadaNode, isCanada03Node } from '../policies/anthropic.js';
+import { isAnthropicNode, isPreferredAnthropicNode, anthropicPreferredNode as primary,
+  anthropicBackupNode as backup } from '../policies/anthropic.js';
 
 const policy = new URL('../policies/anthropic.js', import.meta.url).href;
 
-test('Canada-only filtering and exact node 03 preference reject aliases and numeric lookalikes', () => {
-  for (const name of ['[TAG] Canada- Residential 03 1x','CANADA 3','加拿大 03 1x','🇨🇦 03']) {
-    assert.ok(isCanadaNode({name}), name);
-    assert.ok(isCanada03Node({name}), name);
+test('Anthropic exact two-node allowlist excludes provider and numeric lookalikes', () => {
+  assert.ok(isAnthropicNode({name:primary}));
+  assert.ok(isAnthropicNode({name:backup}));
+  assert.ok(isPreferredAnthropicNode({name:primary}));
+  assert.ok(!isPreferredAnthropicNode({name:backup}));
+  for (const name of ['[Ytoo] Japan 01','[Ytoo] Japan 2','[Ytoo] Japan 020',
+    '[Ytoo] Japan 02x','[TAG] Japan 02','[Ytoo] U.S. 02','[TAG] Japan-5G网络 1x',
+    '[TAG] Japan-5G网络 10x (2)','[TAG] Canada- Residential 03 1x',
+    'Proxy','DIRECT','ASMR','Japan','🇯🇵 5G','🇨🇦 03']) {
+    assert.ok(!isAnthropicNode({name}), name);
+    assert.ok(!isPreferredAnthropicNode({name}), name);
   }
-  for (const name of ['Canada 01 3x','Canada 13','Canada 30','Canada 003','Canada 03x',
-    'Canada 3倍','Canada 01 [Expire in 3 days]','Canada [Expire in 3 days]',
-    'Canada 01 [93%]','Canada 01 1x (3)']) {
-    assert.ok(isCanadaNode({name}), name);
-    assert.ok(!isCanada03Node({name}), name);
-  }
-  for (const name of ['[TAG] L.A. 03 1x','California 03','CA 03','Proxy','DIRECT','ASMR','CanadaWest 03']) {
-    assert.ok(!isCanadaNode({name}), name);
-    assert.ok(!isCanada03Node({name}), name);
-  }
-  assert.ok(!isCanadaNode({}));
+  assert.ok(!isAnthropicNode({}));
 });
 
-test('all generated templates prefer Canada 03, retain other Canadians, and fail closed without Canada', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'anthropic-canada-'));
-  let names = ['[TAG] Canada- Residential 01 2x','[TAG] L.A. 03 1x',
-    '[TAG] Canada- Residential 02 2x','[TAG] Canada- Residential 03 1x','Canada 13','Canada 01 3x'];
+test('all templates prefer Ytoo Japan 02, retain TAG Japan 5G as manual backup and fail closed without either', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'anthropic-selector-'));
+  let names = [backup,'[TAG] Canada- Residential 03 1x',primary,'[Ytoo] Japan 020'];
   const server = createServer((req,res) => {
     res.setHeader('connection','close');
     res.end(dump({proxies:names.map(name => ({name,type:'ss',server:'127.0.0.1',port:12345,
@@ -39,28 +36,29 @@ test('all generated templates prefer Canada 03, retain other Canadians, and fail
   });
   await new Promise(resolve => server.listen(0,'127.0.0.1',resolve));
   try {
-    const inputs = join(dir,'sources.mjs');
-    await writeFile(inputs, `export default [{url:'http://127.0.0.1:${server.address().port}/full'}];
-      export {proxyGroupFilters,proxyGroupPriorities} from ${JSON.stringify(policy)};`);
-    for (const template of ['meta','mobile','tun']) {
-      const c = await consolidate(new URL(`../templates/${template}.yml`,import.meta.url).pathname,inputs);
-      assert.deepEqual(c['proxy-groups'].find(g=>g.name==='Anthropic').proxies,
-        [names[3],names[0],names[2],names[4],names[5]]);
+    const cases = [
+      {label:'both',nodes:[...names],expected:[primary,backup]},
+      {label:'only-backup',nodes:[backup,'Canada 03'],expected:[backup]},
+      {label:'only-primary',nodes:[primary,'[Ytoo] Japan 020'],expected:[primary]},
+      {label:'neither',nodes:['[TAG] Canada- Residential 03 1x','[Ytoo] Japan 020'],expected:null},
+    ];
+    for (const item of cases) {
+      names=item.nodes;
+      const inputs=join(dir,item.label+'.mjs');
+      await writeFile(inputs, `export default [{url:'http://127.0.0.1:${server.address().port}/${item.label}'}];
+        export {proxyGroupFilters,proxyGroupPriorities} from ${JSON.stringify(policy)};`);
+      for (const template of ['meta','mobile','tun']) {
+        if (!item.expected) {
+          await assert.rejects(consolidate(new URL(`../templates/${template}.yml`,import.meta.url).pathname,inputs),/No eligible nodes/);
+          continue;
+        }
+        const c=await consolidate(new URL(`../templates/${template}.yml`,import.meta.url).pathname,inputs);
+        const group=c['proxy-groups'].find(g=>g.name==='Anthropic');
+        assert.equal(group.type,'select');
+        assert.deepEqual(group.proxies,item.expected);
+        assert.deepEqual(c.proxies.map(p=>p.name),names);
+      }
     }
-    names = ['Canada 02','L.A. 03','Canada 01'];
-    const fallback=join(dir,'fallback.mjs');
-    await writeFile(fallback, `export default [{url:'http://127.0.0.1:${server.address().port}/fallback'}];
-      export {proxyGroupFilters,proxyGroupPriorities} from ${JSON.stringify(policy)};`);
-    for (const template of ['meta','mobile','tun']) {
-      const c=await consolidate(new URL(`../templates/${template}.yml`,import.meta.url).pathname,fallback);
-      assert.deepEqual(c['proxy-groups'].find(g=>g.name==='Anthropic').proxies,['Canada 02','Canada 01']);
-    }
-    names=['L.A. 03'];
-    const empty=join(dir,'empty.mjs');
-    await writeFile(empty, `export default [{url:'http://127.0.0.1:${server.address().port}/empty'}];
-      export {proxyGroupFilters,proxyGroupPriorities} from ${JSON.stringify(policy)};`);
-    for (const template of ['meta','mobile','tun']) await assert.rejects(
-      consolidate(new URL(`../templates/${template}.yml`,import.meta.url).pathname,empty),/No eligible nodes/);
   } finally {
     await new Promise(resolve=>server.close(resolve));
     await rm(dir,{recursive:true,force:true});

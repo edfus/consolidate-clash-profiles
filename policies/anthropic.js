@@ -1,18 +1,16 @@
-// Node labels are provider metadata; this does not verify the exit IP's location.
-const canada = /加拿大|(?:^|[^a-z])Canada(?=$|[^a-z])|🇨🇦/i;
+// Exact generated node labels; provider metadata does not verify exit location.
+export const anthropicPreferredNode = '[Ytoo] Japan 02';
+export const anthropicBackupNode = '[TAG] Japan-5G网络 10x';
 
-export function isCanadaNode(proxy) {
-  return typeof proxy?.name === 'string' && canada.test(proxy.name);
+export function isAnthropicNode(proxy) {
+  return proxy?.name === anthropicPreferredNode || proxy?.name === anthropicBackupNode;
 }
 
-export function isCanada03Node(proxy) {
-  if (!isCanadaNode(proxy)) return false;
-  const region = canada.exec(proxy.name);
-  const tail = proxy.name.slice(region.index + region[0].length);
-  // The first numeric field after the region is the node ID. Do not mistake
-  // 13/30/003, a multiplier, expiry days or duplicate suffix for node 03.
-  return /^[^\d\[\]()]*(?:03|3)(?=$|[\s._|丨:/-])(?!\s*(?:x|倍|%))/i.test(tail);
+export function isPreferredAnthropicNode(proxy) {
+  return proxy?.name === anthropicPreferredNode;
 }
 
-export const proxyGroupFilters = { Anthropic: isCanadaNode };
-export const proxyGroupPriorities = { Anthropic: isCanada03Node };
+// Keep the existing manual selector. The second candidate is a manual backup.
+// One missing node retains the other; neither present fails closed in index.js.
+export const proxyGroupFilters = { Anthropic: isAnthropicNode };
+export const proxyGroupPriorities = { Anthropic: isPreferredAnthropicNode };

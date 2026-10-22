@@ -32,14 +32,15 @@ test('AI Suite explicitly lists every embedded node and stays independent of Ant
  assert.match(result.config,/static = Anthropic,Fixture 2,Fixture 6\n/);
 });
 
-test('QX Anthropic preserves Canada-only source candidates with node 03 first', async () => {
- const {isCanadaNode,isCanada03Node}=await import('../policies/anthropic.js');
- const nodes=['Canada 01','L.A. 03','Canada 02','Canada 03'].map(name=>({...node,name}));
- const eligible=nodes.filter(isCanadaNode);
- const selected=eligible.filter(isCanada03Node).concat(eligible.filter(n=>!isCanada03Node(n))).map(n=>n.name);
- const result=buildQuantumultX({proxies:nodes,'proxy-groups':[{name:'Anthropic',proxies:selected}]},template,{expectedCount:4});
- const line=result.config.split('\n').find(l=>l.startsWith('static = Anthropic,'));
- assert.deepEqual(line.split(',').slice(1),['Canada 03','Canada 01','Canada 02']);
- assert.equal(result.summary.outputCount,4);
- assert.ok(result.servers.includes('tag=L.A. 03')); // Other groups keep all nodes.
+test('QX copies the supplied Anthropic candidates without depending on the active Clash policy', () => {
+ const nodes=['Canada 01','[Ytoo] Japan 02','[TAG] Japan-5G网络 10x','Canada 03'].map(name=>({...node,name}));
+ // An existing QX snapshot can remain Canadian while a separately approved
+ // future generation receives a changed Clash group. Copy either input exactly.
+ for (const selected of [['Canada 03','Canada 01'],['[Ytoo] Japan 02','[TAG] Japan-5G网络 10x']]) {
+  const result=buildQuantumultX({proxies:nodes,'proxy-groups':[{name:'Anthropic',proxies:selected}]},template,{expectedCount:4});
+  const line=result.config.split('\n').find(l=>l.startsWith('static = Anthropic,'));
+  assert.deepEqual(line.split(',').slice(1),selected);
+  assert.equal(result.summary.outputCount,4);
+  assert.ok(result.servers.includes('tag=Canada 01'));
+ }
 });

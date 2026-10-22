@@ -30,8 +30,8 @@ def port():
 
 config=json.loads(Path(sys.argv[2]).read_text())
 group=next(g for g in config['proxy-groups'] if g['name']=='Anthropic')
-assert group['proxies']==['[TAG] Canada- Residential 03 1x',
- '[TAG] Canada- Residential 01 2x','[TAG] Canada- Residential 02 2x'], 'Unexpected Canada selector'
+assert group['type']=='select' and group['proxies']==['[Ytoo] Japan 02',
+ '[TAG] Japan-5G网络 10x'], 'Unexpected Anthropic primary/backup selector'
 seen=queue.Queue(); held=[]
 upstream=socket.socket();upstream.bind(('127.0.0.1',0));upstream.listen()
 
@@ -99,7 +99,7 @@ with tempfile.TemporaryDirectory(prefix='mihomo-routing-') as tmp:
             assert len(matches)==1,matches
             c=matches[0];assert 'Anthropic' in c['chains'],c
             selected=request('/proxies/Anthropic')['now']
-            assert c['chains'][0]==selected, 'Traffic did not follow selected Canada node'
+            assert c['chains'][0]==selected, 'Traffic did not follow selected Anthropic node'
             assert c['rule']==expected,(c['rule'],expected)
             results.append({'host':sni or http_host or host,'rule':c['rule'],'chain':c['chains']})
         # /version and the SOCKS listener become available before ApplyConfig
@@ -122,7 +122,7 @@ with tempfile.TemporaryDirectory(prefix='mihomo-routing-') as tmp:
                 if warm: warm.close()
         else: raise AssertionError('Mihomo traffic handling did not become ready')
         while not seen.empty(): seen.get_nowait()
-        assert request('/proxies/Anthropic')['now']==group['proxies'][0], 'Canada 03 must be the fresh default'
+        assert request('/proxies/Anthropic')['now']==group['proxies'][0], 'Ytoo Japan 02 must be the fresh default'
         probe('api.anthropic.com',443,sni='api.anthropic.com')
         probe('160.79.104.10',expected='IPCIDR')
         probe('160.79.105.254',expected='IPCIDR')
